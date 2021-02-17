@@ -116,7 +116,10 @@ Focus on data manipulation, graphics, statistical models, time series, reproduci
 
 - [Swirl](<https://swirlstats.com/students.html>) lets you learn R in R
 - [Cheat sheets](<https://rstudio.com/resources/cheatsheets/>) for important packages
-- Books for [programming](<https://bookdown.org/rdpeng/rprogdatascience/subsetting-r-objects.html>), [econometrics](<https://www.econometrics-with-r.org/>), [time series](<https://www.stat.pitt.edu/stoffer/tsa4/>) and [statistical learning](<http://faculty.marshall.usc.edu/gareth-james/ISL/>)
+- Books for [programming](<https://bookdown.org/rdpeng/rprogdatascience/subsetting-r-objects.html>), [statistics](<https://www.nongnu.org/ipsur/index.html>), [econometrics](<https://www.econometrics-with-r.org/>), [time series](<https://www.stat.pitt.edu/stoffer/tsa4/>), [statistical learning](<http://faculty.marshall.usc.edu/gareth-james/ISL/>) and [geocomputation](<https://geocompr.robinlovelace.net/>)
 - Websites for [quick help](<https://www.statmethods.net/index.html>) and [full university courses](<https://cfss.uchicago.edu/>)
-- [Online MOO Courses](<https://www.coursera.org/specializations/jhu-data-science>)
+- Online MOO Courses. The [John's Hopkins University Data Science Specialization](<https://www.coursera.org/specializations/jhu-data-science>) is a great general reference. More specialized courses are available on [Coursera](<https://www.coursera.org/search?query=Data%20Science&=>) and [Edx](<https://www.edx.org/search?q=Data%20Science>) and several smaller providers (e.g. see [here](<https://docs.google.com/forms/d/e/1FAIpQLSf1IxhnBZX2vIUJW57T6RTM_Xse3h8TrSy5sn7NL8QWsoHAvQ/viewform>) for a geocomputation course given by a friend on [Blossom Academy](<http://www.blossomacademy.co/courses>) in Ghana).
+
+- See [here](<https://ecoursereview.com/online-teaching-websites-learning-courses/>) for a good overview of the available online learning opportunities.
+
 
