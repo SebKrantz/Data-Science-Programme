@@ -96,7 +96,23 @@ Focus on data manipulation, graphics, statistical models, time series, reproduci
 
 ![Courses of the same colour are consecutive. Course 1 is mandatory for all further courses.](DS.png)
 
-## Further Resources for R
+## Programme Organisation
+
+- Courses are 2-days requiring full attendance. 
+
+- We start at 9am.
+
+- To get most out of the course you need to participate in in-class exercises and homework assignments.
+
+- Dates (and possibly alternative locations) for further courses will be communicated in advance. The plan is to have a course every 2-3 weeks so that we are done in the summer. 
+
+**The course material can be accessed via:**
+
+- Google Drive: https://drive.google.com/drive/folders/1qz5hA-wkXVspta63O2__ZX5E6pkxrI4d?usp=sharing 
+
+- Github: https://github.com/SebKrantz/Data-Science-Programme
+
+## Further Resources for Data Science with R
 
 - [Swirl](<https://swirlstats.com/students.html>) lets you learn R in R
 - [Cheat sheets](<https://rstudio.com/resources/cheatsheets/>) for important packages
