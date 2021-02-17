@@ -55,7 +55,7 @@ setwd(wd) # Navigate to the folder with the training materials.
 # Vectors can be of different data types: numeric (integer / double), logical or character
 # A vector can only have one data type
 
-### Numeric Vectors ----------------------
+### Numeric Vectors ---------------------------------------------------------
 ## Double Precision Vector
 5.6                     # All numbers in R are by default stored as double prevision values (so values where we can have decimal points behind the comma, not necessarily whole numbers, shich are also called integers)
 x <- c(1, 2.5, 3.5)     # the'c' function conactenates elements into a vector
@@ -85,10 +85,10 @@ z <- c(1L, 2L, 3)       # if one number in the vector is non integer,
 is.integer(z)           # the whole vector is stored as a C-array of double precision numbers
 is.integer(as.integer(z)) # as.functions can be used to coerce vector types. 
 
-x <- 1L:3L                # generating large sequences of integers is simplified by the colon `:` operator
+x <- 1L:3L              # generating large sequences of integers is simplified by the colon `:` operator
 x
 typeof(x)
-typeof(1L:3L)           # Same thing. If we use `:` we do not need to add `L` to declare values as integer
+typeof(1:3)             # Same thing. If we use `:` we do not need to add `L` to declare values as integer
 seq(1, 3)               # Another way to generate a sequence of numbers is using seq
 identical(1:3, seq(1, 3)) # The function identical checks that these two vectors are identical
 seq(2000, 2030, 2)      # seq is more flexible.
@@ -101,7 +101,7 @@ object.size(c(y_l, 1L)) # Adding an integer value increases the size a bit
 object.size(c(y_l, 1))  # But adding a double precision value (omitting L) doubles the size of the whole vector.
 rm(y_l)                 # this is because vectors can only be of one type, and integers can be stored as doubles but not vice versa
 
-### Some general stuff about coding ----------------------
+### Some general stuff about coding -----------------------------------------
 x                       # typing x and evaluating it is actually the same as calling the print function on the object
 print(x)
 
@@ -127,9 +127,25 @@ is.numeric(z)   # and similarly is.otherdatatypes (e.g. is.character, is.logical
 is.double(z)    # We can further check if a numeric vector is stored as double precision or integer
 as.double(z)    # 'as.-' functions convert vector types (any many other objects in R)
 print(z)        # Prints to the console (only needs to be called explicitly in functions)
-View(z)         # Open Object in Data viewer
+View(z)         # Open Object in Data viewer (calls as.data.frame() on the object)
 
-### Mathematical Operations ----------------------
+#****************************
+### In-Class Exercise 1 -----
+#****************************
+
+# (a) Generate an arbitrary numeric vector "v" and an integer vector "vi" of length 5 using the c() function
+
+# (b) Check the mode and the storage type of the vectors using mode(), typeof() and the corresponding is._() functions
+
+# (c) Check the structure with str() and the length of the vectors with length()
+
+# (d) Replace "vi" with an integer sequence of values from 1 to 10 in steps of 2, using the seq() function
+
+# (e) remove "v" and "vi" using rm()
+
+
+
+### Mathematical Operations ------------------------------------------------
 6.7 - 3.4               # you can use R as a calculator for numeric calculations
 q <- 2L + 7L            # this creates an integer value q. This is stored as an integer vector of length 1.
 
@@ -176,6 +192,10 @@ all.equal(exp(log(x)), x) # identical() here gives false because of numeric impr
 log10(x)     # logarithm base 10
 log(x, base = 10) # same thing
 diff(x)      # first difference
+scale(x)     # Standardize (center and scale = subtract mean and divide by standard deviation)
+round(x + 0.54, 1) # Round to digits
+floor(x + 0.5)     # Round down to nearest integer
+ceiling(x + 0.5)   # Round up to nearest integer
 
 # Other functions
 y <- c(1L, 3L, 1L, 2L, 3L, 4L)
@@ -190,7 +210,7 @@ unique(y)         # get unique values of a vector
 table(y)          # tabulate (i.e. count the frequencies of unique values in a vector)
 tabulate(y)       # Same thing, just returns the frequencies
 
-### !!! Finding help on a function !!! ----------------------
+### !!! Finding help on a function !!! -------------------------------------
 help(log)
 ?log         # Same thing more compact
 ?all.equal
@@ -201,7 +221,7 @@ help(log)
 # For more general helo, start html help, or click on the 'help' panel in Rstudio
 help.start()
 
-### Special values ----------------------
+### Special values ---------------------------------------------------------
 
 x <- c(1, NA, 1/0, Inf/Inf, -Inf, NULL) 
 x # NULL has disappeared -> It is Its own object, the null object
@@ -233,7 +253,51 @@ is.null(y)
 # More here: https://www.r-bloggers.com/r-na-vs-null/
 
 
-### Character Vectors ----------------------
+#****************************
+### In-Class Exercise 2 -----
+#****************************
+
+# Problem 1: Consider two vectors of the weight and height of 4 people
+weights <- c(80.5, 63.9, 75.3, 68.1, 79.3) # weights in kg
+heights <- c(1.94, 1.80, 1.75, 1.71, 1.85) # heights in m
+
+# (a) calculate the Body Mass Index, BMI = weight divided by the square of height, save it in a vector called "bmi"
+
+# (b) Compute the mean, median and standard deviation of the BMI
+
+# (c) Sort the BMI values, and compute the order of them
+
+# (d) round the BMI values to the full integer, and compute a frequency table of them
+
+# (e) look up the documentation of the trunc() function. When do floor() and trunc() give different results?
+
+# (f) The R-Squared is a popular statistic for the goodness of fit of a regression model. 
+#     Compute the R-Squared of the regression of weights on heights using the cor() function. 
+
+# Problem 2: Consider three vectors of standardized characteristics of people
+p1 <- c(0.06843254, -0.13153881,  0.76021149,  0.7880306775)
+p2 <- c(0.79301235, -0.13153881,  0.81685914,  1.0504160307)
+p3 <- c(1.03453895, -0.13153881,  0.81685914,  1.4439940605)
+
+# (a) Use the Euclidian Distance = The square root of the sum of the squared differences between the vector elements
+#     to compare person 1 to person 2 and person 3. Which of the two persons is more similar to person 1?
+
+# (b) check your results against the following code
+dist(rbind(p1, p2, p3))
+
+# (c) Do another comparison of p1 with p2 and p3 by computing the correlation between them. 
+#     Do you get the same result as from your distance calculation?
+
+# (d) Consider these versions of p2 where some strange values are inserted. 
+#     Compute the Euclidian distance between p1 and p2 as in part (a) for each p2 and make sure you understand the outcome
+p2 <- c(0.79301235, -0.13153881,  NA,  1.0504160307)
+
+p2 <- c(0.79301235, -0.13153881,  -Inf,  1.0504160307)
+
+p2 <- c(0.79301235, -0.13153881,  NULL,  1.0504160307)
+
+
+### Character Vectors ------------------------------------------------------
 
 chr <- c("Hello", "how", "are", "you", "?", "")
 is.character(chr)
@@ -287,7 +351,28 @@ order(month.abb) # order again gets the index of elements that would sort the da
             # match returns a vector of the positions of (first) matches of its first argument in its second.
 match(c("b", "w"), letters) 
 
-### Logical Vectors: ----------------------
+
+#****************************
+### In-Class Exercise 3 -----
+#****************************
+
+# Consider The following vector of 4 Ugandan districts
+districts <- c(" Abim.", "bulisa", "MUKONO? ", "   Arua__")
+
+# (a) Remove all leading and trailing white space, save your result replacing districts
+
+# (b) remove all irregular characters (".", "?" and "__"). Note that you have to escape some characters by preceding them with "\\" 
+
+# (c) Turn all strings into upper case letters
+
+# (d) Not capitalize only the first letter using the function tools::toTitleCase()
+
+# (e) Check the number of characters in each district name, and which names start with "A". 
+
+# (f) Sort the cleaned districts in descending alphabetic order
+
+
+### Logical Vectors: -------------------------------------------------------
 # => Contain logical statements TRUE or FALSE or missing values
 
 lvec <- c(TRUE, FALSE, NA, NA)
@@ -341,7 +426,7 @@ letters %in% c("b", "w") # Elements 1 and 23 of this vector are TRUE
 
 which(letters %in% c("b", "w")) # The which() function returns the integer indices of the elements that are TRUE
 
-### Subsetting Vectors: ----------------------
+### Subsetting Vectors: ----------------------------------------------------
 # All atomic vectors can be subset using integer or logical vectors
 x <- rnorm(10L) # This draws 10 values at random from a standard normal distribution (Gauss curve)
 x[4L]           # The fourth element.
@@ -376,13 +461,33 @@ x[x < 0] <- -x[x < 0] # This replaces the negative values of x with their absolu
 x <- abs(x)   # The above is just an example though, normally we would just do this: apply abs() to all values, positive or negative
 
 
-## (2.2) Object Attributes and Objects Built on Atomic Vectors -------------------------------------------
+#****************************
+### In-Class Exercise 4 -----
+#****************************
+
+# Problem 1: Consider again the vector of weights used earlier
+weights <- c(80.5, 63.9, 75.3, 68.1, 79.3) # weights in kg
+
+# (a) Get the weight of the second and 4th person using integers, and again using a logical statement
+
+# (b) Get the weight of all but the second and 4th persons using integers, and again using a logical statement
+
+# Problem 2: Consider the following integer vector
+z <- c(1L, 4L, 6L)
+
+# (a) create a logical vector of length 10 that has TRUE in the elements given by z
+
+# (b) Get z back again from the logical vector created in part (a)
+
+
+
+## (2.2) Object Attributes and Objects Built on Atomic Vectors ---------------
 # Atomic vectors are the basic structure to contain data in R, and as we have seen they are
 # very flexible and powerful, but also quite limited still in terms of high-level functionality.
 # Fortunately, R lets us attach attributes (such as other vectors) to and R object, which
 # enables much more complex objects and functionality.
 
-### Named Vectors -------------------------------------------------
+### Named Vectors ----------------------------------------------------------
 # This constructs a named vector
 econ.score <- c(75.4, 80.1, 85.8)
 names(econ.score) <- c("bob", "paul", "ashley")
@@ -397,23 +502,23 @@ attr(econ.score, "names") <- c("bob", "paul", "ashley")
 econ.score
 econ.score["paul"] # An added advantage of named vectors is that we can also subset them using the name tag 
 
-### Assigning arbitrary attributes to objects ---------------------
+### Assigning arbitrary attributes to objects ------------------------------
 # we can add arbitrary other attributes, but only some (predefined) attributes trigger additional functionality
 attr(econ.score, "examdate") <- "2020-03-02"
 econ.score
 str(econ.score)
 
-### The class attribute --------------------------------
+### The class attribute ----------------------------------------------------
 # A particularly important attribute is the 'class' attribute, which can create different objects in R
 # to which different function methods apply. The class uniquely identifies a certain type of R object
 
 class(econ.score) <- "bla" # same as attr(econ.score, "class") <- "bla"
 inherits(econ.score, "bla")       # Inherits checks if an object is of a certain class
 any(class(econ.score) %in% c("bla", "fu")) # Same thing as what inherits does..
-any(class(econ.score) == c("bla", "fu"))   # Just note that == is better than %in% if we are only comparing a vector with one element. However %in% works for multiple elements
+any(class(econ.score) == "bla")   # Just note that == is better than %in% if we are only comparing a vector with one element. However %in% works for multiple elements
                                   # inherits uses %in% because an object can have more than one class 
 
-### Factors -------------------------------------------------------
+### Factors ----------------------------------------------------------------
 # An important type of vector in R is a factor - analogous to an encoded categorical variable in STATA or other software
 v <- rep(1:2, c(10L, 5L))  # Underlying integer values
 levels(v) <- c("Male", "Female")   # same as attr(v, "levels") <- 
@@ -463,7 +568,7 @@ class(v) <- c(class(v), "bla")
 inherits(v, "ordered")
 inherits(v, "bla")
 
-### Dates -------------------------------------------
+### Dates ------------------------------------------------------------------
 # Another special class is the Date class
 d <- as.Date("2000-07-16")
 class(d)
@@ -474,7 +579,39 @@ d
 inherits(d, "Date")
 str(d)
 
-### Matrices ------------------------------------------
+
+
+#****************************
+### In-Class Exercise 5 -----
+#****************************
+
+# Problem 1: Consider again the vector of weights used earlier
+weights <- c(80.5, 63.9, 75.3, 68.1, 79.3) # weights in kg
+persons <- c("Dan", "Paul", "Anna", "Tim", "Tom") # names of the persons
+
+# (a) assign the person names to the weights vector, and get the weight of Paul
+
+# (b) compare the weight of paul to the weights of Tim and Tom
+
+
+# Problem 2: consider the following vector
+k <- c("Yes", "Yes", "No", "Yes", "Don't Know", "No")
+
+# (a) Coerce it to a factor, examine the structure of the factor
+
+# (b) Get the levels, number of levels, and compute a frequency table for the levels
+
+# (c) Coerce the factor to integer
+
+# (d) Coerce the factor to character using as.character
+
+# (e) Manually coerce the factor to character using the integer values and the levels. 
+
+# (f) Manually recreate the factor from the character vector using using match(), sort() and unique()
+
+
+
+### Matrices --------------------------------------------------------------
 # Apart from the 'class' attribute which determines the type of an object,
 # we can create N-dimensional structures from vectors simply by attaching a dimension ('dim') attribute:
 
@@ -568,13 +705,60 @@ n = 1:2
 solve(cm, n)  # Find x in: cm * x = n
 chol2inv(chol(cm)) # More efficient inverse of a symmetric PD matrix based on choleski factorization (if matrix is not symmetric or PD, use solve())
 eigen(cor(m)) # Eigen-decomposition (of correlation matrix, useful for PCA)
-svd(m)        # Singular-Value decomposition (more efficient wy to do PCA in the absence of missing values)
+svd(m)        # Singular-Value decomposition (more efficient way to do PCA in the absence of missing values)
 qr(cm)        # QR decomposition (good for linear model solving), also gives the rank of the matrix
 
 
-### Arrays: Same as matrix but with 3 or more dimensions ---------------------------
+#****************************
+### In-Class Exercise 6 -----
+#****************************
+
+# In this exercise we will use some data in matrix form built into R
+data() # This shows all datasets built into R
+
+# Problem 1: Consider this matrix of US personal expenditures
+USPersonalExpenditure
+
+# (a) See its structure using str(), look at it in the data viewer using View(), compute the dimensions using dim()
+
+# (b) Get the health and private education expenditure for 1940, 1950 and 1960, using both names and indices
+
+# (c) Compute the total expenditure in each year, and the average expenditure per item over time
+
+# (d) Compute the share of different items in total consumption in each year
+
+# (e) Compute the standard deviation in the consumption share of each item over time
+
+# Bonus: These are some similar matrices that come with R, explore them using the tools shown above
+VADeaths
+state.x77
+
+# Problem 2: Consider this time series of US quarterly log revenue from (1962,2Q) to (1971,4Q).
+freeny.y
+
+# (a) Look it up in the documentation, see the structure of it. and plot it using plot()
+
+# (b) Plot the first difference of it using diff()
+
+# (c) Consider this matrix of explanatory variables (view it, see the structure)
+freeny.x
+
+# (d) Create a matrix 'freeny' combining freeny.y and freeny.x
+
+# (e) Compute the correlations of the variables in the matrix, in levels and first-differences
+
+# (f) Manually regress freeny.y on freeny.x, after adding an intercept column to freeny.x. 
+#     Note that that OLS coefficients are computed as: (X'X)^(-1)X'y
+
+# (g) Compare your coefficients to those reported by R's linear modeling command:
+lm(freeny.y ~ freeny.x)
+
+
+
+### Arrays: Same as matrix but with 3 or more dimensions -------------------
 # Again we have a constructor function
-a <- array(1:27, dim = c(3L,3L,3L), dimnames = list(c("1a", "1b", "1c"), c("2a", "2b", "2c"), c("3a", "3b", "3c")))
+a <- array(1:27, dim = c(3L,3L,3L), 
+           dimnames = list(c("1a", "1b", "1c"), c("2a", "2b", "2c"), c("3a", "3b", "3c")))
 str(a)
 dim(a)
 dimnames(a)
@@ -602,7 +786,12 @@ aperm(a) # Be default reverses dimensions, same as aperm(a, c(3L, 2L, 1L))
 # Arrays are useful particularly because we can very easily access the elements
 # and we can easily compute statistics along different dimensions
 
-## (2.2) Lists and Data Frame's ------------------------------------------
+# There is no exercise on arrays, but you could explore the following arrays supplied by R
+iris3
+Titanic
+
+
+## (2.3) Lists and Data Frame's --------------------------------------------
 # All objects we have seen so far were based on atomic vectors. 
 # While we can create 2D, 3D, 4D etc. matrices and arrays from vectors by simply
 # attaching appropriate 'dim' attributes or using the matrix() or array() constructors,
@@ -612,7 +801,7 @@ aperm(a) # Be default reverses dimensions, same as aperm(a, c(3L, 2L, 1L))
 # Thus we need a kind of container object that allows us to pack vectors of different types in one objects
 # this is what the List does in R.
 
-### Lists ---------------------------------------
+### Lists ------------------------------------------------------------------
 # A list is a 1D container object that can contain all kinds of other objects
 # including vectors, functions and other lists. 
 
@@ -623,7 +812,7 @@ str(l1) # see the structure of it
 is.list(l1)
 class(l1)  # The implicit class is list
 length(l1) # This returns the length of the list
-seq_along(l2) # This returns the indices of the list elements (same as 1:length(l2))
+seq_along(l1) # This returns the indices of the list elements (same as 1:length(l1))
 
 # A Named list:
 l2 <- list(avec = 1:10, bvec = c("a", "b", "c"), cvec = c(TRUE, FALSE))
@@ -681,7 +870,7 @@ class(l2[[4L]]) # This is also list, which we nested inside l2
 length(l2)
 lengths(l2) # gives the length of every list element
 
-# for lists of equal values (numeric or character)
+# for lists of equally typed values (numeric or character)
 list3 = list(a = 1:3, b = 4:7, c = list(8:10))
 str(list3)
 unlist(list3) # This creates a numeric vector from this list
@@ -695,14 +884,13 @@ rapply(list3, mean, how = "list") # This keeps the list structure
 # lapply (list-apply) is non-recursive
 lapply(list3[1:2], mean)
 lapply(list3, mean)
-lapply(list3, mean)
 # gives warning because the mean can only be applied to a numeric vector, not to a list
 mean(list(8:10))
 mean(8:10) # This works, thus if we want to compute statistics on a nested list, need to use rapply()
 
 m # Remember the matrix m we create above?
 # This creates a named list replicating m three times
-ml <- list(a = m, b = m, c = m)
+ml <- list(`2010` = m + rnorm(6L), `2011` = m, `2012` = m + rnorm(6L))
 ml
 # suppose we canted to combine all the matrices in these lists row- or column wise:
 # The function do.call constructs a function call by passing a list of arguments to a function
@@ -714,7 +902,27 @@ do.call(rbind, ml) # same as rbind(m, m, m)
 # using the function simplify2array() = unlist to more than 1 dimensions
 simplify2array(ml)
 
-### Date Frame's ------------------------------------------
+
+#****************************
+### In-Class Exercise 7 -----
+#****************************
+
+# Consider the list ml created above
+
+# (a) Add scores for the year 2013 in a similar way I created them for 2012, look up the rnorm function. 
+
+# (b) Look at the structure of the list, view it in the data viewer, and print the scores for 2012 and 2013
+
+# (c) Compute the average math and econ score and the average score for each student in each year using lapply()
+
+# (d) Simplify your calculation result from part (c) using simplify2array
+
+# (e) Do steps (c) and (d) in one step using the sapply function. Look it up in the documentation
+
+# (f) Delete the matrices for 2010 and 2013 from the ml list. 
+
+
+### Date Frame's -----------------------------------------------------------
 # Similarly to Matrices which we learned are just vectors with a dimension 
 # attribute and additional methods and properties, 
 # A data frame is a list of equal-length column-vectors with added attributes attached. 
@@ -873,7 +1081,45 @@ arl <- simplify2array(lapply(l, as.matrix))
 str(arl)
 
 
-# (3) Functional Programming ------------------------------------------------------
+#****************************
+### In-Class Exercise 8 -----
+#****************************
+
+# Consider the following dataset. 
+esoph
+?esoph
+
+# (a) Examine it's structure and summarize it using summary()
+
+# (b) Compute the percentage of cancer cases on the dataset
+
+# (c) Subset the dataset to display only the 25-34 and 35-44 year olds with both above average alcohol and tobacco consumption
+
+# (d) Repeat the exercise in part (c), now with the people older than 65. What do you notice?
+
+# (e) Make a copy of the dataset where you have coerced all factors to integer, and compute a correlation matrix of the variables. What do you notice?
+
+# (f) Using lm(), and the data from part (e), run a regression of he percentage of cases on agregp, alcgp, tobgp. 
+#     Use summary() to summarize the model and interpret the results.
+
+# (g) Repeat part (f) using the original data. How do you interpret the results?
+
+# (h) Repeat part (g), now using an interaction between alcgp and tobgp using alcgp:tobgp. How do you interpret the results?
+
+# (i) Repeat part (h), now using a full interaction between alcgp and tobgp using alcgp * tobgp. How do you interpret the results?
+
+# Extra: More datasets to explore:
+longley
+infert
+USJudgeRatings
+USArrests
+iris
+
+
+
+# (3) Functional Programming -----------------------------------------------
+#***************************************************************************
+
 # Remeber what we said at the beginning: 
 
 #  To understand computations in R, two slogans are helpful:
@@ -885,7 +1131,7 @@ str(arl)
 # Functions are themselves a kind of object (a function object), that can be used to
 # perform computations on other objects.
 
-### Intro to Functions -----------------------------------------------------------
+### Intro to Functions -----------------------------------------------------
 # lets take a function like this one. We can see the content of every function by evaluating its name
 tabulate
 str(tabulate) # see the structure
@@ -947,7 +1193,7 @@ hello <- function(yourname, goodbye = FALSE) paste(if (goodbye) "Goodbye" else "
 # We can also define ad-hoc functions i.e. functions that are defined instantly to do a specific task but not saved.
 sapply(mtcars, function(x) c(N = sum(!is.na(x)), Mean = mean(x), SD = sd(x), Min = min(x), Max = max(x)))
 
-### The return Argument -----------------------------------------
+### The return Argument ----------------------------------------------------
 # by default, the function returns the last object evaluated in its body.
 # We can also use return statements to terminate function execution early.
 # return() simply means: return the object and stop the function execution
@@ -960,7 +1206,7 @@ hello <- function(yourname, goodbye = FALSE) {
 
 # The return statement is very useful to simplify code in larger functions
 
-### Generic functions and methods --------------------------------
+### Generic functions and methods ------------------------------------------
 # let's look at many of the functions we have been dealing with:
 mean
 unique
@@ -1018,7 +1264,7 @@ identical(lapply(iris, su_simple), lapply(iris, su)) # same thing
 # multi-word function names, such as su_simple which I created above. 
 # (If I named the function su.simple, you could think it is a method for the generic 'su' defined for an object of class 'simple' )
 
-### The ellipsis (...) argument: ----------------------------------------------------------
+### The ellipsis (...) argument --------------------------------------------
 
 # The ellipsis (...) argument to a function allows for a variable number of arguments being
 # passed to a generic function or to functions called within a function
@@ -1061,7 +1307,7 @@ su3(airquality$Ozone, na.rm = TRUE, probs = c(0.25, 0.5, 0.75))
 str(iris$Species) # Recall this is a factor
 su(iris$Species, bla = 3) # Passing a random argument here does nothing because the ellipsis is not used in su.factor
 
-# Ending the R Session ----------------------------------------
+# Ending the R Session -----------------------------------------------------
 ls() # list all objects currently in the workspace (global environment)
 rm(avec, chr, x, y, students) # remove some of them
 rm(list = ls()) # remove all of them
