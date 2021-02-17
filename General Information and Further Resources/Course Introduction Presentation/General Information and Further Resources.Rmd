@@ -1,0 +1,106 @@
+---
+title: "Data Science Programme"
+subtitle: "General Information and Further Resources"
+author: "Sebastian Krantz"
+date: "18/02/2021"
+output: beamer_presentation
+urlcolor: blue
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## What is Data Science?
+
+**From [Wikipedia](<https://en.wikipedia.org/wiki/Data_science>)**
+
+*Data science is an inter-disciplinary field that uses scientific methods, processes, algorithms and systems to extract knowledge and insights from many structural and unstructured data. Data science is related to data mining, machine learning and big data. * 
+
+*It uses techniques and theories drawn from many fields within the context of mathematics, statistics, computer science, domain knowledge and information science.*
+
+
+## What is Data Science?
+
+![Domain/Business Knowledge = Economics and Finance for us.](data-science.png){#id .class height=75%}
+
+## Languages for Data Science: R
+
+- [**R**](<https://www.r-project.org/>) is an high-level interpreted functional, and object oriented programming language developed by statisticians for statistical computing and graphics, and supported by the R Foundation for Statistical Computing. 
+- R is a successor of S, created by John Chambers at Bell Labs in 1976. R was first released in 1993. 
+- Later many data manipulation, machine learning and graphical libraries were added by users and made easily available on the [Comprehensive R Archive Network](<https://cran.r-project.org/>) (CRAN), established in 2000. It currently (December 2020) features 16,801 R packages. 
+- Other packages for R can be found on [Bioconductor](<https://www.bioconductor.org/>) and [Github](<https://github.com/topics/r>). In total there are currently around [21,000 packages](<https://www.rdocumentation.org/>).
+- [RStudio, Inc. ](<https://rstudio.com/>) is a company providing a like-named [integrated development environment](<https://en.wikipedia.org/wiki/Integrated_development_environment>) (IDE) for R and a popular and consistent set of R packages for data science.
+- As of September 2020, R ranks 9th in the [TIOBE index](<https://www.tiobe.com/tiobe-index/>), it has more than 2 million active users and is [growing at a fast pace](<https://stackoverflow.blog/2017/10/10/impressive-growth-r/>). 
+
+## Languages for Data Science: Python 
+
+- [**Python**](<https://www.python.org/>) is an interpreted, high-level, multiple-paradigm, and general-purpose programming language. Python's design philosophy emphasizes object orientation and code readability. 
+- Python was first released in 1991 by Guido van Rossum as a successor to the ABC language, named after [Monty Python](<https://en.wikipedia.org/wiki/Monty_Python>). <!-- The name is a tribute to the british comedy group Monty Python. -->
+- Python became popular for data science when libraries for scientific computing (SkiPy, 2001) graphics (Matplotlib, 2003), natural language processing (NLTK, 2001), arrays (NumPy, 2005), datasets (Pandas, 2008), [machine learning](<https://www.upgrad.com/blog/top-python-libraries-for-machine-learning/>) (Scikit-learn, 2007) and [deep learning](<https://towardsdatascience.com/best-python-libraries-for-machine-learning-and-deep-learning-b0bd40c7e8c>) (TensorFlow, 2015), (Keras, 2015), (Apache MXNet, 2015), (PyTorch, 2016) were developed.
+- The [Python Package Index](<https://pypi.org/>) (PyPI) is the official third-party software repository for Python. Currently > 230,00 Python packages (modules, libraries) can be accessed through PyPI.
+- [Anaconda](<https://www.anaconda.com/>) is a distribution of Python for data science.
+- [Spyder](<https://www.spyder-ide.org/>) is an IDE for scientific programming in Python. 
+- Python ranks 3rd in the [TIOBE index](<https://www.tiobe.com/tiobe-index/>) after C and Java, with >8 mio. developers and many more users, and growing rapidly. 
+
+## Languages for Data Science: Julia 
+- [Julia](<https://julialang.org/>) is a high-level, high-performance, dynamic programming language. While it is general-purpose, many of its features are well suited for numerical analysis and computational science.
+- Work on Julia was started in 2009, by Jeff Bezanson, Stefan Karpinski, Viral B. Shah, and Alan Edelman, who set out to create a free language that was both high-level and fast.
+- Since the 2012 launch, the Julia community has grown, and Julia is used at >10,000 companies with >20,000,000 downloads as of September 2020, up from 9 million a year prior (and is used at more than 1,500 universities).
+- Julia has a growing body of currently 4700 [packages](<https://juliahub.com/ui/Packages>), among others for econometrics, DSGE and computational models, time series and machine learning. The high performance makes it attractive for future development in many domains of data science, but it is still a very young language.
+- See also [Julia observer](<https://juliaobserver.com/>) for packages and recent developments. 
+- Julia ranks 26th in the [TIOBE index](<https://www.tiobe.com/tiobe-index/>) and is also growing rapidly.
+
+## Languages for Data Science: Comparison
+
+Broadly speaking all 3 languages have their place, but the lines are blurring: 
+
+- R is best for data manipulation, statistical models / analysis, graphics, and interactive data products.
+
+- Python is best for machine learning and production level programming and deployment (deep learning and data science at scale). 
+
+- Julia is best for high-performance and technical programming (numerical optimization / GE models, bootstrapping and other computationally intensive stuff). 
+
+## Languages for Data Science: Comparison
+
+**Further Links**
+
+[R or Python for Data Analysis](<https://www.datacamp.com/community/tutorials/r-or-python-for-data-analysis>)
+
+[R, Python & Julia in Data Science: A comparison](<https://www.r-bloggers.com/2020/12/r-python-julia-in-data-science-a-comparison/>)
+
+[R Vs Python: What’s the Difference?](<https://www.guru99.com/r-vs-python.html>)
+
+[Overview of the Julia-Python-R Universe](<https://www.openriskmanual.org/wiki/Overview_of_the_Julia-Python-R_Universe>)
+
+[julia for Data Science](<https://www.r-bloggers.com/2020/02/learn-julia-for-data-science/>)
+
+[Will Julia Replace Python and R for Data Science?](<https://dimensionless.in/will-julia-replace-python-and-r-for-data-science/?utm_campaign=News&utm_medium=Community&utm_source=DataCamp.com>)
+
+## This Programme: Data Science in R
+
+Focus on data manipulation, graphics, statistical models, time series, reproducible research, interactive outputs, and geospatial computing. 
+
+
+**Core Aims: Participants should be able to**
+
+- Import, manage and maipulate data in R
+- Produce publication quality graphics
+- Write good code and clean analysis scripts allowing reproduction of results
+- Estimate linear regression models and report results
+- Analyze time series data and report results
+- Generate interactive documents, presentations, dashboards and web applications
+- Basic geospatial analysis and computing
+
+## The Programme Concrete
+
+![Courses of the same colour are consecutive. Course 1 is mandatory for all further courses.](DS.png)
+
+## Further Resources for R
+
+- [Swirl](<https://swirlstats.com/students.html>) lets you learn R in R
+- [Cheat sheets](<https://rstudio.com/resources/cheatsheets/>) for important packages
+- Books for [programming](<https://bookdown.org/rdpeng/rprogdatascience/subsetting-r-objects.html>), [econometrics](<https://www.econometrics-with-r.org/>), [time series](<https://www.stat.pitt.edu/stoffer/tsa4/>) and [statistical learning](<http://faculty.marshall.usc.edu/gareth-james/ISL/>)
+- Websites for [quick help](<https://www.statmethods.net/index.html>) and [full university courses](<https://cfss.uchicago.edu/>)
+- [Online MOO Courses](<https://www.coursera.org/specializations/jhu-data-science>)
+
