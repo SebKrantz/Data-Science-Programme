@@ -210,10 +210,12 @@ unique(y)         # get unique values of a vector
 table(y)          # tabulate (i.e. count the frequencies of unique values in a vector)
 tabulate(y)       # Same thing, just returns the frequencies
 
-### !!! Finding help on a function !!! -------------------------------------
+### !!! Finding help on an R object !!! -------------------------------------
 help(log)
 ?log         # Same thing more compact
 ?all.equal
+
+?mtcars      # Help on a dataset
 
 ?"<-"        # We need to quote operators to find their help pages
 ?"+"
