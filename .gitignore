@@ -4,7 +4,7 @@
 .RData
 .Ruserdata
 *.xls
-*.xlsx
+List*of*Participants.xlsx
 *.docx
 *.html
 Adapted*R*Workshop/
