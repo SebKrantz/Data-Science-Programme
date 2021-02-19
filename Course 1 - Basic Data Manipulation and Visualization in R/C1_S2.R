@@ -12,16 +12,17 @@
 # (1) Recap Apply Functions + Extensions
 # (2) Packages
 # (3) Importing Data Into R + Some Analysis
-# (5) Basic Graphics (More Formally)
-# (4) Basic Statistical Modeling
-# (5) Control Flow
-# (6) Project Based Workflow in Rstudio
+# (4) Basic Graphics (More Formally)
+# (5) Basic Statistical Analysis
+# (6) Control Flow
+# Extra: Effectively working with R and Rstudio
 
 
 # (1) Apply Functions: Recap and extensions -----------------------------
 
 # (a) apply: Applies a function over the margins (rows / columns) of a matrix / array
 m <- as.matrix(mtcars) # mtcars is a dataset about cars supplied with R. Here we create a matrix from it
+m
 str(m)
 dim(m)  # This shows you the dimensions of the matrix
 apply(m, 1L, median) # Apply the median to each row (first dimension)
@@ -47,6 +48,7 @@ str(mtcars) # recall that a data.frame is stored as a list of columns
 is.list(mtcars)
 
 lapply(mtcars, sum) # applying the sum to each columns
+mtcars[] <- lapply(mtcars, log) # Replacing each column in mtcars with it natural log
 
 str(airquality) # Another dataset, with some missing values
 lapply(airquality, sum, na.rm = TRUE) # we can pass further arguments to sum like this using the ellipsis ... 
@@ -94,6 +96,27 @@ aggregate(cbind(Sepal.Length, Sepal.Width, Petal.Length, Petal.Width) ~ Species,
 # https://nsaunders.wordpress.com/2010/08/20/a-brief-introduction-to-apply-in-r/
 # https://www.datacamp.com/community/tutorials/r-tutorial-apply-family#gs.ShAYp7Q
 # But as always: learning by doing is best!!
+
+#****************************
+### In-Class Exercise 1 -----
+#****************************
+
+# (a) Consider the following two objects. Compute the sum along the columns of these objects in the most efficient way so that the result is a vector
+state.x77
+longley
+
+# (b) Show an alternative way of summing along the columns of these objects, again resulting in a vector. 
+
+# (c) Consider the titanic data. Compute the percent that survived by Sex and Age
+Titanic
+
+# (d) Consider these two datasets. Aggregate 'infert' by education and induced, and 'airquality' by Month
+infert
+airquality
+
+# (e) Using the iris dataset, compute the quantiles of Sepal.Width by Species and simplify the result to a matrix. 
+iris
+
 
 
 # (2) Packages ----------------------------------------------------------
@@ -148,7 +171,7 @@ packageVersion("stats")
 
 # Installing a New Package:
 install.packages("data.table") # One package
-install.packages(c("xts", "remotes")) # Multiple packages. 
+install.packages(c("xts", "collapse")) # Multiple packages. 
 
 # See all packages available on CRAN...
 available.packages() 
@@ -166,6 +189,28 @@ remove.packages()    # Delete packages (the opposite of install.packages())
 # This function can show you how a package relates to other packages:
 tools::package_dependencies()
 
+# Searching available packages on CRAN and beyond, with the help of RWsearch
+install.packages("RWsearch")
+library(RWsearch)
+crandb_comp()                                     # Download CRAN Database
+pck <- s_crandb(complex, survey, mode = "and")    # Search CRAN Database for packages relating to complex survey analysis
+pck
+p_table5(pck)                                     # Get a table with the information of the packages
+p_display5(pck)                                   # View the table in a browser
+# See more at: 
+browseVignettes("RWsearch")
+
+# also: https://www.rdocumentation.org/
+
+#****************************
+### In-Class Exercise 2 -----
+#****************************
+
+# (a) Go to the CRAN Task Views and look for interesting packages in a task view
+
+# (b) Using RWsearch, search for packages in the field you find most interesting
+
+
 # (2.1) Recap on Finding Help + Extensions for Packages --------------------------------------------------
 ?plot # Recall we get the help for a function like this
 help(plot) # or like this
@@ -175,6 +220,7 @@ example("plot")
 
 # Look up documentation for a package
 help(package = "data.table")
+help(package = "collapse")
 
 # If we don't know the exact name of the function or package we are looking for, can use help.search
 help.search("classification")
@@ -199,7 +245,7 @@ browseVignettes()
 browseVignettes(package = "data.table")
 browseVignettes(package = "stats")
 
-# Demos are R programms that you can click through. they will demonstrate something.
+# Demos are R programs that you can click through. they will demonstrate something.
 # all Available demos:
 demo(package = .packages(all.available = TRUE))
 # demos of packages currently loaded:
@@ -208,12 +254,27 @@ demo()
 colors() # This prints the names of all installed colors
 demo("colors") # This demonstrates them in a series of plots:
 
+#****************************
+### In-Class Exercise 3 -----
+#****************************
+
+# (a) Find the introduction to 'data.table' vignette and the introduction to 'xts' vignette.
+
+# (b) Install the packages 'magrittr', 'matrixStats' and 'ggplot2' and find the vignettes
+
+# (c) Find the website for 'collapse', access the introductory vignette 
+#     and look for the section on advanced data aggregation
+
+# (d) Find the cheatsheets for 'collapse', 'data.table' and 'ggplot2' on the Rstudio website. 
+
+# (e) Execute all examples given for the 'lm' function
+
 
 
 # (3) Data Import ----------------------------------------------------------
 
-# (a) Pasting data into R from Excel of CSV
-# When you copy somthing on windows, it is save to a place in memory called the clipboard. 
+# (a) Pasting data into R from Excel or CSV
+# When you copy something on windows, it is save to a place in memory called the clipboard. 
 
 # The clipboard can be read like this: From CSV
 data <- read.csv("clipboard")
@@ -236,18 +297,18 @@ data[-1L] <- lapply(data[-1L], as.numeric)
 # There are several options here: 
 
 # I. Setting the working directory to the location of the file and then read the file (note that the dashes are / not \ as in windows)
-setwd("C:/Users/Sebastian Krantz/Dropbox/MoFPED/Data Science Programme/Course 1 - Basic Data Manipulation and Visualization in R/data")
+setwd("C:/Users/Sebastian Krantz/Documents/R/Data-Science-Programme/Course 1 - Basic Data Manipulation and Visualization in R/data")
 data <- read.csv("Amount_of_Water_Supplied_and_Billing_efficiency_by_NWSC.csv")
 
 # II. Setting the working directory to the project location and specifying a partial path (preferred because we also need to save outputs in the project directory)
-setwd("C:/Users/Sebastian Krantz/Dropbox/MoFPED/Data Science Programme/Course 1 - Basic Data Manipulation and Visualization in R")
+setwd("C:/Users/Sebastian Krantz/Documents/R/Data-Science-Programme/Course 1 - Basic Data Manipulation and Visualization in R")
 data <- read.csv("data/Amount_of_Water_Supplied_and_Billing_efficiency_by_NWSC.csv")
 
 # III. Reading directly using the full file path (preferred if we are using files from different locations)
-data <- read.csv("C:/Users/Sebastian Krantz/Dropbox/MoFPED/Data Science Programme/Course 1 - Basic Data Manipulation and Visualization in R/data/Amount_of_Water_Supplied_and_Billing_efficiency_by_NWSC.csv")
+data <- read.csv("C:/Users/Sebastian Krantz/Documents/R/Data-Science-Programme/Course 1 - Basic Data Manipulation and Visualization in R/data/Amount_of_Water_Supplied_and_Billing_efficiency_by_NWSC.csv")
 
 # In general, for smaller files we prefer to have them in the project directory in a "data" folder. 
-# Larger files or files read from the internet we want to speficy the full path
+# Larger files or files read from the internet we want to specify the full path
 
 # Now read.delim() was made for tab-separated (tsv), or other separated data,
 # It can read excel cells copied from the clipboard but not a full excel notebook.
@@ -409,7 +470,7 @@ superheat::superheat(ptr, yr = ptr_district_means, yt = ptr_year_means,
 dev.copy(pdf, "figures/superheat.pdf", height = 18, width = 10)
 dev.off()
 
-# That's it, so here we have written a little analysis program that imports a spreadhseet that was downloaded from UBOS,
+# That's it, so here we have written a little analysis program that imports a spreadsheet that was downloaded from UBOS,
 # generates some nice charts and saves them. 
 
 # More data import and export functionality is provided by some packages:
@@ -433,7 +494,7 @@ library(writexl)
 write_xlsx()
 # This works better in my experience!!. Excel is a bit tricky at times. the package xlsx requires Java. The readxl and writexl don't.
 
-# STATA, SPSS, SAS:
+# Recommended for STATA, SPSS, SAS:
 library(haven)
 # STATA
 read_dta()
@@ -445,27 +506,230 @@ write_sav()
 read_sas()
 write_sas()
 
-library(foreign) # This also contains functions to read and write stata, SPSS or SAS, and lots of other formats.
+library(foreign) # This also contains functions to read and write STATA, SPSS or SAS, and other formats.
+
+# Other useful functions:
+utils::download.file()  # Download files from the web
+utils::choose.dir()     # Set the working directory interactively (only on Windows)
+utils::choose.files()   # Choose a list of files interactively (only on Windows)
+
+
+#****************************
+### In-Class Exercise 4 -----
+#****************************
+
+# Using the haven library, import the STATA File "sachs 2003 institutions don't rule.dta".
+
+# (a) Summarise the data
+# (b) Delete the columns 'AJR' and 'ME' from the data
+# (c) Save the file as a STATA 10 file in the 'data' folder. 
+# (d) Save the file as an Excel file in the 'data' folder.
+# (e) Save the file as a CSV file in the 'data' folder. 
 
 
 
 
-
-
-
-
-
-
-utils::download.file()
-utils::choose.dir()
-utils::choose.file()
-
-# Basic Graphics more Formally -------------------------------------------------------
+# (4) Basic Graphics more Formally -------------------------------------------------------
 
 # http://www.sthda.com/english/wiki/r-base-graphs
 # See Cheatsheet
 
-# Basic Statistical Analysis ---------------------------------------------------------
+library(MASS) # Several datasets used in this section 
+
+# In data visualization we distinguish broadly between Exploratory and Explanatory data visualizations. 
+
+plot(whiteside)
+
+# Plot Gas vs. Temp
+plot(x = whiteside$Gas, 
+     y = whiteside$Temp, 
+     xlab = "Heating gas consumption",
+     ylab = "Outside temperature")
+
+# One of the key features of the plot() function is that it is generic, 
+# meaning that the results of applying the function depend on the nature of the object to which it is applied.
+
+# Apply the plot() function to Insul
+plot(whiteside$Insul)
+
+
+# Scatter Plots with two sets of points
+str(Cars93)
+# Plot Max.Price vs. Price as red triangles
+plot(Cars93$Price,
+     Cars93$Max.Price, pch = 17, col = "red")
+# Add Min.Price vs. Price as blue circles
+points(Cars93$Price, 
+       Cars93$Min.Price, pch = 16, col = "blue")
+# Add an equality reference line with abline()
+abline(a = 0, b = 1, lty = 2)
+
+
+# Plot Arrays
+data(Animals2, package = "robustbase")
+# Animals2 is in your workspace
+str(Animals2)
+# Set up the side-by-side plot array
+par(mfrow = c(1, 2))
+# First plot: brain vs. body in its original form
+plot(Animals2)
+# Add the first title
+title("Original representation")
+# Second plot: log-log plot of brain vs. body
+plot(Animals2, log = "xy")
+# Add the second title
+title("Log-log plot")
+
+
+# Bar and Pie charts
+data(dataCar, package = "insuranceData")
+str(dataCar)
+# Set up a side-by-side plot array
+par(mfrow = c(1, 2))
+# Create a table of veh_body record counts and sort
+tbl <- sort(table(dataCar$veh_body),
+            decreasing = TRUE)
+# Create the pie chart
+pie(tbl)
+# Give it a title
+title("Pie chart")
+# Create the barplot with perpendicular, half-sized labels
+barplot(tbl, las = 2, cex.names = 0.5)
+# Add a title
+title("Bar chart")
+
+# Univariate Exploratory Plots
+# ******************************
+
+# Histograms: 
+  # hist() is part of base R and its default option yields a histogram based on the number of times a record falls into each of the bins on which the histogram is based.
+  # truehist() is from the MASS package and scales these counts to give an estimate of the probability density.
+  # Set up a side-by-side plot array
+  par(mfrow = c(1, 2))
+  # Create a histogram of counts with hist()
+  hist(Cars93$Horsepower, main = "hist() plot")
+  # Create a normalized histogram with truehist() from MASS
+  truehist(Cars93$Horsepower, main = "truehist() plot")
+  
+# Density plots:
+  # While they are probably not as well known as the histogram, density estimates may be regarded as smoothed histograms, 
+  # designed to give a better estimate of the density function for a random variable.
+  
+  # Create index16, pointing to 16-week chicks
+  index16 <- which(ChickWeight$Time == 16)
+  # Get the 16-week chick weights
+  weights <- ChickWeight[index16, "weight"]
+  # Plot the normalized histogram
+  truehist(weights)
+  # Add the density curve to the histogram
+  lines(density(weights))
+
+# Normal QQ (Quantile-Quantile) Plot
+  # A practical limitation of both histograms and density estimates is that, if we want to know whether the Gaussian distribution assumption is reasonable for our data, it is difficult to tell.
+  # The quantile-quantile plot, or QQ-plot, is a useful alternative: we sort our data, plot it against a specially-designed x-axis based on our reference distribution (e.g., the Gaussian "bell curve"), and look to see whether the points lie approximately on a straight line. In R, several QQ-plot implementations are available, but the most convenient one is the qqPlot() function in the car package.
+  car::qqPlot(weights)
+  
+# Bivariate Exploratory Plots
+# ******************************
+  
+# Scatter and Sunflower Plots: Two Numeric Variables
+  # Set up a side-by-side plot array
+  par(mfrow = c(1, 2))
+  # Create the standard scatterplot
+  plot(rad ~ zn, data = Boston)
+  # Add the title
+  title("Standard scatterplot")
+  # Create the sunflowerplot
+  sunflowerplot(rad ~ zn, data = Boston)
+  # Add the title
+  title("Sunflower plot")
+  
+# Boxplots: Categorical vs. Numeric
+  # Create a variable-width boxplot with log y-axis & horizontal labels
+  boxplot(crim ~ rad, data = Boston, varwidth = TRUE, log = "y", las = 1)
+  # Add a title
+  title("Crime rate vs. radial highway index")
+
+# Mosaic Plots: Two Categorical Variables
+  # A mosaic plot may be viewed as a scatterplot between categorical variables and it is supported in R with the mosaicplot() function.
+  # Create a mosaic plot using the formula interface
+  mosaicplot(carb ~ cyl, data = mtcars)
+  
+# Multivariate Exploratory Plots
+# ******************************
+  
+# Correlation plots
+  # Load the corrplot library for the corrplot() function
+  library(corrplot)
+  # Extract the numerical variables from UScereal
+  numericalVars <- UScereal[sapply(UScereal, is.numeric)]
+  # Compute the correlation matrix for these variables
+  corrMat <- cor(numericalVars)
+  # Generate the correlation ellipse plot
+  corrplot(corrMat, method = "ellipse")
+  
+# Decision Tree model plots
+  # Load the rpart library
+  library(rpart)
+  # Fit an rpart model to predict medv from all other Boston variables
+  tree_model <- rpart(medv ~., data = Boston)
+  # Plot the structure of this decision tree model
+  plot(tree_model)
+  # Add labels to this plot
+  text(tree_model, cex = 0.7)
+  
+  
+# Introduction to the par() function
+# **********************************
+  
+  # You already saw how the mfrow parameter to the par() function could be used to plot multiple graphs in one pane. The par() function also allows you to set many other graphics parameters, whose values will remain in effect until they are reset by a subsequent par() call.
+  # Assign the return value from the par() function to plot_pars
+  plot_pars <- par()
+  # Display the names of the par() function's list elements
+  names(plot_pars)
+  # Display the number of par() function list elements
+  length(plot_pars)
+
+# Add smooth trend line
+  # Create a scatterplot of MPG.city vs. Horsepower
+  plot(MPG.city ~ Horsepower, data = Cars93)
+  # Call supsmu() to generate a smooth trend curve, with default bass
+  trend1 <- supsmu(Cars93$Horsepower,
+                   Cars93$MPG.city)
+  # Add this trend curve to the plot
+  lines(trend1)
+  # Call supsmu() for a second trend curve, with bass = 10
+  trend2 <- supsmu(Cars93$Horsepower,  
+                   Cars93$MPG.city, bass = 10)
+  # Add this trend curve as a heavy, dotted line
+  lines(trend2, lty = 3, lwd = 2)
+  
+  
+#****************************
+### In-Class Exercise 5 -----
+#****************************
+  
+# Using the iris Dataset, do the following:
+  iris
+
+# (a) Create a bivariate plot of the histogram and density of Sepal.Length 
+    
+# (a) Create a scatterplot matrix of the data using the pairs() function
+
+# (b) Create a correlation plot of the numeric variables in the data using the corrplot() function
+  
+# (c) Create a scatter plot of Sepal.Length against Sepal.Width, coloured by Species. 
+  
+# (d) Add a regression line using abline()
+  
+# (e) Add a blue coloured smooth trend line using lines() and the supsmu() function. 
+  
+# (f) Create a boxplot of Sepal.Length by Species
+
+# (g) Compute the average Sepal.Length by species and create a barchart. 
+  
+  
+# (5) Basic Statistical Analysis ---------------------------------------------------------
 
 # t-test: One sample
 t.test(iris$Sepal.Length)
@@ -513,7 +777,7 @@ varimax(pca1$loadings)
 promax(pca1$loadings)
 
 
-# Control Flow -----------------------------------
+# (6) Control Flow -----------------------------------
 
 # For loops
 for (i in 1:3)  print(i)
@@ -531,6 +795,8 @@ while (i < 5L){
   i <- i + 1L
 }
 
+# Both for and while loops are best to be avoided in favor of apply functions which are more efficient. 
+
 library(mosaic)
 D = rnorm(100)
 genmod <- function(D){ Y = D + rnorm(100); lm(Y ~ D)}
@@ -547,6 +813,16 @@ dim(res2)
 res2 <- as.data.frame(t(res2))
 
 
-# magrittr (+ look into collapse, data.table, ggplot2)
-# Environments
-# Rstudio + Projects Workflow
+# Extras about Working Effectively with R --------------------------------------------------
+
+# Rstudio + Projects Workflow:
+  # https://support.rstudio.com/hc/en-us/articles/200526207-Using-Projects
+  # https://r4ds.had.co.nz/workflow-projects.html
+  # https://www.r-bloggers.com/2020/01/rstudio-projects-and-working-directories-a-beginners-guide/
+  # https://www.upgrad.com/blog/rstudio-projects-for-beginners/
+  # https://bookdown.org/ndphillips/YaRrr/projects-in-rstudio.html
+
+# Version control with Git and github: https://happygitwithr.com/
+
+# Environments: http://adv-r.had.co.nz/Environments.html
+# More advanced programming topics: http://adv-r.had.co.nz/

@@ -137,17 +137,19 @@ readxl_web <- function(x, ...) {
 BOU_I <- readxl_web("https://www.bou.or.ug/bou/bouwebsite/bouwebsitecontent/statistics/InterestRates/Interest_rates.xlsx", sheet = 2)
 
 # Problem 2: Accessing data from an API package ----------------------------------------
+
+# Install the following API packages for thw World Bank Databank and the UN COMTRADE database 
+# and fetch some interesting development and trade related data using them.
 library(wbstats)
 library(tradestatistics)
-# Nah, not for now...
 
-# Using the R data viewer, find out which was the most exported and imported product of Uganda in 2018
+# Using the R data viewer and data from tradestatistics, 
+# find out which was the most exported and imported product of Uganda in 2018
 
-# Problem 3: Analyzing Macroeconomic Data from BoU -------------------------------------
 
-# Using the readxl_web function above, import the Monthly macroeconomic indicators dataset from the Bank of Uganda
-# Tipp: You want to first download the file manually, then 
+# Problem 3: Learning R Using Swirl ----------------------------------------------------
 
-# Create a plot...
-
-# Problem 4: Learning R Using Swirl ----------------------------------------------------
+# Swirl is a pachage that lets you interactively learn R inside R. 
+# Install the swirl package and run it by typing swirl(). Learn something you are interested in about R using swirl. 
+library(swirl)
+swirl()
