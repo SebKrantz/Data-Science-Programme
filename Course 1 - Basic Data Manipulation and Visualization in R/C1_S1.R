@@ -85,7 +85,7 @@ z <- c(1L, 2L, 3)       # if one number in the vector is non integer,
 is.integer(z)           # the whole vector is stored as a C-array of double precision numbers
 is.integer(as.integer(z)) # as.functions can be used to coerce vector types. 
 
-x <- 1L:3L              # generating large sequences of integers is simplified by the colon `:` operator
+x <- 1:3              # generating large sequences of integers is simplified by the colon `:` operator
 x
 typeof(x)
 typeof(1:3)             # Same thing. If we use `:` we do not need to add `L` to declare values as integer
@@ -120,7 +120,7 @@ seq             # More general sequences
 # Some important functions to examine atomic vectors
 is.atomic(z)    # this function checks if an object is an atomic vector
 length(z)       # Get or set the length of the vector (the number of elements)
-mode(z)         # Get or set the type / mode of an object.
+mode(z)         # Get or set the R type / mode of an object.
 typeof(z)       # Determines the (internal) type or C-level storage mode of an object
 str(z)          # Compactly display the internal structure of any R object
 is.numeric(z)   # and similarly is.otherdatatypes (e.g. is.character, is.logical).
@@ -142,7 +142,6 @@ View(z)         # Open Object in Data viewer (calls as.data.frame() on the objec
 # (d) Replace "vi" with an integer sequence of values from 1 to 10 in steps of 2, using the seq() function
 
 # (e) remove "v" and "vi" using rm()
-
 
 
 ### Mathematical Operations ------------------------------------------------
@@ -200,7 +199,7 @@ ceiling(x + 0.5)   # Round up to nearest integer
 # Other functions
 y <- c(1L, 3L, 1L, 2L, 3L, 4L)
 rep(1L, 4L)       # replicate values or vectors
-rep(y, 2L)        
+rep(y, 10L)        
 rep(y, each = 2L)
 rev(y)            # reverse the order of elements in a vector
 rle(rep(y, each = 2L)) # run-length encoding: computes the number of consecutive equal values
@@ -259,7 +258,7 @@ is.null(y)
 ### In-Class Exercise 2 -----
 #****************************
 
-# Problem 1: Consider two vectors of the weight and height of 4 people
+# Problem 1: Consider two vectors of the weight and height of 5 people
 weights <- c(80.5, 63.9, 75.3, 68.1, 79.3) # weights in kg
 heights <- c(1.94, 1.80, 1.75, 1.71, 1.85) # heights in m
 
@@ -291,7 +290,7 @@ dist(rbind(p1, p2, p3))
 #     Do you get the same result as from your distance calculation?
 
 # (d) Consider these versions of p2 where some strange values are inserted. 
-#     Compute the Euclidian distance between p1 and p2 as in part (a) for each p2 and make sure you understand the outcome
+#     Compute the Euclidian distance between p1 and p2 as in part (a) for each p2 and make sure you understand the outcome.
 p2 <- c(0.79301235, -0.13153881,  NA,  1.0504160307)
 
 p2 <- c(0.79301235, -0.13153881,  -Inf,  1.0504160307)
@@ -300,7 +299,6 @@ p2 <- c(0.79301235, -0.13153881,  NULL,  1.0504160307)
 
 
 ### Character Vectors ------------------------------------------------------
-
 chr <- c("Hello", "how", "are", "you", "?", "")
 is.character(chr)
 chr         # same as print(chr)
@@ -314,7 +312,7 @@ tolower(chr)
 c(" dfdf ", trimws(" dfdf "))
             # Can also use single quotes
 chr2 <- c('hello', 'how', 'are', 'you', '?', '') 
-b <- "he'l'lo"; b # to display ticks, we need to nest them.
+b <- "I'm"; b # to display ticks, we need to nest them.
 b <- 'he"l"lo'; b
 
 avec <- rep("a", 10L) # replicate character values
@@ -367,9 +365,9 @@ districts <- c(" Abim.", "bulisa", "MUKONO? ", "   Arua__")
 
 # (c) Turn all strings into upper case letters
 
-# (d) Not capitalize only the first letter using the function tools::toTitleCase()
+# (d) Now capitalize only the first letter using the function tools::toTitleCase()
 
-# (e) Check the number of characters in each district name, and which names start with "A". 
+# (e) Check the number of characters in each district name, and which names start with "A"
 
 # (f) Sort the cleaned districts in descending alphabetic order
 
@@ -403,7 +401,7 @@ TRUE | FALSE
 TRUE | NA     # Note this behavior (same explanation as above: TRUE or NA (=undetermined) is TRUE)
 FALSE | NA    
 TRUE || FALSE 
-lvec && lvec2 
+lvec || lvec2 
 
 isTRUE(TRUE)  # A safe way to check if an individual value is logical TRUE or logical FALSE is given by these functions
 isFALSE(TRUE)
@@ -482,7 +480,6 @@ z <- c(1L, 4L, 6L)
 # (b) Get z back again from the logical vector created in part (a)
 
 
-
 ## (2.2) Object Attributes and Objects Built on Atomic Vectors ---------------
 # Atomic vectors are the basic structure to contain data in R, and as we have seen they are
 # very flexible and powerful, but also quite limited still in terms of high-level functionality.
@@ -491,46 +488,46 @@ z <- c(1L, 4L, 6L)
 
 ### Named Vectors ----------------------------------------------------------
 # This constructs a named vector
-econ.score <- c(75.4, 80.1, 85.8)
-names(econ.score) <- c("bob", "paul", "ashley")
-econ.score
-econ.score <- c(bob = 75.4, paul = 80.1, ashley = 85.8) # same thing more compact
-econ.score
-View(econ.score)
-str(econ.score)  # see the structure
-names(econ.score) <- NULL # This deletes the names attribute again
+econ_score <- c(75.4, 80.1, 85.8)
+names(econ_score) <- c("bob", "paul", "ashley")
+econ_score
+econ_score <- c(bob = 75.4, paul = 80.1, ashley = 85.8) # same thing more compact
+econ_score
+View(econ_score)
+str(econ_score)  # see the structure
+names(econ_score) <- NULL # This deletes the names attribute again
 # as str() suggests. names() is actually a shortcut for the following code:
-attr(econ.score, "names") <- c("bob", "paul", "ashley")
-econ.score
-econ.score["paul"] # An added advantage of named vectors is that we can also subset them using the name tag 
+attr(econ_score, "names") <- c("bob", "paul", "ashley")
+econ_score
+econ_score["paul"] # An added advantage of named vectors is that we can also subset them using the name tag 
 
 ### Assigning arbitrary attributes to objects ------------------------------
 # we can add arbitrary other attributes, but only some (predefined) attributes trigger additional functionality
-attr(econ.score, "examdate") <- "2020-03-02"
-econ.score
-str(econ.score)
+attr(econ_score, "examdate") <- "2020-03-02"
+econ_score
+str(econ_score)
 
 ### The class attribute ----------------------------------------------------
 # A particularly important attribute is the 'class' attribute, which can create different objects in R
 # to which different function methods apply. The class uniquely identifies a certain type of R object
 
-class(econ.score) <- "bla" # same as attr(econ.score, "class") <- "bla"
-inherits(econ.score, "bla")       # Inherits checks if an object is of a certain class
-any(class(econ.score) %in% c("bla", "fu")) # Same thing as what inherits does..
-any(class(econ.score) == "bla")   # Just note that == is better than %in% if we are only comparing a vector with one element. However %in% works for multiple elements
-                                  # inherits uses %in% because an object can have more than one class 
+class(econ_score) <- "bla" # same as:
+attr(econ_score, "class") <- "bla"
+inherits(econ_score, "bla")       # Inherits checks if an object is of a certain class
+any(class(econ_score) %in% "bla") # Same thing as what inherits does..
+any(class(econ_score) == "bla")   # Just note that == is better than %in% if we are only comparing a vector with one element. However %in% works for multiple elements, and an object can have more than one class 
 
 ### Factors ----------------------------------------------------------------
 # An important type of vector in R is a factor - analogous to an encoded categorical variable in STATA or other software
-v <- rep(1:2, c(10L, 5L))  # Underlying integer values
-levels(v) <- c("Male", "Female")   # same as attr(v, "levels") <- 
-attr(v, "levels") <- c("Male", "Female")
+v <- rep(1:2, c(10L, 5L))          # Underlying integer values
+levels(v) <- c("Male", "Female")   # same as attr(v, "levels") <- c("Male", "Female")
 class(v) <- "factor"               # same as attr(v, "class") <- 
 v
 str(v)
 is.object(v)  # If on object in R has a class attribute, it is no longer a plain vector. This can be checked with is.object
 sum(v)        # This is now no longer an integer vector, but a categorical variable. You cannot just take the sum of it anymore
 is.factor(v)  # We can check if it is a factor
+inherits(v, "factor")
 
 levels(v)     # returns the levels (= value labels)
 class(v)      # returns the class of v
@@ -548,7 +545,9 @@ v
 identical(v, v2)  # This is now again plain integer, same as v2. 
 
 # Since it can be tedious to first create a plain vector and the assign attributes to it, the structure() function lets us to all the in one go
-v <- structure(rep(1:2, c(10L, 5L)), levels = c("Male", "Female"), class = "factor")
+v <- structure(rep(1:2, c(10L, 5L)), 
+               levels = c("Male", "Female"), 
+               class = "factor")
 v
 # For most classes, there is also a constructor function that makes the creation of this particular type of object even simpler:
 factor(rep(c("Male", "Female"), c(10L, 5L))) # By default the factor levels are alphabetically ordered
@@ -582,19 +581,17 @@ inherits(d, "Date")
 str(d)
 
 
-
 #****************************
 ### In-Class Exercise 5 -----
 #****************************
 
 # Problem 1: Consider again the vector of weights used earlier
-weights <- c(80.5, 63.9, 75.3, 68.1, 79.3) # weights in kg
+weights <- c(80.5, 63.9, 75.3, 68.1, 79.3)        # weights in kg
 persons <- c("Dan", "Paul", "Anna", "Tim", "Tom") # names of the persons
 
 # (a) assign the person names to the weights vector, and get the weight of Paul
 
-# (b) compare the weight of paul to the weights of Tim and Tom
-
+# (b) compare the weight of Paul to the weights of Tim and Tom
 
 # Problem 2: consider the following vector
 k <- c("Yes", "Yes", "No", "Yes", "Don't Know", "No")
@@ -612,14 +609,13 @@ k <- c("Yes", "Yes", "No", "Yes", "Don't Know", "No")
 # (f) Manually recreate the factor from the character vector using using match(), sort() and unique()
 
 
-
 ### Matrices --------------------------------------------------------------
 # Apart from the 'class' attribute which determines the type of an object,
 # we can create N-dimensional structures from vectors simply by attaching a dimension ('dim') attribute:
 
-econ.score <- c(75.4, 80.1, 85.8)
-math.score <- c(72.5, 67.6, 80.9)
-m <- c(econ.score, math.score) # combining the two vectors
+econ_score <- c(75.4, 80.1, 85.8)
+math_score <- c(72.5, 67.6, 80.9)
+m <- c(econ_score, math_score) # combining the two vectors
 m
 dim(m) <- c(3L, 2L) # This now adds a dimension attribute (same as attr(m, "dim") <- c(3L, 2L))
   # The added dimension attribute tells R that this object has  more than one dimension
@@ -629,38 +625,38 @@ is.matrix(m) # but the dimension attribute is enough for R to know this is a mat
 class(m)     # accordingly, this returns the implicit class
 
 str(m)  # Note that nothing here has changed about the way the data is stored...
-c(econ.score, math.score) # the data is still stored in a numeric vector. 
+c(econ_score, math_score) # the data is still stored in a numeric vector. 
 # the added 'dim' attribute just tells R that this is a 2-dimensional structure and it treats it as such
 
 # Similarly to factors, there is a constructor function for matrices: 
-matrix(c(econ.score, math.score), nrow = 3L, ncol = 2L)
+matrix(c(econ_score, math_score), nrow = 3L, ncol = 2L)
 
 # For matrices, we can also assign row- and column-names:
 rownames(m) <- c("bob", "paul", "ashley")
-colnames(m) <- c("econ.score", "math.score")
+colnames(m) <- c("econ_score", "math_score")
 m
 dimnames(m) # This returns the dimension names in a list (which we will discuss in a bit)
 
 # Since this is a matrix, we can now subset both rows and columns (in the same way as we can subset a (named) vector)
-m["paul", "econ.score"] # m[rows, columns], same as for vectors which only allow 1D subsetting e.g. v[indices]
+m["paul", "econ_score"] # m[rows, columns], same as for vectors which only allow 1D subsetting e.g. v[indices]
 m[2L, 1L]  # Same thing using integer indices instead of names
 m[c("paul", "ashley"), ] # Subsetting rows only
 m[2:3, ]   # Same thing
 m[-1L, ]   # Same thing
-m[1L, ]    # Only subsetting columns. 
-str(m[, 1L]) # Note that this is again a named vector
+m[1L, ]    # Only subsetting rows. 
+str(m[1L, ]) # Note that this is again a named vector
 m[1L, , drop = FALSE] # using drop = FALSE we can prevent R to drop the dimensions of the object. 
-str(m[, 1L, drop = FALSE]) # So this remains a matrix, even though we extract only one column
+str(m[1L, , drop = FALSE]) # So this remains a matrix, even though we extract only one column
 
 # Note that the data is still stored in a vector, so we don't need to use matrix subsetting:
 m[1:4] # Although m is now a matrix, it retains all essential properties of a vector, including 1D subsetting
 sum(m) # Basic statistical function can also be called on the matrix as if it were a vector.
 
 # Useful functions for matrices: cbind = column-bind: Here column-binding two vectors also constructs a matrix
-cbind(econ.score, math.score)
+cbind(econ_score, math_score)
 cbind(m, m) # can also be used to combine 2 matrices column-wise
 
-rbind(econ.score, math.score) # similarly there is rbind for row-binding
+rbind(econ_score, math_score) # similarly there is rbind for row-binding
 rbind(m, m) 
 
 # There are a number of built-in functions that operate on matrices
@@ -704,7 +700,7 @@ outer(c("a","b"), c("a","b"), paste)
 
 solve(cm)     # Matrix inverse cm^(-1)
 n = 1:2
-solve(cm, n)  # Find x in: cm * x = n
+solve(cm, n)  # Find x in: cm %*% x = n
 chol2inv(chol(cm)) # More efficient inverse of a symmetric PD matrix based on choleski factorization (if matrix is not symmetric or PD, use solve())
 eigen(cor(m)) # Eigen-decomposition (of correlation matrix, useful for PCA)
 svd(m)        # Singular-Value decomposition (more efficient way to do PCA in the absence of missing values)
@@ -756,11 +752,12 @@ freeny.x
 lm(freeny.y ~ freeny.x)
 
 
-
 ### Arrays: Same as matrix but with 3 or more dimensions -------------------
 # Again we have a constructor function
 a <- array(1:27, dim = c(3L,3L,3L), 
-           dimnames = list(c("1a", "1b", "1c"), c("2a", "2b", "2c"), c("3a", "3b", "3c")))
+           dimnames = list(c("1a", "1b", "1c"), 
+                           c("2a", "2b", "2c"), 
+                           c("3a", "3b", "3c")))
 str(a)
 dim(a)
 dimnames(a)
@@ -812,6 +809,7 @@ l1 <- list(7.5, 9:10, "word", 3 + 8 != 5) # the list function combines vectors o
 l1 # This is how the printout looks like
 str(l1) # see the structure of it
 is.list(l1)
+is.atomic(l1)
 class(l1)  # The implicit class is list
 length(l1) # This returns the length of the list
 seq_along(l1) # This returns the indices of the list elements (same as 1:length(l1))
@@ -821,6 +819,7 @@ l2 <- list(avec = 1:10, bvec = c("a", "b", "c"), cvec = c(TRUE, FALSE))
 l2
 str(l2)
 names(l2)
+
 # Aain we can also assign names
 names(l1) <- letters[seq_along(l1)] 
 l1
@@ -844,6 +843,7 @@ l2 <- list(avec = 1:10, bvec = c("a", "b", "c"), cvec = c(TRUE, FALSE),
 l2         # This is a named list containing vectors of different types as well as a sublist and a function
 str(l2)
 l2$avec    # Use $ to pool out list elements by their name
+l2$bvec
 l2$sublist 
 l2$sublist$e 
 
@@ -892,7 +892,9 @@ mean(8:10) # This works, thus if we want to compute statistics on a nested list,
 
 m # Remember the matrix m we create above?
 # This creates a named list replicating m three times
-ml <- list(`2010` = m + rnorm(6L), `2011` = m, `2012` = m + rnorm(6L))
+ml <- list(`2010` = m + rnorm(6L), 
+           `2011` = m, 
+           `2012` = m + rnorm(6L))
 ml
 # suppose we canted to combine all the matrices in these lists row- or column wise:
 # The function do.call constructs a function call by passing a list of arguments to a function
@@ -902,7 +904,8 @@ do.call(rbind, ml) # same as rbind(m, m, m)
 # Since this is a list of 3 matrices of the same dimensions, we might also 
 # want to create a 3D arraay from this. This can be done 
 # using the function simplify2array() = unlist to more than 1 dimensions
-simplify2array(ml)
+ma <- simplify2array(ml)
+str(ma)
 
 
 #****************************
@@ -910,16 +913,17 @@ simplify2array(ml)
 #****************************
 
 # Consider the list ml created above
+str(ml)
 
-# (a) Add scores for the year 2013 in a similar way I created them for 2012, look up the rnorm function. 
+# (a) Add scores for the year 2013 in a similar way I created them for 2012, look up the rnorm() function. 
 
 # (b) Look at the structure of the list, view it in the data viewer, and print the scores for 2012 and 2013
 
 # (c) Compute the average math and econ score and the average score for each student in each year using lapply()
 
-# (d) Simplify your calculation result from part (c) using simplify2array
+# (d) Simplify your calculation result from part (c) using simplify2array()
 
-# (e) Do steps (c) and (d) in one step using the sapply function. Look it up in the documentation
+# (e) Do steps (c) and (d) in one step using the sapply() function. Look it up in the documentation
 
 # (f) Delete the matrices for 2010 and 2013 from the ml list. 
 
@@ -933,16 +937,18 @@ simplify2array(ml)
 # Using the data.frame constructor
 students <- data.frame(weights = c(60.5, 72.5, 45.2), # Numeric vector
                        genders = factor(c("Male", "Male", "Female")), # Factor
-                       econ.score = econ.score, # Integer vector
-                       math.score = math.score, 
+                       econ_score = econ_score, # Integer vector
+                       math_score = math_score, 
                        row.names = c("bob", "paul", "ashley"))
 str(students)
+is.list(students)
+is.data.frame(students)
 
 # Lets construct it manually:
 students <- list(weights = c(60.5, 72.5, 45.2), 
                  genders = factor(c("Male", "Male", "Female")), 
-                 econ.score = econ.score, 
-                 math.score = math.score)
+                 econ_score = econ_score, 
+                 math_score = math_score)
 attr(students, "row.names") <- c("bob", "paul", "ashley")
 class(students) <- "data.frame"
 str(students)
@@ -950,8 +956,8 @@ str(students)
 # Same thing again using the structure function 
 students <- structure(list(weights = c(60.5, 72.5, 45.2), 
                  genders = factor(c("Male", "Male", "Female")), 
-                 econ.score = econ.score, 
-                 math.score = math.score),
+                 econ_score = econ_score, 
+                 math_score = math_score),
                  row.names = c("bob", "paul", "ashley"), class = "data.frame")
 
 students
@@ -966,6 +972,7 @@ str(students[, "genders", drop = FALSE])
 
 # Or like a list (again this is analogous to matrices and arrays which maintain the properties of a vector: The data frame maintains the properties of a list which it is based upon)
 students[2L] 
+students["genders"] 
 students[[2L]] 
 students$genders
 
@@ -983,21 +990,22 @@ identical(students[, -2L], students[-2L])
 # Row-subsetting also works in a similar way
 students[1L, ] # Since the data frame is a list of columns whose data types can be different, this preserves the data frame (i.e. no dropping dimensions for rows)
 students[2:3, ] 
+students[1:2, ] 
 
 # Subsetting based on content of the data.frame
 students[students$genders == "Male", ]
 students[students$genders %in% c("Male", "Female"), ] # This is non-sensible here, but if there are more than two choices you can do like that
 students[students$weights > 56, ] 
-students[students$econ.score > 80 & students$math.score > 80, ] # Can combine arbitrary statements using & | ! and () to group statements
+students[students$econ_score > 80 & students$math_score > 80, ] # Can combine arbitrary statements using & | ! and () to group statements
 
 # A more user friendly way to do this is with the subset() function
 subset(students, genders == "Male")
-subset(students, econ.score > 80 & math.score > 80)
-subset(students, econ.score > 80 & math.score > 80, weights:genders) # also selecting columns
+subset(students, econ_score > 80 & math_score > 80)
+subset(students, econ_score > 80 & math_score > 80, weights:genders) # also selecting columns
 
 # Computing or deleting columns
 students$new = 1
-students$sum.score = students$econ.score + students$math.score
+students$sum_score = students$econ_score + students$math_score
 students
 students$new = NULL # deleting a column
 students
@@ -1005,30 +1013,31 @@ students[["new"]] = 1 # same thing
 students[["new"]] = NULL 
 # Multiple columns
 students[["new"]] = 1 
-students[, c("new", "sum.score")] = NULL # note that students[c("new", "sum.score")] also works as a data.frame is also a list
+students[, c("new", "sum_score")] = NULL # note that students[c("new", "sum_score")] also works as a data.frame is also a list
 students
 
 # Again a more user friendly way to do this is offered by transform()
 transform(students, new = 1)
-transform(students, sum.score = econ.score + math.score)
+transform(students, sum_score = econ_score + math_score)
 # Can also transform multiple columns, and save result
-students <- transform(students, sum.score = econ.score + math.score, 
-                      mean.score = (econ.score + math.score) / 2)
+students <- transform(students, 
+                      sum_score = econ_score + math_score, 
+                      mean_score = (econ_score + math_score) / 2)
 students
 # Deleting columns this way
-students <- transform(students, sum.score = NULL, mean.score = NULL)
+students <- transform(students, sum_score = NULL, mean_score = NULL)
 
 # Ordering
-students[order(students$math.score), ] # Default: Ascending order
-students[order(students$math.score, decreasing = TRUE), ]
+students[order(students$math_score), ] # Default: Ascending order
+students[order(students$math_score, decreasing = TRUE), ]
 # First by gender, then by econ score, in ascending order
-students[order(students$genders, students$econ.score), ]
+students[order(students$genders, students$econ_score), ]
 
 # Note that there is no user friendly function to do this in basic R, 
 # but we will learn those supplied by packages in Course 2 (dplyr::arrange, collapse::roworder and data.table::setorder)
 
 # With allows computing in a list or data.frame environment without 
-with(students, (math.score + econ.score) / 2)
+with(students, (math_score + econ_score) / 2)
 with(l2, sum(avec))
 
 # Functions for data frames:
@@ -1062,6 +1071,7 @@ as.matrix(students[colnames(m)]) # if converting to matrix, all columns must be 
 # Important functions
 ?na.omit # removes missing values or rows from vectors, matrices or data frames
 na.omit(airquality)
+View(na.omit(airquality))
 nrow(airquality)
 nrow(na.omit(airquality))
 
@@ -1075,6 +1085,7 @@ airquality[complete.cases(airquality), ] # Same thing as na.omit(airquality)
 ?split # Splits a vector / matrix or data frame into groups based on vectors / factors
 View(iris) # 	Edgar Anderson's Iris Data: gives the measurements in centimeters of the variables sepal length and width and petal length and width, respectively, for 50 flowers from each of 3 species of iris. The species are Iris setosa, versicolor, and virginica.
 l <- split(iris[1:4], iris$Species)
+View(l)
 str(l)
 # This reassembles the list again
 do.call(rbind, l)
@@ -1095,7 +1106,7 @@ esoph
 
 # (b) Compute the percentage of cancer cases on the dataset
 
-# (c) Subset the dataset to display only the 25-34 and 35-44 year olds with both above average alcohol and tobacco consumption
+# (c) Subset the dataset to display only the 25-34 and 35-44 year old's with both above average alcohol and tobacco consumption
 
 # (d) Repeat the exercise in part (c), now with the people older than 65. What do you notice?
 
@@ -1187,13 +1198,18 @@ hello <- function(yourname, goodbye = FALSE) {
     paste("Hello", yourname)
 }
 # The most compact way to write this function is actually to put the if clause inside paste():
-hello <- function(yourname, goodbye = FALSE) paste(if (goodbye) "Goodbye" else "Hello", yourname)
+hello <- function(yourname, goodbye = FALSE) 
+  paste(if (goodbye) "Goodbye" else "Hello", yourname)
 # But for now you should write functions in the first way I have shown you above, using if(){} else {} and spaces between these statements
 
 # So far we have created function and saved them by creating function objects 
 # e.g. myfun <- function(x, y, z, ..) {...}
 # We can also define ad-hoc functions i.e. functions that are defined instantly to do a specific task but not saved.
 sapply(mtcars, function(x) c(N = sum(!is.na(x)), Mean = mean(x), SD = sd(x), Min = min(x), Max = max(x)))
+sapply(mtcars, summary) # Compare to summary function
+# Same after first defining the function
+my_summary <- function(x) c(N = sum(!is.na(x)), Mean = mean(x), SD = sd(x), Min = min(x), Max = max(x))
+sapply(mtcars, my_summary)
 
 ### The return Argument ----------------------------------------------------
 # by default, the function returns the last object evaluated in its body.
