@@ -4,6 +4,8 @@
 # Course 2 Session 1
 ############################################
 
+setwd("Course 2 - Advanced Data Manipulation and Visualization in R")
+
 #****************************
 ### In-Class Exercise 1 -----
 #****************************

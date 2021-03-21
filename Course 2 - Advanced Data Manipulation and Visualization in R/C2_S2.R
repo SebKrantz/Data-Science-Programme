@@ -13,6 +13,7 @@
 # (1) Brief Recap of Base Graphics (material of C1_S2)
 # (2) Data Visualization with ggplot2
 
+setwd("Course 2 - Advanced Data Manipulation and Visualization in R")
 
 
 # (2) Data visualization with 'ggplot2' ------------------------------------
