@@ -14,8 +14,11 @@
 # (2) Data Visualization with ggplot2
 
 
-## Advanced graphics with ggplot2 -----------------------------------
-library(ggplot2)
+
+# (2) Data visualization with 'ggplot2' ------------------------------------
+#***************************************************************************
+install.pckages("ggplot2")
+library(ggplot2) 
 library(magrittr)
 library(collapse)
 library(data.table)
@@ -25,7 +28,7 @@ View(mtcars)
 qplot(mpg, data = mtcars)
 qplot(mpg, wt, data = mtcars)
 qplot(mpg, wt, data = mtcars, colour = factor(cyl))
-qplot(mpg, wt, data = mtcars, size = cyl)
+qplot(mpg, wt, data = mtcars, size = factor(cyl))
 qplot(mpg, wt, data = mtcars, shape = factor(cyl))
 qplot(mpg, wt, data = mtcars, facets = vs ~ am)
 qplot(mpg, wt, data = mtcars, geom = c("point", "smooth"))
@@ -49,7 +52,7 @@ histplot <- function(data, max.bins = 60L) {
   char_vars(data) <- NULL
   # Put summary statistics in the variable names:
   names(data) <- qsu(data)[, 1:3] %>% round(1L) %>% qDF("Name") %>% {
-                 do.call(sprintf, c(list("%s (N: %s Mean: %s, SD: %s)"), .)) }
+                 do.call(sprintf, c(list("%s\nN: %s Mean: %s, SD: %s"), .)) }
   # For each variable set number of Bins to the number of distinct values, if the number of distinct values is smaller than 60. otherwise, number of bins is 60
   mybins <- fNdistinct(data)
   mybins[mybins > max.bins] <- max.bins
@@ -77,7 +80,9 @@ GGDC10S %>% ftransformv(6:16, `/`, SUM) %>% histplot
 HDI <- haven::read_dta("data/plotdata/HDI Trends.dta")
 names(HDI)
 p <- ggplot(HDI, aes(x = year, y = HDI, color = regions)) +
-     scale_colour_discrete(name = "Regions") + geom_smooth(se = FALSE)
+     geom_smooth(se = FALSE) +
+     scale_colour_discrete(name = "Regions") 
+
 p
 
 # THEMES
@@ -85,7 +90,7 @@ p
 # Standard themes: http://ggplot2.tidyverse.org/reference/ggtheme.html
 p + theme_minimal(base_size = 16)
 
-# ggthemes package: https://cran.r-project.org/web/packages/ggthemes/vignettes/ggthemes.html or https://yutannihilation.github.io/allYourFigureAreBelongToUs/ggthemes/
+# ggthemes package: 
 library(ggthemes)
 help(package = "ggthemes")
 # https://yutannihilation.github.io/allYourFigureAreBelongToUs/ggthemes/
@@ -94,9 +99,9 @@ help(package = "ggthemes")
 p + theme_stata() + scale_color_stata()
 p + theme_economist(base_size = 12, base_family = "serif") + scale_color_economist()
 p + theme_economist_white() + scale_color_economist()
-library(extrafont)
-p + theme_economist(base_family = "ITC Officina Sans") +
-  scale_colour_economist()
+# library(extrafont)
+# p + theme_economist(base_family = "ITC Officina Sans") +
+#   scale_colour_economist()
 p + theme_wsj(base_size = 18, color = "gray")
 p + theme_hc() + scale_colour_hc()
 p + theme_igray(base_size = 16) + scale_colour_tableau()
@@ -116,7 +121,8 @@ p + scale_colour_tableau()
 # R-Brewer Palettes:
 library(RColorBrewer)
 display.brewer.all()
-p + theme_minimal(base_size = 16) + scale_color_brewer(palette="YlOrRd")
+p + theme_minimal(base_size = 16) + 
+  scale_color_brewer(palette="YlOrRd")
 p + theme_minimal(base_size = 16) + scale_color_brewer(palette="Set1")
 p + theme_minimal(base_size = 16) + scale_color_brewer(palette="Dark2")
 
@@ -190,9 +196,9 @@ ggplotly2 <- function(p, dynticks = FALSE, hoverinfo = "x+y+name", hoverformat =
 }
 
 ggplotly2(myplot + guides(colour = FALSE), hoverinfo = "y+name", 
-          hoverformat = ".3f")
+          hoverformat = ".3f", legend = NA)
 
-ggplotly2(myplot, hoverinfo = "y+name", hovermode = "x unified", 
+ggplotly2(myplot, hoverinfo = "y+name", hovermode = "x unified", legend = NA,
           hoverformat = ".3f", hoverlabel = list(bgcolor = 'rgba(255, 255, 255, 0.8)', bordercolor = "transparent"))
 
 
@@ -240,7 +246,7 @@ p5.2 <- theme(axis.text.x = element_text(face = "bold", size = 10, margin = marg
               plot.title = element_text(hjust = 0.5),
               legend.text = element_text(size = 12))
 # Make Lgend 1 column
-p5.3 <- guides(col = guide_legend(ncol = 1, byrow = TRUE, title = "Regional Aggregate"))
+p5.3 <- guides(colour = guide_legend(ncol = 1, byrow = TRUE, title = "Regional Aggregate"))
 
 
 p1
@@ -280,14 +286,14 @@ pretty_plot2 <- theme_minimal() +
 
 # Bar Charts:
 ggplot(GOVI, aes(x = Region, y = value, fill = Region)) + 
-  geom_bar(stat = "identity", alpha = 0.8) + pretty_plot2 +  # + geom_col()
+  geom_bar(stat = "identity", alpha = 0.8)  +  # + geom_col()
   scale_y_continuous(breaks = scales::pretty_breaks(n = 7), expand = c(0.2, 0)) + 
   scale_x_discrete(breaks = NULL) +
   geom_text(inherit.aes = TRUE, mapping = aes(label = round(value, 1)), 
             vjust = ifelse(GOVI$value > 0, -0.3, 1.3), size = 3.5) + # 1.6, color="white" ifelse(GOVI$value>0,1.5,-0.8)
   facet_wrap( ~ Variable, scales = "free", ncol = 3) + 
   labs(y = "Index Value", x = NULL) + 
-  scale_fill_viridis(discrete = TRUE, option = "B")
+  scale_fill_viridis(discrete = TRUE, option = "B") + pretty_plot2
 
 dev.copy(pdf, "figures/Uganda Governance Statistics.pdf", width = 11.69, height = 8.27)
 dev.off()
@@ -310,7 +316,8 @@ mp <- mp + geom_text(inherit.aes = TRUE, mapping = aes(label = round(value, 1)),
 mp
 # Adjusting y-scale and setting x-ticks to 0:
 mp <- mp + scale_y_continuous(breaks = scales::pretty_breaks(n = 7), 
-                              expand = c(0.2, 0)) + scale_x_discrete(breaks = NULL)
+                              expand = c(0.2, 0)) + 
+      scale_x_discrete(breaks = NULL)
 mp
 # Adding custom theme styling:
 mp <- mp + pretty_plot2
@@ -482,15 +489,17 @@ plotGGDC <- function(ctry) {
 }
 
 plotGGDC("TZA")
+plotGGDC("KEN")
+plotGGDC("BWA")
 
 # Now reshaping and computing labour productivity as well
 
 data <- GGDC10S %>% qDT %>% 
   fselect(-Regioncode, -Region) %>%
-  melt(1:3, variable.name = "Sector") %>%
+  melt(1:3, variable.name = "Sector") %>% 
   dcast(Country + Sector + Year ~ Variable, data = .) %>% 
   ftransform(LP = VA / EMP) %>% 
-  melt(1:3, variable.name = "Variable", na.rm = TRUE) 
+  melt(1:3, variable.name = "Variable", na.rm = TRUE)
 
 # Shares Plot
 data[Country == "TZA" & Sector != "SUM"] %>%
@@ -505,12 +514,12 @@ data[Country == "TZA" & Sector != "SUM"] %>%
           strip.background = element_rect(colour = "grey20", fill = "grey20"),
           strip.text = element_text(face = "bold"))
 
-data[Country == "TZA" & Sector != "SUM"] %>%
+data[Country == "BWA" & Sector != "SUM"] %>%
   ggplot(aes(x = Year, y = value, colour = Sector)) +
   geom_xspline(spline_shape = 1, size = 1) + 
   facet_wrap( ~ Variable, scales = "free_y") +
   labs(x = NULL, y = NULL) +
-  theme_bw(base_size = 14) + guides(color = FALSE) +
+  theme_bw(base_size = 14) + # guides(color = FALSE) +
   scale_color_manual(values = sub("#00FF66", "#00CC66", rainbow(10L))) +
   scale_x_continuous(breaks = scales::pretty_breaks(n = 7), expand = c(0, 0))+
   scale_y_log10(breaks = scales::trans_breaks("log10", function(x) 10^x),
@@ -580,6 +589,8 @@ dev.off()
 # https://stackoverflow.com/questions/36367335/ggmap-removing-country-names-from-googles-terrain-map
 # https://developers.google.com/maps/documentation/maps-static/styling#features
 
+# NOTE: This example does not work anymore as you now need to get a Google maps static API key. 
+# With your own maps API key, you can easily get it running.
 long <- mean(range(CIM$gps1longitude, na.rm = TRUE))
 lat <- mean(range(CIM$gps1latitude, na.rm = TRUE))
 
@@ -717,5 +728,5 @@ ggplot_shiny()
 # R graph gallery: https://www.r-graph-gallery.com/
 
 # for more on interactive plots, see: https://www.htmlwidgets.org/index.html
-# Also look up the plotly library, read the provided book on developing data products in R, and check out a package called d3r, which provides a wrapper for the powerful D3 interactive web graphics language: https://d3js.org/
+# Also look up the plotly library, read the book on developing data products in R from the JHU Data Science Specialization on Coursera, and check out a package called d3r, which provides a wrapper for the powerful D3 interactive web graphics language: https://d3js.org/
 
