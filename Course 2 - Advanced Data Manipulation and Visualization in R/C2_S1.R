@@ -18,7 +18,7 @@
 # (5) Time series with 'xts' + rolling statistics with 'roll' and 'dygraph' charts
 
 
-setwd("~/R/Data-Science-Programme/Course 2 - Advanced Data Manipulation and Visualization in R")
+setwd("Course 2 - Advanced Data Manipulation and Visualization in R")
 
 # (0) Projects Workflow in Rstudio, Git and Github -------------------------
 #***************************************************************************
@@ -49,6 +49,7 @@ rowMeans(m)
 colMeans(m)
 
 # Now the matrixStats package extends the set of row-and column-wise statistical functions
+install.packages("matrixStats")
 library(matrixStats)
 ?`matrixStats-package`
 vignette(package = "matrixStats")
@@ -66,8 +67,8 @@ colSds(m)
 # etc...
 
 # There are also weighted versions:
-colWeightedMeans(m, w = abs(rnorm(nrow(m))))
-colWeightedMedians(m, w = abs(rnorm(nrow(m))))
+colWeightedMeans(m, w = m[, "Population"])
+colWeightedMedians(m, w = m[, "Population"])
 
 # Unfortunately matrixStats functions at this point don't preserve the dimension names of the matrices.
 # This will be fixed soon, but at the moment we need to copy those names using e.g.
@@ -76,7 +77,7 @@ setNames(rowMins(m), rownames(m))
 setNames(colMins(m), colnames(m))
 
 # Another nice feature of the matrixStats package is that you can compute on subsets of rows and columns.
-rowMaxs(m, cols = 1:3)
+setNames(rowMaxs(m, cols = 1:3), rownames(m))
 rowMaxs(m[, 1:3]) # Same thing but much slower as we first need to materialize the subsetted matrix
 
 rowSums2(m, cols = 1:3)
@@ -117,7 +118,8 @@ names(res) <- grep("^A_", colnames(SAM_mat), value = TRUE)
 res
 
 # The less efficient base R way
-colSums(SAM_mat[startsWith(rownames(SAM_mat), "C_"), startsWith(colnames(SAM_mat), "A_")])
+colSums(SAM_mat[startsWith(rownames(SAM_mat), "C_"), 
+                startsWith(colnames(SAM_mat), "A_")])
 
 
 #****************************
@@ -126,11 +128,12 @@ colSums(SAM_mat[startsWith(rownames(SAM_mat), "C_"), startsWith(colnames(SAM_mat
 
 # (a) using rowSums2(), compute the total intermediate use of each commodity
 
-# (b) repeat step (a) usig rowSums() where you subset the matrix beforehand
+# (b) repeat step (a) using rowSums() where you subset the matrix beforehand
 
 # (c) compute the taxes and transport margins paid on commodities
 
 # (d) compute the total expenditure of different households on all commodities
+
 
 
 # (2) Pipe operators with 'magrittr' ---------------------------------------
@@ -236,7 +239,7 @@ mtcars$mpg %>% {
 # Rewrite these expressions using magrittr pipes:
 
 # (a)
-sapply(subset(ftransform(mtcars, mpg2 = mpg * 2),
+sapply(subset(transform(mtcars, mpg2 = mpg * 2),
               cyl > 4 & mpg > 20, vs:mpg2), median)
 
 # (b)
@@ -244,6 +247,8 @@ str(rapply(list(airquality, mtcars), sum, how = "list"))
 
 # (c)
 do.call(rbind, tapply(iris$Sepal.Width, iris$Species, quantile)) 
+
+
 
 
 
@@ -261,6 +266,8 @@ do.call(rbind, tapply(iris$Sepal.Width, iris$Species, quantile))
 # II. Exposition pipe `%$%`
   # Recall that a convenient way to access columns from a data frame is by using the `$` operator
   cor(iris$Sepal.Length, iris$Sepal.Width)
+  iris %$% cor(Sepal.Length, Sepal.Width)
+
   tapply(iris$Sepal.Width, iris$Species, quantile)
   
   # Recall also that the with() function in base R lets us write code that is evaluated in the data environment
@@ -335,7 +342,7 @@ do.call(rbind, tapply(iris$Sepal.Width, iris$Species, quantile))
 # These packages are also useful, but they are mostly designed to deal well with cross-sectional datasets as they occur a lot in industry, 
 # and have severe limitations when it comes to dealing with weights, irregular time series / panels, as well as performance bottlenecks on large data.
 
-    
+install.packages("collapse")
 library(collapse)    
 ?`collapse-package`    
 ?`collapse-documentation`        
@@ -518,7 +525,7 @@ View(wlddev)
 
 # (e) Compute the annualized 10-year growth rates of these variables
 
-# (f) Save the of GDP, LIFE Expectancy and ODA for EAC variables in a matrix and plot it
+# (f) Save the GDP, LIFE Expectancy and ODA for EAC variables in a matrix and plot it
 
 # (g) Repeat part (f) and plot the annualized growth rates computed in (e)
 
@@ -590,8 +597,8 @@ pop_vars <- num_vars(CENS, "indices") %>% setdiff(perc_vars)
 # Now aggregating to district level
 CENS_district <- 
   collap(CENS, ~ Region + District, w = ~ POP,
-       custom = list(fmean = perc_vars, fsum_uw = pop_vars), 
-       keep.w = FALSE)
+         custom = list(fmean = perc_vars, fsum_uw = pop_vars), 
+         keep.w = FALSE)
 
 View(CENS_district)
 
@@ -616,8 +623,13 @@ View(CENS_district)
 # Sometimes we are however interested in much simpler tasks where we want to aggregate only a few columns but with 
 # different functions. See:
 ?fsummarise
+  
+CENS %>% fgroup_by(Region, District) %>% 
+    fsummarise(POP_TOT = fsum(POP), 
+               male_HH_perc = fmean(HHEAD_M_P, w = POP))
 
   
+
 #****************************
 ### In-Class Exercise 4 -----
 #****************************
@@ -635,10 +647,10 @@ UNHS_pov <- read_dta("data/UNHS_pov16.dta") %>% as_factor
 # (d) Compute the median, 1st and 2rd quartile of 'welfare' by 'regurb'. 
 # TIP: Use fsummarise and fnth, also utilize the weights 'finalwgt' 
 
-# (e) Compute the median, 1st and 2rd quartile of 'welfare' by 'regurb'. 
+# (e) Compute an identifier indicating whether a household is wealthier than the median household in the same 'regurb' group.
 
-# (f) Aggregate the data to the district level. Remove the column 'hhid' and 'ea' beforehand,
-#     utilize the weights 'winalwgt'. 
+# (f) Aggregate the data to the district level. Remove the columns 'hhid' and 'ea' beforehand,
+#     utilize the weights 'finalwgt'. 
 
 
 
@@ -647,20 +659,20 @@ UNHS_pov <- read_dta("data/UNHS_pov16.dta") %>% as_factor
 # collapse is a nice and very fast package that allows us to do advanced statistical computations
 # on vectors, matrices and data frames. However, it has some limitations that kick in 
 # especially if we want to perform arbitrary computations on data by groups, combine (join) or reshape
-# datasets etc., compute rollig statistics or to efficiently read and write files. 
+# datasets etc., compute rolling statistics or to efficiently read and write files. 
 
 # In the following we will see two more important packages that help us improve on data management and 
 # more flexible computing, and with time series analysis.   
   
 
-# (3) Data manipulation and management with 'data.table' -------------------
+# (4) Data manipulation and management with 'data.table' -------------------
 #***************************************************************************
 
 library(data.table)
 ?`data.table-package`
 ?data.table
 
-data("GGDC10S")
+GGDC10S <- collapse::GGDC10S
 setDT(GGDC10S)
 GGDC10S
 
@@ -683,34 +695,42 @@ GGDC10S
 # Some simple examples
   # (1) Subsetting (same as collapse::fsubset)
   GGDC10S[Country == "BWA", ]
+  fsubset(GGDC10S, Country == "BWA")
   # Same thing (similar to pandas in python). 
   GGDC10S[Country == "BWA"]
-  qDF(GGDC10S)[Country == "BWA"] # Note that this is not supported by the naive data.frame (collpse::qDF() is a fast converter to data.frame)
+  qDF(GGDC10S)[GGDC10S$Country == "BWA", ] # Need to do this with data.frame (collapse::qDF() is a fast converter to data.frame)
+  
+  GGDC10S[1:3]           # Note that this give the first 3 rows for a data.table
+  qDF(GGDC10S)[1:3]      # If we have a data.frame, this gives the first 3 columns !! (so know what objects you are dealing with. The different print methods can tell you, and there is a function is.data.table() to check.)
+  
   
   GGDC10S[Regioncode == "SSA" & Year > 1990L]
   # Also selecting columns
   GGDC10S[Regioncode == "SSA" & Year > 1990L, AGR:SUM]
   GGDC10S[Regioncode == "SSA" & Year > 1990L, c("Regioncode", "Year", "AGR")]
   GGDC10S[Regioncode == "SSA" & Year > 1990L, list(Regioncode, Year, AGR)]
-  GGDC10S %>% fsubset(Regioncode == "SSA" & Year > 1990L, Regioncode, Year, AGR) # collapse way
+  GGDC10S %>% fsubset(Regioncode == "SSA" & Year > 1990L, Regioncode, Year, AGR:SUM) # collapse way
   # .() is an alias for list() in data.table
   GGDC10S[Regioncode == "SSA" & Year > 1990L, .(Regioncode, Year, AGR)]
   # Can rename columns (see also collapse::frename)
-  GGDC10S[Regioncode == "SSA" & Year > 1990L, .(Regioncode, Year, Agriculture = AGR, Mining = MIN)]
+  GGDC10S[Regioncode == "SSA" & Year > 1990L, 
+          .(Country, Regioncode, Year, Agriculture = AGR, Mining = MIN)] %>% View
   # Ordering rows
-  GGDC10S[order(Country, -Year)]        # Using data.table
-  GGDC10S %>% roworder(Country, -Year)  # Using collapse (supports pipes)
+  GGDC10S[order(Country, -Year)] %>% View        # Using data.table
+  GGDC10S %>% roworder(Country, -Year) %>% View  # Using collapse (supports pipes)
   setorder(GGDC10S, Country, -Year)     # Another data.table way: Ordering by reference, most efficient!
   
   # Some simple Computations (can use base R functions, but need to use na.rm = TRUE). Computations are internally optimized 
   GGDC10S[, .(sum_AGR = sum(AGR, na.rm = TRUE), mean_AGR = mean(AGR, na.rm = TRUE))]
   GGDC10S %>% fsummarise(sum_AGR = fsum(AGR), mean_AGR = fmean(AGR)) # collapse way
   # Grouped computations  
-  GGDC10S[, .(sum_AGR = sum(AGR, na.rm = TRUE), mean_AGR = mean(AGR, na.rm = TRUE)), keyby = Region]
+  GGDC10S[, .(sum_AGR = sum(AGR, na.rm = TRUE), 
+              mean_AGR = mean(AGR, na.rm = TRUE)), keyby = Region]
   GGDC10S %>% fgroup_by(Region) %>%  # collapse way
     fsummarise(sum_AGR = fsum(AGR), mean_AGR = fmean(AGR)) 
   # Using 'keyby' instructs data.table to order the result. We can also use 'by' which will order results in order of first appearance.
-  GGDC10S[, .(sum_AGR = sum(AGR, na.rm = TRUE), mean_AGR = mean(AGR, na.rm = TRUE)), by = Region]
+  GGDC10S[, .(sum_AGR = sum(AGR, na.rm = TRUE), 
+              mean_AGR = mean(AGR, na.rm = TRUE)), by = Region]
   GGDC10S %>% fgroup_by(Region, sort = FALSE) %>%  # collapse way
     fsummarise(sum_AGR = fsum(AGR), mean_AGR = fmean(AGR)) 
   
@@ -722,7 +742,8 @@ GGDC10S
                  sum_MIN = sum(MIN, na.rm = TRUE))]
   
   GGDC10S
-  settransform(GGDC10S, sum_AGR = fsum(AGR), sum_MIN = fsum(MIN)) # collapse way
+  settransform(GGDC10S, sum_AGR = fsum(AGR), 
+                        sum_MIN = fsum(MIN)) # collapse way
   
   # by groups
   GGDC10S[, sum_AGR := sum(AGR, na.rm = TRUE), by = Region]
@@ -746,8 +767,9 @@ GGDC10S
   # Demeaning a variable by group
   GGDC10S[, demean_AGR := AGR - mean(AGR, na.rm = TRUE), by = .(Variable, Country)]
   GGDC10S
-  settransform(GGDC10S, sum_AGR = fwithin(AGR, list(Variable, Country))) # In this case collapse is more efficient
+  settransform(GGDC10S, demean_AGR = fwithin(AGR, list(Variable, Country))) # In this case collapse is more efficient
   # Computing a lagged variable by group
+  setorder(GGDC10S, Country, Variable, Year)
   GGDC10S[order(Year), lag_AGR := shift(AGR), by = .(Variable, Country)]
   GGDC10S
   settransform(GGDC10S, lag_AGR = flag(AGR, 1, list(Variable, Country), Year)) # In this case collapse is also more efficient
@@ -757,7 +779,13 @@ GGDC10S
   GGDC10S[, .(median_AGR = median(AGR, na.rm = TRUE)), by = c("Variable", "Country", "Region")]
   
   # What if we want to do multiple operations?: Chaining 
-  GGDC10S[, .(median_AGR = median(AGR, na.rm = TRUE)), by = Region][order(median_AGR)]
+  GGDC10S[, 
+    .(median_AGR = median(AGR, na.rm = TRUE)), by = Region
+  ][
+    order(median_AGR)
+  ][
+    Region == "Europe"
+  ]
   
   # data.table is powerful if we want to mix subsetting, grouping and some computation
   GGDC10S[Variable == "VA" & Year > 1990L, .(median_AGR = median(AGR, na.rm = TRUE)), by = Region][order(median_AGR)]
@@ -767,17 +795,20 @@ GGDC10S
   GGDC10S %>% fsubset(Variable == "VA" & Year > 1990L, Region, AGR) %>% fgroup_by(Region) %>% fsummarise(median_AGR = fmedian(AGR)) %>% roworder(median_AGR)
   
   # What if we want to aggregate over multiple columns using data.table?  
-  GGDC10S[Variable == "VA" & Year > 1990L, lapply(.SD, median, na.rm = TRUE), by = Region, .SDcols = AGR:SUM]
+  GGDC10S[Variable == "VA" & Year > 1990L, 
+          lapply(.SD, median, na.rm = TRUE), 
+          by = Region, .SDcols = AGR:SUM]
   # .SD means "subset of data.frame". Below again an equivalent collapse expression.
-  GGDC10S %>% fsubset(Variable == "VA" & Year > 1990L, Region, AGR:SUM) %>% fgroup_by(Region) %>% fmedian
+  GGDC10S %>% fsubset(Variable == "VA" & Year > 1990L, Region, AGR:SUM) %>% 
+    fgroup_by(Region) %>% fmedian
   
   # Now the real advantage of data.table comes with computing arbitrary expressions by group
   
     # This computes pairwise correlations between the 10 sectors by variable and country
-    GGDC10S[, qDT(pwcor(.SD)), by = .(Variable, Country), .SDcols = AGR:SUM]
+    GGDC10S[, qDT(pwcor(.SD)), by = .(Variable, Country), .SDcols = AGR:SUM] %>% View
     # This Estimates a grouped linear regression of Agricultural employment on employment in mining and manufacturing
     library(lmtest, include.only = "coeftest") # Importing only the coeftest function from the lmtest library
-    GGDC10S[Variable == "EMP", qDT(coeftest(lm(AGR ~ MIN + MAN)), "Coef"), by = Country]
+    GGDC10S[Variable == "EMP", qDT(coeftest(lm(AGR ~ MIN + MAN)), "Coef"), by = Country] %>% View
     # Same thing in growth rates, mixing data.table and collapse
     GGDC10S[Variable == "EMP", qDT(coeftest(lm(G(AGR) ~ G(MIN) + G(MAN))), "Coef"), by = Country]
     # Another way of doing the same thing. Note that I use fgrowth instead of G() because G() by default adds a "G1" prefix to columns.  
@@ -795,7 +826,7 @@ GGDC10S
             .SD %>% fgroup_by(Country) %>% fgrowth(t = Year) %>% 
               fscale(sd = "within.sd") %>%
               lm(formula = AGR ~ MIN + MAN) %>% coeftest %>% qDT("Coef"), 
-            by = Region, .SDcols = .c(Country, AGR, MIN, MAN)]
+            by = Region, .SDcols = .c(Country, AGR, MIN, MAN)] %>% View
     
     # We have seen the special symbol .SD allowing us to to operations on a subset of the data.table
     # Another special symbol is .N, which refers to the number of rows (or the last row).
@@ -805,7 +836,9 @@ GGDC10S
     GGDC10S[, .N, by = Region]      # Number of obs by region
     GGDC10S[order(Country, Year), .SD[.N], by = Region] # Last row by region
     # A neat example of this: run the grouped regression only for countries with more than 60 obs of data    
-    GGDC10S[Variable == "EMP", if (.N > 60L) qDT(coeftest(lm(AGR ~ MIN + MAN)), "Coef"), by = Country]
+    GGDC10S[Variable == "EMP", 
+            if (.N > 60L) qDT(coeftest(lm(AGR ~ MIN + MAN)), "Coef"), 
+            by = Country] %>% View
     
     # Now: remember this summarizing exercise:
     rsplit(GGDC10S, ~ Variable + Region) %>%      # Split data
@@ -820,15 +853,15 @@ GGDC10S
     desc$VA$Asia
     desc$VA$Europe
     # Recall our grouped linear regressions
-    GGDC10S[Variable == "VA", qDT(coeftest(lm(AGR ~ MIN + MAN))), by = Country]
+    GGDC10S[Variable == "VA", qDT(coeftest(lm(AGR ~ MIN + MAN)), "Coef"), by = Country] %>% View
     # If we want the full models with a printout, we can use either summary() on the lm object, or the nicer jtools::summ()
     modlist <- GGDC10S %>% 
       fsubset(Variable == "VA", Country, AGR, MIN, MAN) %>%
       rsplit( ~  Country) %>% 
       rapply2d(lm, formula = AGR ~ MIN + MAN)
     
-    jtools::summ(modlist$TZA)
-    jtools::summ(modlist$KEN)
+    summary(modlist$TZA)
+    jtools::summ(modlist$KEN) # Need to install.packages("jtools")
 
    # A final example: Grouped estimation and plotting
     par(mfrow = c(2, 3))
@@ -845,7 +878,7 @@ GGDC10S
 # Data Table also provides an efficient file reader for delimited data (CSV files)
 ?fread
 # This reads CSV from the Bureau of Transporation Statistics for all the flights that departed from New York City airports in 2014 
-input <- fread("https://raw.githubusercontent.com/Rdatatable/data.table/master/vignettes/flights14.csv")
+flights <- fread("https://raw.githubusercontent.com/Rdatatable/data.table/master/vignettes/flights14.csv")
 
 # (a) Save this file in the data subfolder of this course under the name 'flights14.csv' using the function fwrite
 ?fwrite
@@ -853,11 +886,72 @@ input <- fread("https://raw.githubusercontent.com/Rdatatable/data.table/master/v
 # (b) Work through the 'Introduction to data.table' vignette which is based on this data.
 # make sure you get the same results and understand them.
 
-# Bonus: Also work through the 'reference semantics' vignette
+# Bonus: Also work through the 'Reference semantics' vignette
+
 
 
 # Joining tables ----------------------------------------------------------------------------------
 
+X <- data.frame(id = rep(1:3, each = 2L),
+                a = sample(letters, 6L),
+                b = sample(LETTERS, 6L)) %>% setDT
+
+Y <- data.frame(id = 1:3,
+                c = month.name[1:3],
+                d = month.abb[1:3])  %>% setDT
+
+# By default merge() does inner join on common variables
+merge(X, Y)
+X[Y, on = .NATURAL] # data.table way
+merge(Y, X)
+Y[X, on = .NATURAL]
+# Alternatively: Specifying variables:
+merge(X, Y, by = "id")
+X[Y, on = "id"]
+merge(Y, X, by = "id")
+Y[X, on = "id"]
+# If different names, can specify:
+setrename(Y, id = idy)
+merge(X, Y, by.x = "id", by.y = "idy")
+X[Y, on = c("id" = "idy")]
+merge(Y, X, by.y = "id", by.x = "idy")
+Y[X, on = c("idy" = "id")]
+
+# From the FAQ vignette: 1.11
+vignette('datatable-faq')
+# X[Y] is a join, looking up X’s rows using Y as an index.
+# Y[X] is a join, looking up Y’s rows using X as an index.
+# 
+# merge(X,Y) does both ways at the same time. The number of rows of X[Y] and Y[X] usually differ, whereas the number of rows returned by merge(X, Y) and merge(Y, X) is the same.
+
+# The latter is more flexible
+setrename(Y, idy = id)
+X[Y, on = "id", mult = "first"] 
+X[Y, on = "id", mult = "last"]  
+
+# No match
+Y[id == 3L, id := 4L][] # Note: I just add [] to print the result, the column is modified by reference. See the vignette on reference semantics. 
+X[id == 1L, id := NA][]
+
+# The match way:
+merge(X, Y)                # Inner join: Only keeps matching rows
+merge(X, Y, all.x = TRUE)  # Left join: Keeps rows in X
+merge(X, Y, all.y = TRUE)  # Right join: Keeps rows in Y
+merge(X, Y, all = TRUE)    # FUll join: Keeps all rows from all tables
+# What if we want to do a full join and generate a 'merge' variable as in STATA?
+X$merge_X <- 1
+Y$merge_Y <- 2
+Z <- merge(X, Y, all = TRUE)    # FUll join: Keeps all rows from all tables
+Z[, merge := kit::psum(merge_X, merge_Y, na.rm = TRUE)] # This generates 'merge' variable
+
+# The data.table way:
+X[Y, on = "id", nomatch = NULL]
+Y[X, on = "id"]
+X[Y, on = "id"]
+# Full join is difficult in the data.table way: use merge()
+
+
+# Now: A real world example:
 # This downloads a package containing a database of flights for 3 airports in New York City in 2013
 install.packages("nycflights13")
 # It is similar to the data in Exercise 5, but here we have more 
@@ -880,20 +974,14 @@ weather
 ?data.table        # Describes natural data.table syntax
 
 # Joining the airlines table to flights 
-merge(flights, airlines)           # by default merge() figures out common columns between the two tables, and then returns all the non-missing rows where these columns match (= inner join in SQL language)
+merge(flights, airlines)  %>% View         # by default merge() figures out common columns between the two tables, and then returns all the non-missing rows where these columns match (= inner join in SQL language)
 flights[airlines, on = .NATURAL]   # The native data.table syntax is more arcane. Basically the idea is to subset flights with the matching rows of airlines on columns on.
 
 merge(flights, airlines, by = "carrier") # Explicitly specifying the shared columns
 flights[airlines, on = "carrier"]        # Same thing
 
-# From the FAQ vignette:
-# X[Y] is a join, looking up X’s rows using Y as an index.
-# Y[X] is a join, looking up Y’s rows using X as an index.
-# 
-# merge(X,Y) does both ways at the same time. The number of rows of X[Y] and Y[X] usually differ, whereas the number of rows returned by merge(X, Y) and merge(Y, X) is the same.
-
 # The latter is more flexible
-flights[airlines, on = "carrier", mult = "first"] # Joining the first flight by carrier
+flights[airlines, on = "carrier", mult = "first"] %>% View # Joining the first flight by carrier
 flights[airlines, on = "carrier", mult = "last"]  # Joining the last flight by carrier
 
 # We can join the Other way around
@@ -923,6 +1011,7 @@ merge(flights, airlines[!is.na(carrier)], by = "carrier", all = TRUE) # Adds one
 # There is not straightforward way to do a full join in the native way. 
 
 
+
 #****************************
 ### In-Class Exercise 6 -----
 #****************************
@@ -943,7 +1032,9 @@ merge(flights, airlines[!is.na(carrier)], by = "carrier", all = TRUE) # Adds one
 
 
 
-# Time Series ---------------------------------------------------------------
+
+# (5) Time series (with 'xts') ---------------------------------------------
+#***************************************************************************
 
 # Now we will get some Ugandan time-series data into R, with the help of both collapse and data.table and magrittr
 library(collapse)
@@ -970,10 +1061,11 @@ qsu(MMI)  # Sumamrise the data
 
 # So this is a data.table of time series, which we can manipulate using data.table or collapse, or a combination of both
 MMI[Date > "2000-01-01", .(Date, fgrowth(.SD, 12L, t = Date)), .SDcols = -1L]   # Computing growth rates, the data.table way
-MMI %>% fsubset(Date > "2000-01-01") %>% G(12L, t = ~ Date, stubs = FALSE)      # The collapse way
+MMI %>% fsubset(Date > "2000-01-01") %>% 
+  G(12L, t = ~ Date, stubs = FALSE) %>% View      # The collapse way
 
 # data.table also has some functions for rolling statistics e.g. this calculates 12-month rolling averages
-MMI[Date > "2000-01-01", c(list(Date = Date), lapply(.SD, frollmean, n = 12L)), .SDcols = -1L]
+MMI[Date > "2000-01-01", c(list(Date = Date), lapply(.SD, frollmean, n = 12L)), .SDcols = -1L] %>% View
 ?frollmean  # See documentation
 
 # We can plot this whole data using ts.plot, but that is rather tedious... we need to standardize all columns first to put series on the same scale, and manually draw the legend
@@ -1037,9 +1129,10 @@ X['2007']  # all of 2007
 X['2007/']  # 2007 to end of dataset
 X['2007-03/']  # March 2007 to the end of the data set
 X['2007-03/2007']  # March 2007 to the end of 2007
+X['2007-03/2008-04']
 X['/'] # the whole data set
 X['/2007'] # the beginning of the data through 2007
-X['2007-01-03'] # just the 3rd of January 2007
+X['2007-01-01'] # just the 3rd of January 2007
 
 # 'xts' also provides some time series manipulation functions
 nyears(X)
@@ -1098,10 +1191,10 @@ Y <- MMI %$% xts(cbind(EX_G, IM_G, EX_S, IM_S), order.by = Date, frequency = 12L
 qsu(Y)
 plot(na.omit(Y), legend.loc = "topleft")
 # Simple time-based merge: Nothing to worry about as long as the format of the index() is the same
-merge(X, Y)
-na.omit(merge(X, Y))
+merge(X, Y) %>% View
+na.omit(merge(X, Y)) %>% plot
 # Let's see what happens when we merge a monthly and a quarterly series...
-merge(X, apply.quarterly(Y, mean))
+merge(X, apply.quarterly(Y, mean)) %>% View
 
 # Other packages:
 library(roll) # Super fast rolling functions (for many time series), also apply to xts
