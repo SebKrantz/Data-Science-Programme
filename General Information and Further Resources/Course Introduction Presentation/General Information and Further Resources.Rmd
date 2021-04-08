@@ -122,4 +122,6 @@ Focus on data manipulation, graphics, statistical models, time series, reproduci
 
 - See [here](<https://ecoursereview.com/online-teaching-websites-learning-courses/>) for a good overview of the available online learning opportunities.
 
+## The Benefit of Learning Data Science
 
+![The Pyramid of Digital Proficiency.](IMG_2155.PNG)
