@@ -149,7 +149,7 @@ View(z)         # Open Object in Data viewer (calls as.data.frame() on the objec
 q <- 2L + 7L            # this creates an integer value q. This is stored as an integer vector of length 1.
 
 z <- x + y; z           # Mathematical operations in R are vectorized
-z <- x - y; z 
+z <- x - y; z
 -x                      # This simply negates all elements of x
 z <- x * y; z
 x * y + z               # As usual multiplication takes presence over addition
@@ -579,7 +579,8 @@ d <- seq(as.Date("2000-07-16"), as.Date("2012-07-01"), by = "month")
 d
 inherits(d, "Date")
 str(d)
-
+# Logical comparisons
+d > as.Date("2005-01-01")
 
 #****************************
 ### In-Class Exercise 5 -----
@@ -820,7 +821,7 @@ l2
 str(l2)
 names(l2)
 
-# Aain we can also assign names
+# Again we can also assign names
 names(l1) <- letters[seq_along(l1)] 
 l1
 names(l1)
@@ -852,7 +853,10 @@ l2["bvec"] # same thing (subsetting by name as we have seen before with vectors)
 l2[[2L]] # we need double brackets to get just the content, generally this is what we want
 l2[["bvec"]] # Same thing
 l2$bvec == l2[[2L]] # These give identical output ($ <=> [[]])
-l2$bvec == l2[["bvec"]]
+
+# [[]] is useful for programming...
+x <- "bvec"
+l2[[x]]
 
 # To make this clear:
 str(l2[[2L]])   # this is a vector!!
@@ -1181,6 +1185,16 @@ hello <- function(yourname, goodbye = FALSE) {
     paste("Hello", yourname)
   }
 }
+
+# Note: A better alternative to an if-clause if we want to dispatch on the value of an argument is using a switch statement:
+arg <- "c"
+switch (arg,
+  a = 1,
+  b = TRUE,
+  c = FALSE
+)
+
+
 hello("Sebastian", goodbye = TRUE)
 hello("Sebastian", goodbye = FALSE)
 hello("Sebastian") # Same thing, argument default is FALSE

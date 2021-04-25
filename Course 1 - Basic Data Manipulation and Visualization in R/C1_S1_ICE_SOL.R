@@ -111,6 +111,7 @@ districts <- c(" Abim.", "bulisa", "MUKONO? ", "   Arua__")
 districts <- trimws(districts)
 
 # (b) remove all irregular characters (".", "?" and "__"). Note that you have to escape some characters by preceding them with "\\" 
+help("regex")
 districts <- gsub("\\.|\\?|_", "", districts)
 
 # (c) Turn all strings into upper case letters
