@@ -80,9 +80,8 @@ GGDC10S %>% ftransformv(6:16, `/`, SUM) %>% histplot
 
 HDI <- haven::read_dta("data/plotdata/HDI Trends.dta")
 names(HDI)
-p <- ggplot(HDI, aes(x = year, y = HDI, color = regions)) +
-     geom_smooth(se = FALSE) +
-     scale_colour_discrete(name = "Regions") 
+p <- ggplot(frename(HDI, regions = Regions), aes(x = year, y = HDI, color = Regions)) + 
+     geom_smooth(se = FALSE) 
 
 p
 
@@ -303,7 +302,7 @@ dev.off()
 View(GOVI)
 mp <- ggplot(GOVI, aes(x = Region, y = value, fill = Region)) + 
       geom_bar(stat = "identity", alpha = 0.8) +
-      facet_wrap( ~ Variable, scales = "free", ncol = 3)
+      facet_wrap( ~ Variable, scales = "free_y", ncol = 3)
 mp
 # adding labels and a viridis color palette:
 mp <- mp + labs(y = "Index Value", x = NULL) + scale_fill_viridis(discrete = TRUE, option = "B")
@@ -515,6 +514,7 @@ data[Country == "TZA" & Sector != "SUM"] %>%
           strip.background = element_rect(colour = "grey20", fill = "grey20"),
           strip.text = element_text(face = "bold"))
 
+library(ggalt)
 data[Country == "BWA" & Sector != "SUM"] %>%
   ggplot(aes(x = Year, y = value, colour = Sector)) +
   geom_xspline(spline_shape = 1, size = 1) + 

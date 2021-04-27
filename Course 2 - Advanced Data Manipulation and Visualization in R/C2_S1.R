@@ -143,6 +143,13 @@ colSums(SAM_mat[startsWith(rownames(SAM_mat), "C_"),
 # pipe operator that radically changed the way most people nowadays
 # write R code. 
 
+x <- 1:10
+sum(log(x^2))
+
+x <- x^2
+x <- log(x)
+sum(x)
+
 # Consider this code:
 transform(aggregate(mpg ~ cyl, 
                     data = subset(mtcars, hp > 100), 
@@ -308,8 +315,8 @@ do.call(rbind, tapply(iris$Sepal.Width, iris$Species, quantile))
       plot %T>%                                           # Plotting functions always display the result when executed
       with(cor(Sepal.Length, Sepal.Width) %>% print) %T>% # But for functions that are supposed to print something, we need to call print() to see the output, done here using a nested pipe.
       with(plot(Sepal.Length, Sepal.Width)) %>%           # In piped calls the with() function in still useful for exposition.
-      transform(log_width = log(Sepal.Width)) %$%        # But at the end of the call we use the exposition pipe.  
-      plot(Sepal.Length, log_width)
+      transform(log_width = log(Sepal.Width)) %T>%        # But at the end of the call we use the exposition pipe.  
+      with(plot(Sepal.Length, log_width))
     
     rm(iris)
     
@@ -482,7 +489,8 @@ plot(GGDC10s_ar, legend = TRUE)
 # Looking at so many series in parallel is tedious though. Let's aggregate over regions
 GGDC10S %>% fsubset(Variable == "VA") %>% 
   gby(Region, Year) %>% fselect(AGR:SUM) %>% 
-  fmean %>% psmat(~ Region, ~ Year) %>%
+  fmean %>%
+  psmat(~ Region, ~ Year) %>%
   plot(legend = TRUE)
 
 # Apart from sectoral shares, we might be interested in the growth rates of employment and value added in different countries and sectors
@@ -555,7 +563,7 @@ View(wlddev)
 # We can easily aggregate the numeric columns of this dataset using any function (such as weighted means)
 wlddev %>% fgroup_by(region, year) %>% num_vars %>% fmean(POP)
 # We can also aggregate all variable using a function that can deal with categorical data, such as the mode (e.g. the most frequent value)
-wlddev %>% fgroup_by(region, year) %>% fmode
+wlddev %>% fgroup_by(region, year) %>% fmode %>% View
 # However ideally we would like to combine these approaches to aggregate mixed-type data with both numeric and categorical variables
 
 # the collap() function let's us do just that.

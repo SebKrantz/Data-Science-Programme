@@ -72,13 +72,18 @@ sapply(subset(transform(mtcars, mpg2 = mpg * 2),
 mtcars %>%
   transform(mpg2 = mpg * 2) %>%
   subset(cyl > 4 & mpg > 20, vs:mpg2) %>%
-  sapply(median)
+  sapply(median) -> 
+  res
+
+res <- transform(mtcars, mpg2 = mpg * 2)
+res <- subset(res, cyl > 4 & mpg > 20, vs:mpg2)
+res <- sapply(res, median)
 
 # (b)
 str(rapply(list(airquality, mtcars), sum, how = "list"))
 
 # Piped version:
-list(airquality, mtcars) %>%
+ list(airquality, mtcars) %>% 
   rapply(sum, how = "list") %>%
   str
 
@@ -191,7 +196,7 @@ settransform(UNHS_pov, above_welfare_regurb = welfare > TRA(welfare, welQ$welfar
 UNHS_pov %>% 
   fselect(-hhid, -ea) %>% 
   fgroup_by(district) %>% 
-  collapg(fmedian, w = finalwgt) %>%
+  collapg(fmedian, w = finalwgt) %>% 
   fdroplevels %>% 
   head
 
