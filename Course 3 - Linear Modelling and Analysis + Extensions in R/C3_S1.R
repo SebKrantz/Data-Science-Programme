@@ -12,9 +12,10 @@
 
 # Today:
 # (0) Rstudio Projects, Git and Github
-# (1) Linear models with lm() and some built in tools and diagnostics
+# (1) Linear models with lm() and Parametric Infernce
+# (1.1) Assumptions underlying the linear model and visual diagnostics
 # (2) Testing linear models with 'lmtest' and 'car' (and 'performance')
-# (3) Measuring model performance
+# (3) Measuring model performance (model validation)
 # (4) Robust standard errors and bootstrapping
 # (5) Reporting results from linear models in Latex, Excel, Word and Plots
 # (6) Binary response models (Logit and Probit)
@@ -737,12 +738,12 @@ autoplot(model)
 
   # While a fitted versus residuals plot can give us an idea about homoscedasticity, sometimes we would prefer a more formal test. 
   # There are many tests for constant variance, but here we will present one, the Breusch-Pagan Test. 
-  # The Breusch-Pagan test fits a linear regression model to the squared residuals of a linear regression model (by default the same explanatory variables are taken as in the main regression model) 
-  # and rejects if too much of the variance is explained by the additional explanatory variables.
+  # The Breusch-Pagan test fits a linear regression model to the squared residuals of that same model (by default the same explanatory variables are taken as in the main regression model) 
+  # and rejects if too much of the variance is explained by the explanatory variables.
     
   # H0: Homoscedasticity. The errors have constant variance about the true model.
   # H1: Heteroscedasticity. The errors have non-constant variance about the true model.
-  lmtest::bptest(my_model)
+  lmtest::bptest(model)
   # Another very similar test in the car package
   car::ncvTest(model)
   # Another option
@@ -758,14 +759,15 @@ autoplot(model)
 
   # Histograms and Q-Q Plots give a nice visual representation of the residuals distribution, however if we are interested in formal testing, 
   # there are a number of options available. A commonly used test is the Shapiro–Wilk test, which is implemented in R.
-  shapiro.test(resid(my_model))
+  shapiro.test(resid(model))
   # This gives us the value of the test statistic and its p-value. The null hypothesis assumes the data were sampled from a normal distribution, thus a small p-value indicates we believe there is only a small probability the data could have been sampled from a normal distribution.
   # For details, see: Wikipedia: Shapiro–Wilk test.
   
   # Other options: 
-  performance::check_normality(my_model)
+  ks.test(resid(model), y = 'pnorm', alternative = 'two.sided')
+  performance::check_normality(model)
   
-  # car also provides furtehr plots: 
+  # car also provides further plots: 
   car::qqPlot(model)
 
 
@@ -780,7 +782,6 @@ autoplot(model)
   car::influencePlot(model)
   car::leveragePlot(model)
   car::leveragePlots(model)
-  car::outlierTest(model)
   car::residualPlot(model)
   car::residualPlots(model) # pearsons = ordinary residuals (weighted if weighted regression)
   car::dfbetaPlots(model)
@@ -789,35 +790,40 @@ autoplot(model)
   # https://daviddalpiaz.github.io/appliedstats/collinearity.html
   # collinearity occurs in multiple regression when predictor variables are highly correlated. 
   # Collinearity is often called multicollinearity, since it is a phenomenon that really only occurs during multiple regression.
+  # We can start by examining simple correlations between variables in the model. 
   pairs(model.frame(model))  
-  collapse::pwcor(model.frame(model))
-  car::vif(my_model)
-  jtools::summ(my_model, vif = TRUE)
-  performance::check_collinearity(model)
+  collapse::pwcor(model.frame(model)) # r > 0.95 could be problematic...
+  # The variance inflation factor (VIF) is 1/(1-R2x), where R2x is the R2 of regressing the variable on all other predictors in the model. 
+  # Thus in contrast to the correlation coefficient, the VIF measures multicollinearity between a predictor and all other predictors. 
+  car::vif(model)                     # Computes the VIF
+  jtools::summ(model, vif = TRUE)     # Can display in model summary as well
+  performance::check_collinearity(model) # Or using this function from the performance package
   # VIF > 10 is a problem... 
   
-  # Calculate VIF:
-  1/(1-summary(lm(WEA_L2MAD_P ~ SDL_EDU_PRI_P, fsubset(CENS, EDU_6_12_NAS_P < 45)))$r.squared)
+  # This manually calculates the VIF for income:
+  1/(1-summary(lm(income ~ age + sex, model$model))$r.squared)
 
 
-# See also: https://github.com/easystats/easystats
+# Suggested Workflow for checking a model: --------------------------------------------
+# (1) Start by displaying these diagnostic plots
+  plot(my_model, which = c(1,2,4,5))
+  # Look for non-linearity, heteroskedasticity, non-normality, influential observations
+# (2) Formally test for heteroskedasticity
+  lmtest::bptest(my_model)
+  # If th test rejects, use robust standard errors or a bootstrap to conduct inference.
+# (3) If there are influential observations in the cooks distance plot: Calculate dfbetas.. 
+  -dfbeta(my_model)[c(1068, 6501, 6514), ]  # See effect on coefficients of excluding these observations
+  car::dfbetaPlots(my_model)                # Can also plot all dfbetas
+  # If you feel justified doing so, exclude some influential observations from the model
+  lm(formula(my_model), my_model$model, subset = -c(1068, 6501, 6514))
+# (4) Check for multicollinearity 
+  car::vif(my_model)
+  # ...can also check in model summary using jtools::summ(my_model, vif = TRUE)
+  # VIF > 10 means R^2 of regressing your variable on the others is > 90% -> Likely Problem -> Exclude some predictor(s)
+
   
-# Suggested wokflow: 
-plot(my_model, which = c(1,2,4,5))
-# If there is a problem: Calulcate dfbetas.. 
--dfbeta(my_model)[most_influential, ]
-# Test for heteroskedasticity
-lmtest::bptest(my_model)
-# Check for multicollinearity 
-car::vif(my_model)
-jtools::summ(my_model, vif = TRUE)
-# VIF > 10 means R^2 of regressing your variable oon the others is > 90% -> Problem
-
-
-# Alternatively: (all plots in one window)
+# Alternatively (if we have less time), we can also use performance::check_model for a quick model check. 
 performance::check_model(my_model)
-
-
 
 
 
@@ -838,35 +844,40 @@ performance::check_model(my_model)
 # A general resource:
 # http://www.sthda.com/english/articles/38-regression-model-validation/
 
-x <- rnorm(10)
-y <- 1 + x + rnorm(10, sd = 0.3)
-plot(x, y)
-abline(lm(y ~ x))
-points(x, fitted(lm(y ~ poly(x, 5))), col = "red")
+# On general, the more variables you include in the model, that higher the R-Squared,
+# So why don't we just put as many variabes we can find into the model?
 
+# From Wikipdia: https://en.wikipedia.org/wiki/Overfitting
+# overfitting is "the production of an analysis that corresponds too closely or exactly to a particular set of data, and may therefore fail to fit additional data or predict future observations reliably".[1] 
+# An overfitted model is a statistical model that contains more parameters than can be justified by the data.[2] The essence of overfitting is to have unknowingly extracted some of the residual variation (i.e. the noise) as if that variation represented underlying model structure.
+
+# So putting too many variables in our model may give us an overparameterized model that is worse at prediction than a simpler model.
 
 # Standard Performance metrics: http://www.sthda.com/english/articles/38-regression-model-validation/158-regression-model-accuracy-metrics-r-square-aic-bic-cp-and-more/
+# They all penalize the fit of the model by the number of parameters. If the gain in model fit is little when a variable is added, these metrics show no gain, unlike the R-Squared which always increases.
 AIC(model) # minimum is best
 BIC(model) # minimum is best
-summary(model)$r.squared
 summary(model)$adj.r.squared
 performance::r2(model) # R-squared (R2), representing the squared correlation between the observed outcome values and the predicted values by the model. The higher the adjusted R2, the better the model
 performance::model_performance(model) 
-# Root Mean Squared Error (RMSE), which measures the average prediction error made by the model in predicting the outcome for an observation. That is, the average difference between the observed known outcome values and the values predicted by the model. The lower the RMSE, the better the model.
-# Mean Absolute Error (MAE), an alternative to the RMSE that is less sensitive to outliers. It corresponds to the average absolute difference between observed and predicted outcomes. The lower the MAE, the better the model
-jtools::glance(model)
+jtools::glance(model) # Also computes various statistics
+# Root Mean Squared Error (RMSE), which measures the average prediction error made by the model in predicting the outcome for an observation. 
+# That is, the average difference between the observed known outcome values and the values predicted by the model. The lower the RMSE, the better the model.
+# Mean Absolute Error (MAE), an alternative to the RMSE that is less sensitive to outliers. 
+# It corresponds to the average absolute difference between observed and predicted outcomes. The lower the MAE, the better the model
+# RMSE:
+sqrt(mean(resid(model)^2))
+# MAE:
+mean(abs(resid(model)))
 
-summ(model)
-performance::model_performance(model) 
+model2 <- lm(statusquo ~ sex*age + income, Chile)
+performance::model_performance(model2) # Same as model
 
-model2 <- lm(EDU_6_12_NAS_P ~ WEA_L2MAD_P + SDL_EDU_PRI_P + factor(Region),  fsubset(CENS, EDU_6_12_NAS_P < 45))
-performance::model_performance(model2)
+model3 <- lm(statusquo ~ sex*age*income, Chile)
+performance::model_performance(model3) # Worse then model
 
-model3 <- lm(EDU_6_12_NAS_P ~ WEA_L2MAD_P + SDL_EDU_PRI_P + factor(District),  fsubset(CENS, EDU_6_12_NAS_P < 45))
-performance::model_performance(model3)
-
-
-# Another approach: Training and tests sets, or Cross-Validation 
+# Another Approach to model validation (often considered superior), is evaluating the predictive accuracy by splitting the data into training and tests sets, 
+# also known under the general term of Cross-Validation 
 # Source: http://www.sthda.com/english/articles/38-regression-model-validation/157-cross-validation-essentials-in-r/
 
 # Cross-validation refers to a set of methods for measuring the performance of a given predictive model on new test data sets.
@@ -898,7 +909,7 @@ library(caret) # This package greatly facilitates cross validation and general m
 
      # Split the data into training and test set
      set.seed(123)
-     training_samples <- model$model$EDU_6_12_NAS_P %>%
+     training_samples <- model$model[[1]] %>%
         createDataPartition(p = 0.8, list = FALSE)
       train_data <- model$model[training_samples, ]
       test_data <- model$model[-training_samples, ]
@@ -906,17 +917,14 @@ library(caret) # This package greatly facilitates cross validation and general m
       model_vs <- lm(formula(model), data = train_data)
       # Make predictions and compute the R2, RMSE and MAE
       predictions <- model_vs %>% predict(test_data) # predict(model_vs, test_data)
-      data.frame(R2 = R2(predictions, test_data$EDU_6_12_NAS_P),
-                 RMSE = RMSE(predictions, test_data$EDU_6_12_NAS_P),
-                 MAE = MAE(predictions, test_data$EDU_6_12_NAS_P))
+      data.frame(R2 = R2(predictions, test_data[[1]]),
+                 RMSE = RMSE(predictions, test_data[[1]]),
+                 MAE = MAE(predictions, test_data[[1]]))
       
       # RMSE
-      sqrt(mean((test_data$EDU_6_12_NAS_P-predictions)^2))
-      mean(abs(test_data$EDU_6_12_NAS_P-predictions))
-      
-      c(2, 5)
-      sqrt(mean(c(2, 5)^2))
-      mean(abs(c(2, 5)))
+      sqrt(mean((test_data[[1]]-predictions)^2))
+      # MAE
+      mean(abs(test_data[[1]]-predictions))
       
       # Note that, the validation set method is only useful when you have a large data set that can be partitioned. 
       # A disadvantage is that we build a model on a fraction of the data set only, possibly leaving out some interesting 
@@ -1001,8 +1009,11 @@ library(caret) # This package greatly facilitates cross validation and general m
 ### In-Class Exercise 3 -----
 #****************************    
 
-# (a) Manually code 10-fold cross validation and compute the metrics
-# use the sample() function.
+# (a) Manually code a function to perform 10-fold cross validation and compute the metrics
+# TIPP: use the sample() function as well as split().
+
+# SOLUTION: y is the response vector, mod is a geenral function that takes a training dataset (first argument), 
+#           fits a model and gnerates a forecast on a test dataset (second argument), data is the data. 
 cv_mod <- function(y, mod, data) {
   n <- nrow(data)
   nk_samp <- sample.int(10, n, replace = TRUE)
@@ -1019,18 +1030,26 @@ cv_mod <- function(y, mod, data) {
   rownames(r) <- paste("Fold", 1:10)
   r
 }
-      
-y <- model$model$EDU_6_12_NAS_P
-data <- model$model
+
+# SETUP with my_model:      
+y <- my_model$model$EDU_6_12_NAS_P
+data <- my_model$model
 mod <- function(train_data, test_data) {
   predict(lm(EDU_6_12_NAS_P ~ WEA_L2MAD_P + SDL_EDU_PRI_P, train_data), 
           newdata = test_data)
 }
-set.seed(1)
+# RUN:
+cv_mod(y, mod, data)
 colMeans(cv_mod(y, mod, data))
     
-# (b) Verify your results against caret train.
-    
+
+# (b) Compare your results against caret train.
+train_control <- trainControl(method = "cv", number = 10)
+cv_model <- train(formula(my_model), data = my_model$model, method = "lm",
+                  trControl = train_control)
+print(cv_model)
+
+# -> more of less the same result (differences occur due to different random splits)
     
     
 
@@ -1041,14 +1060,15 @@ colMeans(cv_mod(y, mod, data))
 lmtest::bptest(model) # We reject !
 plot(model, which = 1)
       
-library(sandwich)      
-round(sqrt(diag(vcov(model))), 2)
+round(sqrt(diag(vcov(model))), 2) # again this computes the standard error displayed in the summary 
 summ(model)
 
-vcovHC(model)  # Default is type = "HC3"
-vcovHC(model, type = "HC1")  # STATA uses this
+# The sandwich package contains a number of functions to estimate robust variance-covariance matrices
+library(sandwich)      
+vcovHC(model)                # Default is type = "HC3" (better small sample properties than HC1)
+vcovHC(model, type = "HC1")  # STATA uses HC1
 
-# This gives robust standard errors
+# This gives heteroskedasticity robust standard errors
 sqrt(diag(vcovHC(model)))
 
 # Robust coefficient tests:
@@ -1058,22 +1078,33 @@ lmtest::coeftest(model, vcov. = vcovHC(model))
 jtools::summ(model, robust = TRUE)
 jtools::summ(model, robust = "HC1")
 
+# The bootstrap approach does not rely on any of the assumptions made by the linear model, 
+# and so it is likely giving a more accurate estimate of the coefficients standard errors (robust errors only deal with issues of heteroskedasticity, not with issues of non-normality etc.).
 
-# The bootstrap approach does not rely on any of these assumptions made by the linear model, and so it is likely giving a more accurate estimate of the coefficients standard errors than is the summary() function.
+# The essential idea of the bootstrap is to generate a kind of sampling distribution from our sample by resampling our sample with replacement many times (like 1000 times)
+# and estimatinga model on each sample. 
 
-# look at easystats packages 
-parameters::bootstrap_model(model) %>% qsu
-parameters::bootstrap_parameters(model)
+# This generates a single bootstrap sample from the model dataset
+model$model[sample.int(nobs(model), replace = TRUE), ]
+# This re-estimates the model on this bootstrap sample
+lm(formula(model), data = model$model[sample.int(nobs(model), replace = TRUE), ])
 
-# car::Boot provides an efficient wrapper 
-bobj <- car::Boot(lm(formula(model), data = model$model))
+# This repeats this process 1000 times and saves the coefficients after each replication
+boot_coef <- parameters::bootstrap_model(model)
+View(boot_coef)   
+# These bootstrap coefficients resemble a sampling distribution
+hist(boot_coef$income, breaks = 30)
+# The standard error of a coefficient is an estimate of the standard deviation of the sampling distribution
+boot_coef %>% fsd
+
+# car::Boot provides an efficient wrapper to bootstrap a model 
+library(car)
+bobj <- Boot(lm(formula(model), data = model$model))
 bobj
 summary(bobj)
 plot(bobj)
-hist(bobj)
+hist(bobj) # This is important: it shows us to what degree out botstrap sampling distribution is normal
 confint(bobj)
-
-summary(model)
 
 # manually doing it with the boot package: 
 model_coef <- function(data, index, formula = statusquo ~ sex + age + income){
@@ -1083,18 +1114,22 @@ model_coef(model$model, 1:47)
 boot::boot(model$model, model_coef, 500)
 
 
+# Note that it is also possible to bootstrap the parameters of the model, but usually we only do bootstrapping to get better estimates of the standard errors
+parameters::bootstrap_parameters(model)
+summ(model)
+
 #****************************
 ### In-Class Exercise 4 -----
 #**************************** 
 
 # This is an Efficient bootstrap for linear models coded by hand
-bootmod <- function(model, reps = 1000, return.reps = FALSE, chol = FALSE) {
+bootmod <- function(model, reps = 1000, return.reps = FALSE) {
   y <- model$model[[1L]]
   X <- model.matrix(model)
   n <- length(y)
   res <- t(replicate(reps, { 
-    obs <- sample.int(n, replace = TRUE) # Note: Chol is more efficient but not recommended as default 
-    if(chol) chol2inv(chol(crossprod(X[obs, ]))) %*% crossprod(X, y[obs]) else qr.coef(qr(X[obs, ]), y[obs]) 
+    obs <- sample.int(n, replace = TRUE) 
+    qr.coef(qr(X[obs, ]), y[obs]) 
   }))
   if(return.reps) return(res)
   SE <- apply(res, 2, sd) # Standard error is the standard deviation of the bootstrap sampling distribution 
@@ -1106,8 +1141,7 @@ bootmod <- function(model, reps = 1000, return.reps = FALSE, chol = FALSE) {
 bootmod(model)
 bootmod(model, return.reps = TRUE) %>% View
 
-# Understand the code: What does sample.int(n, replace = TRUE) do? Why do I calculate the -value in this way. 
-
+# Your exercise: Understand the code: What does sample.int(n, replace = TRUE) do? Why do I calculate the p-value in this way?
 
 
 
@@ -1115,12 +1149,14 @@ bootmod(model, return.reps = TRUE) %>% View
 # (5) Reporting results from linear models in Latex, Excel, Word and Plots ----
 #***************************************************************************
 
-
+# Usually in regression analyis, we estimate and report several models,
+# to convince our readers of the robustness of the findings to different model specifications
 model1 <- lm(statusquo ~ log(income) + age + sex, data = Chile)
 model2 <- lm(statusquo ~ log(income) + age*sex, data = Chile) # Interaction
 model3 <- lm(statusquo ~ log(income) + education + age*sex, data = Chile) 
 model4 <- lm(statusquo ~ log(income) + education*age + age*sex, data = Chile) # 2 Interactions
 
+# We can gather these models into a list, giving a suitable name to each model
 modlist <- list(Base = model1, 
                 Interact = model2, 
                 `Int. + Edu` = model3, 
@@ -1128,10 +1164,14 @@ modlist <- list(Base = model1,
 names(modlist)
 View(modlist)
 
+# If we just want to extract coefficints and statistics from these models in a compact way,
+# We can write them to excel notebooks: 
+
 # Native collapse solution: Create a long table for coeficient of different models
 collapse::unlist2d(lapply(modlist, lmtest::coeftest), 
                    idcols = "Model", 
-                   row.names = "Coefficient") %>% writexl::write_xlsx("models_long.xlsx")
+                   row.names = "Coefficient") %>% 
+  writexl::write_xlsx("models_long.xlsx")
 
 # The broom package takes the messy output of built-in functions in R, such as lm, nls, or t.test, and turns them into tidy tibbles.
 library(broom)
@@ -1148,18 +1188,21 @@ modlist %>%
   writexl::write_xlsx("models.xlsx")
 
 
+# If we want to generate a proper regression table, there are several packages and output formats. 
+# Here I use jtools. We can first generate some plots of the coefficients
 library(jtools)
-vignette("summ", package = "jtools")
-jtools::plot_coefs(modlist, robust = TRUE)
-jtools::plot_summs(model1, model1, model1, 
-                   robust = list(FALSE, "HC1", "HC3"),
-                   model.names = c("OLS", "HC1", "HC3"))
-jtools::plot_summs(modlist)
-jtools::plot_summs(modlist, scale = TRUE)
-jtools::plot_summs(modlist, scale = TRUE, plot.distributions = TRUE)
+vignette("summ", package = "jtools") # Read this
+plot_coefs(modlist, robust = TRUE)
+plot_summs(model1, model1, model1, # Plot coefficients from the same model with 95% confidence bounds obtained from different standard errors
+           robust = list(FALSE, "HC1", "HC3"),
+           model.names = c("OLS", "HC1", "HC3"))
+plot_summs(modlist)
+plot_summs(modlist, scale = TRUE)
+plot_summs(modlist, scale = TRUE, plot.distributions = TRUE)
 
-# install.packages("officer") # Editing Word and PPT tables etc. in R. 
-# install.packages("flextable")
+# This now generates a nice regrssion table:
+# install.packages("officer")   # Editing Word and PPT tables etc. in R. Needed to export to word.
+# install.packages("flextable") # Also required by jtools
 jtab <- jtools::export_summs(modlist, 
                      statistics = c(N = "nobs", R2 =  "r.squared", 
                                     `Adj. R2` = "adj.r.squared", 
@@ -1167,16 +1210,18 @@ jtab <- jtools::export_summs(modlist,
                                     `P(F)` = "p.value", 
                                     AIC = "AIC", BOC = "BIC"), # or specify statistics = "all" to see all
                      robust = TRUE)  # Or specify HC1 for STATA or HC3 (more advanced)
-
+# See the table
+jtab
+# Export to different formats:
 huxtable::quick_docx(jtab, file = "jtab.docx")
 huxtable::quick_pptx(jtab, file = "jtab.pptx")
 huxtable::quick_xlsx(jtab, file = "jtab.xlsx")
 huxtable::quick_rtf(jtab, file = "jtab.rtf")
 huxtable::quick_html(jtab, file = "jtab.html")
-# huxtable::quick_latex(jtab, file = "jtab.tex")
+# huxtable::quick_latex(jtab, file = "jtab.tex") # Need latex installed for tex and pdf output
 # huxtable::quick_pdf(jtab, file = "jtab.pdf")
 
-# Doing things manually with huxtable...
+# We can also do things manually with huxtable...
 library(huxtable) # Easily Create and Style Tables for LaTeX, HTML and Other Formats
 vignette("huxtable")
 vignette("huxreg")
@@ -1198,7 +1243,6 @@ modelsummary::modelsummary(modlist)
 modelsummary::modelsummary(modlist, output = "mstab.html")
 modelsummary::modelsummary(modlist, output = "mstab.png")
 modelsummary::modelsummary(modlist, output = "mstab.tex")
-
 
 # Other options: (Mainly Latex and HTML)
 library(stargazer) 
