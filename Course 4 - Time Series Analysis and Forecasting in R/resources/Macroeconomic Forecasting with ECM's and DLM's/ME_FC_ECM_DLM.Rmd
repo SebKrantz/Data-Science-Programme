@@ -1,0 +1,521 @@
+﻿---
+title: |
+  | **Macroeconomic Forecasting with Error Correction** 
+  | **and Distributed Lag Models: A Practial Guide**
+author: "Sebastian Krantz"
+date: '`r format(Sys.time(), "%B %d, %Y")`'
+geometry: "left=3cm,right=3cm,top=2cm,bottom=2cm"
+output: pdf_document
+abstract: "This short paper introduces and evaluates an error correction model that successfully forecasts quarterly revenues in Uganda conditional on the GDP forecast. It also lays down a general methodology with accompanying R code to speficy, estimate and evaluate models of the distributed lag (DLM) or error correction (ECM) class that forecast one economic time series based on one or more forecasted series. The principles of forecast evaluation demonstrated in this paper are general and also apply to univariate time series models of the ARIMA or ETS class as well as ARIMAX models not covered in this paper."
+---
+
+\setlength{\parindent}{2em}
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(collapse = TRUE, 
+                      fig.width = 8, fig.height = 5, out.width = '100%', cache = FALSE, 
+                      message = FALSE, warning = FALSE, error = FALSE)
+
+# oldopts <- options(width = 101L)
+
+
+
+```
+
+
+## Introduction
+
+A first step in approaching any forecasting problem is to decide on an appropriate methodology to tackle the problem. For tax revenues there are many suggested approaches. The IMF [*Financial Programming Manual*](<https://courses.edx.org/asset-v1:IMFx+FPP.1x+1T2017+type@asset+block@FPP1x_Manual.pdf>) reviews 3 of them: (i) the effective tax rate approach; (ii) the elasticity approach; and (iii) the regression approach. Approach (iii) typically results in the most accurate short-term forecasts. The simple regression approach stipulates a distributed lag model (DLM) where tax revenue is regressed on its own lags and GDP with some lags. 
+
+In the absence of large abrupt shifts in the tax base, domestic revenue can be assumed to have a linear relationship with GDP. Since however both revenue and GDP are typically non-stationary series, this relationship often takes the form of cointegration. The correct way to deal with cointegrated variables is to specify and error correction model (ECM). There are in fact 3 possible models depending on the relationship of revenue and GDP: If both are tend-stationary, a DLM in levels is the appropriate model. If one of the series is non-stationary or both are non-stationary but not cointegrated, a DLM in first-differences is appropriate. If however both are non-stationary and cointegrated, an ECM is the right choice. 
+
+## Examining the Data
+
+It is thus necessary to start by examining the the data and running some tests in order to determine the appropriate modeling approach.
+
+```{r}
+library(readxl)     # Import from Excel
+library(collapse)   # Data transformation and time series operators
+library(magrittr)   # Pipe operators %>%, %$% 
+library(tseries)    # Time series tests
+library(lmtest)     # Linear model tests
+library(sandwich)   # Robust standard errors
+library(jtools)     # Enhanced regression summary
+library(xts)        # Extensible time series + pretty plots
+
+# Set working directory
+setwd("C:/Users/Sebastian Krantz/Dropbox/MoFPED/Revenue Forecasting/")
+
+# Load data from a prepared excel file
+data <- read_xlsx("Quarterly Revenue Forecast 2020-21/GDP_REV_Q.xlsx")
+
+# Show the first lines of the data
+head(data, 3)
+```
+
+The following R code creates a time series matrix `X` containing the natural log of quarterly revenue and a combined quarterly GDP series at current prices starting in Q3 2008 with outcomes until Q4 2020, and forecasted GDP until Q1 2025. The series are cast in logs as this helps reduce the effects of changes in the variance of series over time on the forecast (leading to heteroskedastic error terms).
+
+```{r}
+# Creating an xts time series matrix X
+X <- data %$% xts(cbind(lrev = log(REV), 
+                        lgdp = log(GDP_CP_comb)), 
+                  order.by = as.Date(Date), 
+                  frequency = 4L) 
+
+# Plotting the raw data
+na.omit(X) %>% exp %>% setColnames(.c(Revenue, GDP)) %>%
+plot(multi.panel = TRUE, yaxis.same = FALSE, 
+     main = "Domestic Revenue and GDP (UGX Billion)", 
+     major.ticks = "years", grid.ticks.on = "years")
+
+# Plotting the log-differenced data
+plot(na.omit(D(X)), legend.loc = "topleft", 
+     main = "Revenue and GDP in Quarterly Log-Differences",
+     major.ticks = "years", grid.ticks.on = "years")
+
+```
+
+The plots suggest that both series exhibit seasonal patterns. The `seastests` package provides several seasonality tests, including the Webel-Ollech overall seasonality test that combines results from different seasonality tests. 
+
+```{r}
+library(seastests)
+# Check for seasonality based on Webel-Ollech overall seasonality test
+isSeasonal(X[, "lrev"])
+isSeasonal(X[, "lgdp"])
+
+```
+
+Since both series exhibit seasonal patterns, it is better to keep the seasonality in the series and potentially estimate a model with additional seasonal lags, than to remove seasonality beforehand using a statistical procedure. In cases where only one of the series used exhibits seasonality, and in particular if it is a covariate series and the variable to be forecasted does not exhibit seasonal patterns, it may be preferable to deseasonalize that series beforehand. For completeness I provide the code to deseasonalize a series using R's interface to the X-13-ARIMA-SEATS seasonal adjustment software by the US Census Bureau available through the `seasonal` package. The software by default uses automatic ARIMA model search and outlier detection to model a time series and then decomposes the model to remove the seasonal component. It seems to produce better seasonal adjustment results than software currently used in Uganda Bureau of Statistics. 
+
+```{r}
+library(seasonal) # Seasonal adjustment using X-13 ARIMA SEATS
+X_sa <- dapply(X, function(y) { # Need to specify time series parameters:
+          y <- ts(y, start = c(2008L, 3L), frequency = 4L)
+          y[!is.na(y)] <- predict(seas(y)) # seas() removes missing values
+          return(y)
+        })
+
+# Seasonally adjusted data
+na.omit(exp(X_sa)) %>% setColnames(.c(Revenue, GDP)) %>%
+plot(multi.panel = TRUE, yaxis.same = FALSE,
+     main = "Revenue and GDP, Seasonally Adjusted (UGX Billion)",
+     major.ticks = "years", grid.ticks.on = "years")
+```
+
+Again since both series exhibit seasonal patterns, we move ahead with the unadjusted series. The next step is to investigate other properties of the series such as stationarity and cointegration. To test for stationarity we can employ two tests: The Augmented Dickey Fuller (ADF) test tests the null of non-stationarity against the alternative of trend-stationarity. The  Kwiatkowski–Phillips–Schmidt–Shin (KPSS) test tests the null of trend-stationarity. Since both tests have low statistical power, results where both tests point in the same direction provide a good indication about the stationarity or non-stationarity of a series.
+
+```{r}
+# ADF test of the Null of a unit root
+adf.test(na.omit(X[, "lrev"]))
+
+adf.test(na.omit(X[, "lgdp"]))
+
+
+
+# KPSS test of the null of trend-stationarity
+kpss.test(na.omit(X[, "lrev"]), null = "Trend")
+
+kpss.test(na.omit(X[, "lgdp"]), null = "Trend")
+```
+
+In this case both tests indicate that both series are non-stationary. In many cases however these tests may disagree with each other and then it is necessary to explore further or make an informed judgment. As both series are non-stationary, it is also necessary to test for cointegration to decide whether an ECM should be specified, or a DLM in first differences is appropriate. 
+
+The Phillips-Ouliaris (PO) test tests the null hypothesis that the variables are not cointegrated. Strictly speaking we would first have to ascertain that both series are integrated of the same order before testing for cointegration, but with very few exceptions (such as price or stock market series), economic time series are I(1), so we refrain here from further testing and assume the differenced series are stationary. 
+
+```{r}
+# Phillips-Ouliaris Test of the Null of No Cointegration
+po.test(X)
+
+```
+
+The test rejects the null of no cointegration, thus the ECM appears to be the correct model in this case. For completeness sake I note that the PO test follows the 2-Step approach of Engele & Granger by regressing the first series on the other(s) and testing the residuals for a unit root. The test outcome thus depends on which is the first series in the dataset. The more sophisticated Johannsen test, which is preferable especially in multivariate settings is available in the `urca` package via the `ca.jo()` function.
+
+## Estimating an ECM
+For illustration purposes this section presents a simple ECM estimated using Engele & Granger's 2-step approach, whereas the next section estimates and compares a series of different ECM specifications estimated in one step, of which the best model will be used for forecasting. In the 2-step approach first the cointegration equation is estimated.   
+
+```{r}
+# This estimates the cointegration equation
+cieq <- lm(lrev ~ lgdp, X)
+
+# Summarizing with heteroskedasticity and autocorrelation consistent (HAC) errors
+summ(cieq, digits = 4L, vcov = vcovHAC(cieq))
+```
+
+Then the residuals are obtained, and included in the regression in first differences.
+
+```{r}
+# Plot residuals of cointegration equation
+res <- resid(cieq) %>% as.xts(dateFormat = "Date")
+plot(res, main = "Residuals from Cointegration Equation", 
+     major.ticks = "years", grid.ticks.on = "years")
+
+# Testing residuals: Stationary (same conclusion as po.test)
+kpss.test(res)
+```
+
+The plot of the cointegration residuals suggests that they contain a significant portion of the mismatch in seasonal variation in the two series, which is visible in the second graph of the paper visualizing the two series in log-differences.
+
+Apart from a cointegration relationship which governs the medium-term relationship of revenue and GDP, and, in this case, the mismatch in seasonal variation, revenue may also be affected by past revenue collection and short-term fluctuations in GDP. The general form of a bivariate ECM is:
+
+\begin{equation} \label{eq:ecm}
+A(L)\Delta r_t = \gamma + B(L)\Delta y_t + \alpha (r_{t-t} - \beta_0 - \beta_1 y_{t-1}) + v_t,
+\end{equation}
+where
+\begin{align*}
+A(L) &= 1- \sum_{i=1}^p L^i = 1 - L - L^2 -  \dots - L^p, \\
+B(L) &= \sum_{i=0}^q L^i= 1 + L + L^2 + \dots + L^q
+\end{align*}
+are polynomials in the lag operator $L$ of order $p$ and $q$, respectively. The term $r_{t-t} - \beta_0 - \beta_1 y_{t-1}$ represents the lagged residual from the cointegration equation $r_{t} = \beta_0 + \beta_1 y_{t} + \epsilon_t$ computed above, which can be interpreted as the deviation of $r_{t}$ from it's long-term equilibrium relationship with GDP in the previous period. The parameter $\alpha$ measures the speed of adjustment. We expect $\alpha <0$, as a positive residual represents a positive deviation of revenue from it's long term relationship with GDP in the previous period, and we would expect revenue to decrease back to it's normal level of GDP after such a deviation. $p$ and $q$ need to be selected for optimal forecasting performance which is done in the next section. Below a simple ECM with $p=1$ and $q=1$ is estimated: 
+
+```{r}
+# Estimating error correction model 
+ecm <- lm(D(lrev) ~ D(lgdp) + L(res), merge(X, res))
+
+summ(ecm, digits = 4L, vcov = vcovHAC(ecm))
+```
+
+The large negative coefficient on the error correction term is likely due to the seasonal component captured in it. Curiously, changes in revenue in the current quarter do not seem to be very strongly related to changes in GDP in the current quarter, which could also be accounted for by data being published with a lag. We can visualize regression diagnostic plots using `plot(ecm)` and test the residuals for heteroskedasticity and autocorrelation^[If there are lagged dependent variables on the right-hand side of the regression, the classical Durbin-Watson test, implemented in R in `lmtest::dwtest`, is no longer valid. In this case, it is appropriate to use a Breusch-Godfrey Lagrange Multiplier test for general, higher order serial correlation (Godfrey, L. G., 1988).] as follows: 
+
+```{r}
+# No heteroskedasticity (null of homoskedasticity not rejected)
+bptest(ecm)
+
+# No autocorrelation up to 4 lags
+bgtest(ecm, order = 4)
+
+# Test residuals for iid-ness: seem to be iid. 
+Box.test(resid(ecm), lag = 4, type = "Ljung-Box")
+```
+
+<!-- # No autocorrelation -->
+<!-- dwtest(ecm, alternative = "two.sided") -->
+<!-- DW test is unreliable with lagged dependent variables -->
+
+
+The statistical properties of the equation are acceptable. Errors are homoskedastic and serially uncorrelated at the 5\% level. For convenience and further use, the function below can also be used to examine the autocorrelation and partial autocorrelation of the residuals at higher lags orders. 
+
+```{r}
+# Function to compute a correlogram of a time series
+corrgram <- function(x, lag.max = NULL, plot = FALSE,
+                     na.action = function(x) if(anyNA(unclass(x))) 
+                      x[!is.na(x)] else x) {
+  if(plot) {
+    oldpar <- par(mfrow = c(1, 2))
+    on.exit(par(oldpar))
+  }
+  ac <- eval(substitute(acf(x, lag.max, plot = plot, na.action = na.action)))
+  acf <- drop(ac[[1L]])[-1]
+  pacf <- drop(eval(substitute(pacf(x, lag.max, plot = plot, 
+                                    na.action = na.action)))[[1L]])
+  n <- ac$n.used
+  qstat <- n * (n + 2) * cumsum(acf^2 / seq.int(n - 1, n - length(acf))) 
+  lags <- seq_along(acf)
+  res <- cbind(Lag = lags, AC = acf, PAC = pacf,
+               Q = qstat, `Pr(>Q)` = pchisq(qstat, lags, lower.tail = FALSE))
+  class(res) <- "corrgram"
+  res
+}
+
+# Print method
+print.corrgram <- function(x, digits = 3, ...) {
+  xx <- cbind(format(x[, 1L, drop = FALSE], drop0trailing = TRUE),
+              format(round(x[, -1L], digits)))
+  print.default(`rownames<-`(xx, rep(" ", nrow(xx))), quote = FALSE, right = TRUE)
+}
+
+# Compute correlogram of the residuals
+corrgram(resid(ecm), lag.max = 6)
+```
+
+It appears that the residuals are indeed white noise serially uncorrelated and homoskedastic. We can also compute and plot the fitted values of the model:
+
+```{r}
+# Get ECM fitted values
+ECM_fit <- fitted(ecm) %>% as.xts(dateFormat = "Date")
+
+# Plot together with revenue
+plot(D(X[, "lrev"]) %>% merge(ECM_fit) %>% na.omit,
+     main = "Dlog Revenue and ECM Fit",
+     legend.loc = "topleft", major.ticks = "years", grid.ticks.on = "years")
+```
+
+The plot suggests an acceptable but but far from perfect fit. So adding some higher or seasonal lag orders $p$ and $q$ could possibly help both to increase the fit of the model as well as to remove some of the seasonal variation from the error correction term. 
+
+## Model Selection
+To ease the search of the optimal model as well as the forecasting process, we will specify different unrestricted ECM's estimated in one step. Stock (1987) showed that this is asymptotically equivalent to estimating the ECM in two steps and may even be desirable if the cointegration relationship is influenced by the lagged terms. In our case, the introduction of lagged differences $p>1$ and $q>1$ may capture seasonal variation in the series and give a cleaner estimate of the cointegrating vector. Mathematically, rewriting Eq. \ref{eq:ecm} yields:
+
+\begin{equation}
+A(L)\Delta r_t = (\gamma - \alpha\beta_0) + B(L)\Delta y_t + \alpha r_{t-t} - \alpha \beta_1 y_{t-1} + v_t,
+\end{equation}
+
+\noindent such that $\alpha$, the coefficient on $r_{t-t}$ is still the adjustment speed parameter and $\beta_1$ can easily be obtained from the coefficient on $y_{t-t}$ through dividing by $\alpha$ and negating. 
+
+Below a list of 1-step ECM's is estimated. ECM0 is the baseline model examined above. ECM's 1-4 add additional lags $p$ and $q$ to the equation. Then there are a set of seasonal ECM's which add the 4th lagged difference reflecting the quarterly frequency of the data. As we are now interested in finding the best model to forecast the recent period, the sample is restricted to years following 2014, which still gives 28 quarterly observations to estimate these models.
+
+```{r}
+# Restricting the sample to years after 2014
+XR <- X["2014/"]
+# 28 observations in the restricted sample
+nrow(na.omit(XR))
+
+# Now estimating a battery of models
+modlist <- list(
+# Non-Seasonal Models
+ECM0 = lm(D(lrev) ~ D(lgdp) + L(lrev) + L(lgdp), XR),
+ECM1 = lm(D(lrev) ~ L(D(lrev)) + D(lgdp) + L(lrev) + L(lgdp), XR),
+ECM2 = lm(D(lrev) ~ L(D(lgdp), 0:1) + L(lrev) + L(lgdp), XR),
+ECM3 = lm(D(lrev) ~ L(D(lrev)) + L(D(lgdp), 0:1) + L(lrev) + L(lgdp), XR), 
+ECM4 = lm(D(lrev) ~ L(D(lrev), 1:2) + L(D(lgdp), 0:1) + L(lrev) + L(lgdp), XR),
+# Seasonal Models
+SECM0 = lm(D(lrev) ~ L(D(lgdp), c(0,4)) + L(lrev) + L(lgdp), XR),
+SECM1 = lm(D(lrev) ~ L(D(lrev)) + L(D(lgdp), c(0,4)) + L(lrev) + L(lgdp), XR),
+SECM2 = lm(D(lrev) ~ L(D(lrev), 4) + L(D(lgdp), c(0,4)) + L(lrev) + L(lgdp), XR),
+SECM3 = lm(D(lrev) ~ L(D(lrev), c(1,4)) + D(lgdp) + L(lrev) + L(lgdp), XR),
+SECM4 = lm(D(lrev) ~ L(D(lrev), c(1,4)) + L(D(lgdp),c(0,4)) + L(lrev) + L(lgdp),XR),
+SECM5 = lm(D(lrev) ~ L(D(lrev), c(1,4)) + L(D(lgdp),c(0:1,4)) + L(lrev) + L(lgdp),XR)
+)
+```
+
+We can compactly examine the statistical properties of this list of models using `sapply` and only retaining the p-values of the Breusch-Pagan heteroskedasticity test, the Breusch-Godfrey residual autocorrelation test and the Ljung-Box white noise test applied to the residuals. 
+
+```{r}
+sapply(modlist, function(x) c(bptest(x)$p.value, 
+    BG = bgtest(x, order = 4)$p.value,
+    LB = Box.test(resid(x), lag = 4, type = "Ljung-Box")$p.value)) %>% round(2)
+```
+
+The p-values of all tests are $>0.05$, suggesting that all models provide an acceptable fit of the data.
+To examine the fit of these models, a first step is to compute and compare their information criteria. R naively offers the Akaike's (AIC) and Schwarz's Bayesian (BIC) information criteria which penalize the fit of the models by the number of fitted parameters. A lower IC indicates a better model. 
+
+```{r}
+# Computing AIC and BIC of the models
+ICs <- sapply(modlist, function(x) c(AIC = AIC(x), BIC = BIC(x)))
+round(ICs, 1)
+
+# IC ranking of models
+dapply(ICs, rank, MARGIN = 1)
+```
+
+The IC ranking favors the more parsimonious models without seasonal components, suggesting that they do not add much to the fit. Whether they also don't add much to the forecasting performance is a different matter investigated below.
+
+### In-Sample Forecasting
+Forecast a in-sample and then computing statistics that evaluate the forecast against the outcome is a direct and useful approach to evaluate the forecasting performance of a model. The function below takes a regression model and data as input and forecasts $n$ periods in-sample using all available data i.e. it performs expanding window one-period ahead forecasts where the model is re-estimated for each new period being forecasted using all available data up to that period.
+
+```{r}
+# Function to forecast n periods in-sample for forecast evaluation
+forecast_is <- function(model, data, n = 1L) {
+  data <- qDF(na_omit(data))
+  N <- nrow(data)
+  s <- (N-n):(N-1L)
+  form <- terms(model)
+  y <- attr(form, "variables")[1:2]
+  # Dependent variable and forecast are returned as in the model (e.g. differenced)
+  ydat <- qDF(eval(y, data, parent.frame()))
+  names(ydat) <- deparse(y[[2L]])
+  # Forecasting with expanding window
+  fc <- numeric(0L)
+  for(i in s) {
+    # This re-estimates the model on the selected sample
+    reest <- lm(form, ss(data, seq_len(i)))
+    # This forecasts one period ahead
+    fc <- c(fc, flast(predict(reest, newdata = ss(data, seq_len(i+1L))))) 
+  }
+  ydat[s + 1L, "fc"] <- unattrib(fc)
+  return(ydat)
+}
+```
+
+This approach is optimal to evaluate which model gives us the best 1-period ahead forecasts. If we are primarily interested in longer forecast horizons, the function must be modified to perform dynamic in-sample forecasting. Below the function used to forecast 8 quarters in-sample using data running from 2012. 
+
+```{r}
+# Forecast 8 quarters one-step ahead out of sample, on data running from 2012: 
+fcl <-  lapply(modlist, forecast_is, X["2012/"], n = 8L)
+
+# Create a data.frame of those forecasts
+fcl <- do.call(cbind, c(unname(fcl[1L]), lapply(fcl[-1L], `[`, "fc")))
+names(fcl)[-1L] <- names(modlist)
+
+# This shows the forecasts
+tail(fcl, 8L)
+```
+
+### Forecast Evaluation 
+Having computed forecasts from the various methods, we want to compare them in a rigorous way using an extended set of forecast evaluation metrics. The following function computes a set of well established forecast evaluation statistics. The `fc` argument to the function may be a vector, matrix or data frame of forecasts for the outcome `y`. By default also a 'naive' forecast is added which is simply `y` lagged `n.ahead` times. 
+
+```{r}
+eval_forecasts <- function(y, fc, add.naive = TRUE, n.ahead = 1) {
+  # eval substitute to get the name of the forecast if only a vector is passed
+  mfc <- eval(substitute(qDF(fc))) 
+  lagy <- flag(y, n.ahead)
+  if (add.naive) mfc <- c(list(Naive = lagy), mfc)
+  if (!all(length(y) == lengths(mfc))) 
+    stop("All supplied quantities must be of equal length")
+  res <- vapply(mfc, function(fcy) {
+    # Preparation
+    cc <- complete.cases(y, fcy)
+    y <- y[cc]
+    fcy <- fcy[cc]
+    lagycc <- lagy[cc]
+    n <- sum(cc)
+    # Undo Bessel's correction: (n-1) instead of n in denominator
+    nobessel <- sqrt((n - 1) / n) 
+    sdy <- sd(y) * nobessel
+    sdfcy <- sd(fcy) * nobessel
+    diff <- fcy - y
+    # Calculate Measures
+    bias <- sum(diff) / n          # Bias
+    MSE <- sum(diff^2) / n         # Mean Squared Error
+    BP <- bias^2 / MSE             # Bias Proportion
+    VP <- (sdy - sdfcy)^2 / MSE    # Variance Proportion
+    CP <- 1 - BP - VP              # Covariance Proportion
+    # CP <- 2 * (1 - cor(y, fcy)) * sdy * sdfcy / MSE
+    RMSE <- sqrt(MSE)              # Root MSE
+    R2 <- 1 - MSE / sdy^2          # R-Squared
+    SE <- sd(diff) * nobessel      # Standard Forecast Error
+    MAE <- sum(abs(diff)) / n      # Mean Absolute Error
+    MPE <- sum(diff / y) / n * 100 # Mean Percentage Error
+    MAPE <- sum(abs(diff / y)) / n * 100 # Mean Absolute Percentage Error
+    U1 <- RMSE / (sqrt(sum(y^2) / n) + sqrt(sum(fcy^2) / n))   # Theils U1
+    U2 <- sqrt(fmean((diff/lagycc)^2) / fmean((y/lagycc-1)^2)) # Theils U2 
+    # Output
+    return(c(Bias = bias, MSE = MSE, RMSE = RMSE, `R-Squared` = R2, SE = SE,
+             MAE = MAE, MPE = MPE, MAPE = MAPE, U1 = U1, U2 = U2,
+             `Bias Prop.` = BP, `Var. Prop.` = VP, `Cov. Prop.` = CP))
+  }, numeric(13))
+  attr(res, "naive.added") <- add.naive
+  attr(res, "n.ahead") <- n.ahead
+  attr(res, "call") <- match.call()
+  class(res) <- "eval_forecasts"
+  return(res)
+}
+
+# Print method
+print.eval_forecasts <- function(x, digits = 3, ...) print.table(round(x, digits))
+```
+
+These metrics can be used to obtain a full picture of the quality of the forecast and fulfill different purposes: a good forecast will have a low bias and MPE (which gives the bias in percentage terms). This is essential to ensure that we are not systematically over or under predicting the outcome. The bias proportion (BP) gives the share of MSE which is attributable to the bias. It should be close to 0. The MSE, RMSE and MAE measure the deviation of forecast and outcome in absolute terms. The key difference between the RMSE and the MAE (which are often comparable in magnitude) is that the MAE considers all deviations of the forecast from the outcome equally, whereas the RMSE, computed from squared forecast errors, penalizes large forecast errors disproportionately. Thus a forecast that performs well on all years except for one year where it gives a large error, will likely have a higher RMSE than MAE. 
+
+The MAPE represents the MAE as a percentage of the outcome variable. Theil's U1 index also provides a normalization of the RMSE bounded between 0 and 1. U1 is however not a very well behaved statistic (lower does not always imply a better model) and should be interpreted with caution. A better statistic, U2, compares each forecast to the naive model. It is computed as the square root of the ration of the mean squared percentage error of the forecast to the naive forecast. The naive forecast will have a U2 index of 1, and forecasts with U2 < 1 are better than the naive one. 
+
+Another more familiar normalization of the MSE is the r-squared, which provides the proportion of the variance in the outcome variable explained by the forecast. Note that it is possible that the MSE is greater than the variance of y, so the r-squared can be negative and should also be interpreted with caution. Another important metric to look at is the variance proportion (VP) which gives the proportion of MSE that can be attributed to a mismatch of the variance of the forecast with the variance of outcome. The VP should ideally be close to 0, along with the BP, such that most of the MSE is made up of unsystematic forecast errors contained in the covariance proportion (CP). 
+
+**To summarize:** A good forecast has a low bias / MPE, indicating it does not systematically over or under-predict the outcome, a low MSE / RMSE and MAE / MAPE indicating small forecast errors in absolute value, and low BP and VP (close to 0), indicating that the forecasted series has similar statistical properties in terms of its mean and variance to the outcome series, and that most of the forecast error is contained in the CP (close to 1). The forecast should also be better than the naive forecast (U2 < 1). 
+
+It is very easy to apply this function to our data frame of forecasts and also compute a ranking according to different evaluation metrics:
+
+```{r}
+fc_stat <- eval_forecasts(fcl[[1L]], fcl[-1L])
+fc_stat
+
+dapply(fc_stat, rank, MARGIN = 1)
+```
+
+All of the most important metrics (Bias, MSE, MAE) favor the simple seasonal model given by SECM2, which includes one seasonal lagged difference of revenue and GDP in the baseline ECM specification (ECM0). Competing models are SECM0 in the second place, followed by ECM0 and ECM2. We can also visualize the in-sample forecasts from these models. 
+
+```{r}
+# Plotting in-sample forecasts from the best 4 models against the outcome
+fcl[, .c("D(lrev)", ECM0, ECM2, SECM0, SECM2)] %>% 
+  qM %>% copyMostAttrib(na.omit(X["2012/"])) %>%
+plot(main = "Out of Sample Expanding Window Forecast from ECM's",
+     legend.loc = "topleft", major.ticks = "years", grid.ticks.on = "years")
+```
+
+It is evident that SECM2 performs quite a bit better than the other models as it follows the movements of the outcome series much more closely. None of the models were however able to fully account for the drop in revenue due to COVID-19 in early 2020, suggesting, as the IMF Fiscal Affairs Department pointed out in a policy statement from April 2020, that buoyancy or macro elasticities based empirical forecasting approaches underestimate the true revenue shortfall caused by COVID-19 due to the asymmetric nature of the shock across sectors of the economy and size of businesses. 
+
+Having found the optimal model, it remains to use it for actual forecasting into the future. The function below generates dynamic forecasts for all periods where forecasted covariates are available, being provided a dynamic model and a dataset containing the outcome (with missing values for future periods) and forecasted predictors. It assumes that all past missing values were removed from the data beforehand. 
+
+```{r}
+# Function to forecast dynamically from a dynamic model (with forecasted predictors)
+forecast_dyn <- function(mod, data, y.diff = TRUE) {
+  miss <- is.na(data)
+  if(sum(colSums(miss) > 0L) > 1L) stop("Missing values should only be on the dependent variable")
+  if(any(miss[1L, ])) stop("Missing values at beginning of sample")
+  data[miss] <- 0
+  # If the dependent variable is first-differenced in the model ... 
+  if(y.diff) { # .. results at original scale
+    for(i in which(rowSums(miss) > 0)) {
+      last <- data[i-1L, miss[i, ]]
+      data[i, miss[i, ]] <- last + flast(predict(mod, newdata = ss(data, seq_len(i))))
+    }
+  } else {
+    for(i in which(rowSums(miss) > 0)) 
+      data[i, miss[i, ]] <- flast(predict(mod, newdata = ss(data, seq_len(i))))
+  }
+  data
+}
+```
+
+It is again very easy to use this function to forecast revenue into the future, using the quarterly GDP projections for Uganda through 2024.
+
+```{r}
+# Dynamic forecast through 2024, using quarterly GDP projection
+ecm_fc = forecast_dyn(modlist$SECM2, X["2014/2024"]) %>% 
+         exp %>% setColnames(.c(Revenue, GDP))
+
+# Plot together with outcome series
+X["2014/2024", "lrev"] %>% exp %>% merge(ecm_fc[, "Revenue"]) %>%
+  plot(main = "Dynamic Revenue Forecast from SECM2 (UGX Billion)") 
+```
+
+Having obtained the level forecast, we can view the forecasted revenue for the remaining quarters of the financial year 2020/21 and obtain the total revenue forecast for the year as the sum of the two outcome and the two forecasted quarters.
+
+```{r}
+# Forecasted values for the end of the financial year
+ecm_fc["2020-07/2021-04"]
+
+# Sum of revenue and GDP forecasts for the financial year
+colSums(ecm_fc["2020-07/2021-04"])
+```
+
+The forecasted revenue of 18,487 billion UGX is on the lower end of what has been projected so far for the financial year. As a final exercise, we may be interested to see how this projection is impacted by our choice of optimal model. The code below first forecasts revenue using all models considered above, and then computes the annual revenue forecast for 2020/21 from each model.
+
+```{r}
+# Dynamic forecasting with all models
+ecm_fcl <- lapply(modlist, function(mod) 
+                    forecast_dyn(mod, X["2014/2024"]) %>%
+                    exp %>% setColnames(.c(Revenue, GDP)))
+           
+# Revenue forecast 2020/21 from all models
+fc_all <- sapply(ecm_fcl, function(x) sum(x["2020-07/2021-04", "Revenue"]))
+fc_all
+
+# Weighted average of these forecasts, weighted by their inverse-MSE
+fmean(fc_all, w = 1 / fc_stat["MSE", -1L])
+```
+
+The forecasts for 2020/21 from these models range from 18,100 to 19,100, so the 18,487 from the benchmark model is towards the lower end. In cases where we are not very confident in using the forecast from a particular model, we could also resort to an ensemble forecast computed as a weighted average of the forecasts from different models or forecasting approaches. We could weight these forecasts using information criteria or forecast evaluation metrics (such as MSE, MAE, U2). Another option, if we have sufficient data to forecast in-sample, is to regress the outcome on the various forecasts, and then combine dynamic forecasts using that coefficient vector. With many different forecasts to consider, a possible extensions to the regression method is to shrink the coefficients of the unimportant forecasts using a LASSO regression^[Available in the `glmnet` R package.]. Another alternative is to opt for more complex non-linear combinations of forecasts, for example by using a Random Forest model^[Available in the `randomForest` R package.] to predict the outcome from various in-sample forecasts and using this trained model to combine dynamic forecasts. In short, there are lots of possibilities for ensemble forecasting, but in this particular case I am quite confident that SECM2 provides a better forecast than the ensemble. 
+
+# Conclusion 
+For many economic variables including tax revenues, effective short-term forecasting models can be developed based on empirical relationships captured in ECM's and DLM's. It is however very important to specify a model appropriate to the specific nature of the data at hand: cointegrated data should be forecasted using ECM's, otherwise DLM's in levels or differences are appropriate. Seasonality in one series can be dealt with through appropriate seasonal adjustment, whereas seasonality in the dependent variable or in all series should generally be dealt with by including seasonal lags in the model. A second important aspect is to test and rigorously evaluate a broad set of models. This paper provided a solid theoretical foundation as well as R code and functions to conduct such empirical forecasting exercises with relative ease. In light of the COVID-19 pandemic, the viability of forecasts based on past empirical relationships must however be examined critically, and disaggregated forecasts should be adopted wherever data allows it. Informed judgement is also necessary, both to evaluate forecasts and to gauge the viability and usefulness of an empirical forecasting model in light of the political and economic circumstances and the available data. 
+
+
+\newpage
+## References
+\setlength{\parindent}{0em}
+
+IMF Fiscal Affairs Department (2020). *Challenges in Forecasting Tax Revenue.* Special Series on Fiscal Policies to Respond to COVID-19.
+
+IMF Institute for Capacity Development. *Financial Programming and Policies: Volume I*. Retrieved from: https://courses.edx.org/asset-v1:IMFx+FPP.1x+1T2017+type@asset+block@FPP1x_Manual.pdf
+
+Engle, Robert, and Clive Granger. 1987. *Co-integration and Error Correction: Representation, Estimation and Testing.* Econometrica 55 (2): 251–76.
+
+Johansen, Søren (1991). *Estimation and Hypothesis Testing of Cointegration Vectors in Gaussian Vector Autoregressive Models*. Econometrica. 59 (6): 1551–1580. JSTOR 2938278. 
+
+Stock, J. H. (1987). *Asymptotic properties of least squares estimators of cointegrating vectors.* Econometrica. 55 (5): 1551–1580.
+
+Enders, Walter (2010). *Applied Econometric Time Series (Third ed.).* New York: John Wiley & Sons. pp. 272–355. ISBN 978-0-470-50539-7.
+
+Lütkepohl, Helmut (2006). *New Introduction to Multiple Time Series Analysis.* Berlin: Springer. pp. 237–352. ISBN 978-3-540-26239-8.
+
+Alogoskoufis, G., & Smith, R. (1991). *On error correction models: specification, interpretation, estimation.* Journal of Economic Surveys, 5(1), 97-128.
+
+https://davegiles.blogspot.com/2016/05/forecasting-from-error-correction-model.html
+
+https://en.wikipedia.org/wiki/Error_correction_model
+
+https://www.econometrics-with-r.org/16-3-cointegration.html
+
+https://bookdown.org/ccolonescu/RPoE4/time-series-nonstationarity.html#the-error-correction-model
+
+https://www.youtube.com/watch?v=wYQ_v_0tk_c
+
