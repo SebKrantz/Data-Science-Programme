@@ -175,8 +175,8 @@ install.packages("data.table") # One package
 install.packages(c("xts", "collapse")) # Multiple packages. 
 
 # See all packages available on CRAN...
-available.packages() 
-tools::CRAN_package_db() # This downloads a more expensive package database
+View(available.packages()) 
+View(tools::CRAN_package_db()) # This downloads a more extensive package database
 
 # More functions like this: 
 installed.packages() # We had this before: Lists all installed packages
@@ -799,6 +799,10 @@ for (i in 1:3)  {
 }
 
 for (i in 1:3)  print(mean(mtcars[, i]))
+
+# For loops are inefficient and discouraged in R, a better way to do the same thing is:
+sapply(mtcars[1:3], mean)
+# In general, we want to use apply functions instead of for loops.
 
 # while loops:
 i <- 0L
