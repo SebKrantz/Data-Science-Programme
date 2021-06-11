@@ -23,8 +23,8 @@
 # (6) Model selection (residual diagnostics, information criteria, and in-sample forecasting)
 # (7) Forecasting with a large number of series (Ridge regression, Partial least squares)
 # (8) Non-Linear Methods (Neural Networks, Boosted Trees)
+# Additional topics: Ensemble Forecasting (possibly not covered). 
 
-# Today: Topics 1-5, see how far we get.
 
 setwd("Course 4 - Time Series Analysis and Forecasting in R")
 
@@ -48,10 +48,13 @@ t <- 1:100 # time variable
 plot(t, y)
 # If these observations are i.i.d with mean 0 and constant variance, we call this a white-noise series
 ts.plot(y)
+abline(h = mean(y))
 # White noise means also that the time-series is uncorrelated with its lag. 
 library(collapse) # flexible functions for lagging/leading and differencing a time-series
 L(y) # Lag of y
+View(cbind(y, lag_y = L(y)))
 pwcor(y, L(y))
+View(cbind(y, L(y, 1:10)))
 pwcor(y, L(y, 0:10)) # Correlation of y with all its lags is close to 0. 
 
 # A quick way to correlate a series with it's lags and visualiye the result is through the autocorrlation function
@@ -61,21 +64,45 @@ acf(y, plot = FALSE) # we can also print it
 
 # In practice, most time series are not white noise or i.i.d, but observations are correlated over time
 plot(airmiles)
+lines(L(airmiles))
 acf(airmiles)
 # -> This series has a positive autocorrelation, and it has a visible trend
 
+
+### Autoregressive Process
 # Time-series don't need to have a trend, but can be autocorrelated. A data generating process for a series that is 
-# autocorrelated of order 1 could look like this:
-e <- rnorm(100)   # White noise error term
-z <- numeric(100) # Initializing series z
-z[1L] <- e[1L]    # the first observation is just the error
-for(i in 2:100) z[i] = 0.5 * z[i-1L] + e[i] # Each subsequent observation depends on the previous one + error
+# autocorrelated of order 1 (short AR(1)) could look like this:
+n <- 1000L      # Length of process
+e <- rnorm(n)   # White noise error term
+z <- numeric(n) # Initializing series z
+z[1L] <- e[1L]  # the first observation is just the error
+# This generates the process (i denotes the time period, b = 0.9 is the autoregressive coefficient of the process).
 # (Note: Time-recursion is one of the rare cases where we actually need to use for-loops in R)
+for(i in 2:n) z[i] = 0.9 * z[i-1L] + e[i] # Each subsequent observation depends on b * the previous one + error
+## The process equation is valid for all time periods i. We can take lags of process as follows:
+# z[i-1] = 0.9 * z[i-2] + e[i-1]
+# z[i-2] = 0.9 * z[i-3] + e[i-2]
+## We can insert the lagged process equation for z[i-1] into the process, to yield
+# z[i] = 0.9 * (0.9 * z[i-2L] + e[i-1]) + e[i]
+# z[i] = 0.81 * z[i-2L] + 0.9 * e[i-1] + e[i]
+## Doing this again for z[i-2] yields
+# z[i] = 0.81 * (0.9 * z[i-3] + e[i-2]) + 0.9 * e[i-1] + e[i]
+# z[i] = 0.729 * z[i-3] + 0.81 * e[i-2] + 0.9 * e[i-1] + e[i]
+## Doing this again for z[i-3] yields
+# z[i] = 0.6561 * z[i-4] + 0.729 * e[i-3] + 0.81 * e[i-2] + 0.9 * e[i-1] + e[i]
+## ... we could continue to do this ad infinitum. The coefficient on z[t-h] will
+## continue to shrink until it reaches 0. Thus we get:
+## z[i] = \sum_{h = 0}^Inf 0.9^h * e[i-h] 
+## -> z[i] is an infinite weighted sum of the lagged error terms, where the weights are the squares of b.
+##    such weighted sums of lagged error terms are also called 'moving averages'. 
+##    By the principle of lagging and inserting terms, any autoregressive process
+##    can be rewritten as an infinite moving average in the error term.
+
 # Plot of z against time
 ts.plot(z)
 # Note that the plot looks similar to the plot of the i.i.d series y
 ts.plot(y)
-# Yet the ACF of z shows significant autocorrelation, while the ACF of y does not
+# Yet the ACF of z shows significant autocorrellation, while the ACF of y does not
 acf(z)
 acf(y)
 # So z is not i.i.d. Each observation depends in a systematic way on the previous one. 
@@ -86,25 +113,35 @@ acf(y)
 
 # I. The series has a constant mean over time (no trend)
 # II. The series has a constant and finite variance over time (also known as homoskedasticity)
-# III. The covariance between x_t and x_t-h only depends on h, not on t (covariance between adjacent observations is constant)
-
+# III. The covariance between z[i] and z[i-h] only depends on h, not on i (covariance between adjacent observations is constant
+#      -> No change in the autocorrelation pattern in the series over time)
 # We call a series that satisfies these assumptions weakly stationary. 
-# So z is a weekly stationary series. Let's look at some series that don't satisfy th assumtion
+
+# So z is a weekly stationary series. Let's look at some series that don't satisfy these assumtions:
 plot(AirPassengers)       # Trend + increasing variance
 
-# In this case, we can apply some transformations to make the series stationary
+# To do statistical analysis on a series like this, we need to apply some transformations to make the series stationary
 plot(log(AirPassengers))     # Log-transformation stabilizes variance
+# After log-transforming, we see the series has constant variance but is still increasing with a slight curve
+# We can make it stationary by regressing on a quadratic trend and taking the residuals
+t <- seq_along(AirPassengers)
+ts.plot(resid(lm(log(AirPassengers) ~ poly(t, 2))))
+# If we are just interested in regression residuals, the simplest way to detrend is using collapse::HDW(), which will also preserve the time-series attributes
 plot(HDW(log(AirPassengers), # Subtracting a quadratic trend to make the series stationary.
          poly(seq_along(AirPassengers), 2)))
-plot(Dlog(AirPassengers))    # Another option is differencing after taking logs, simplified by the Dlog function
+# Instead of detrending after taking logs, another option is differencing after taking logs. This is simplified by the collapse::Dlog function
+plot(Dlog(AirPassengers))    
+
+## In general: If series does not satisfy assumptions I to III, need to transform it to make it weakly stationary. 
 
 # In this case the series is also seasonal
 AirPassengers
+class(AirPassengers)
 frequency(AirPassengers)
 monthplot(AirPassengers)
 plot(stl(AirPassengers, "periodic")) # Can do a seasonal decomposition, take the remainder
 plot(Dlog(AirPassengers, 12))        # Another option is seasonal-differencing
-# Still doesn't look quite stationary, so we can do difference in seasonal difference:
+# Still doesn't look quite stationary, so we could do difference in seasonal log-difference:
 plot(D(Dlog(AirPassengers, 12)))
 
 # What about a series like this?
@@ -112,26 +149,63 @@ rw <- cumsum(rnorm(10000))  # Each observation is equal to the previous one plus
 ts.plot(rw)                 # Can look like a trending series, but trend is not very systematic. 
 acf(rw)                     # HUH!
 
-# We call such a series a random walk or unit root series (due to the autocorrelation of 1). 
+# We call such a series a random walk or unit root series (due to the autocorrelation close 1). 
 # such series can be made stationary by differencing them one or more times
 ts.plot(D(rw))
 
 # Stock-Market indices are generally said to exhibit random walk character
 plot(EuStockMarkets)
+frequency(EuStockMarkets)
+acf(EuStockMarkets) # Autocorrelations on the diagonal, cross-correlations on the off-diagonal.
 plot(D(EuStockMarkets))
 # With stock markets we additionally have the issue of periods of increased volatility.
 plot(D(EuStockMarkets)^2)
+# Smoothing the volatility
+plot(roll::roll_mean(D(EuStockMarkets)^2, 31))
 
 # A final series to consider is the moving average contructed like this
-ma <- numeric(100) 
+ma <- numeric(n) 
 ma[1L] <- e[1L]    # the first observation is just the error
-for(i in 2:100) ma[i] = e[i] + 0.5 * e[i-1L] # Each subsequent observation is a weighted average of previous period error terms
-# Here both the plot and the ACF suggest that this is a white noise series...
-ts.plot(ma)
-acf(ma)
+# This generates an MA(2) process
+for(i in 3:n) ma[i] = e[i] + 0.9 * e[i-1L] + 0.7 * e[i-2L] # Each subsequent observation is the error plus a weighted average of previous period error terms
+ts.plot(ma) # Plot looks almost like white noise series
+acf(ma)     # But ACF shows two significant spikes -> ma[t] is correlated with ma[t-1] and ma[t-2] through the lagged error terms, but not with ma[t-h] for h >= 3.
 # But it is not, it depends on the previous period through the error term
 # We can use what is called a partial-ACF or PACF to see this:
 pacf(ma)
+# Compare this to the ACF and PACF of the AR(1) process
+acf(z)
+pacf(z)
+# What is partial ACF?: Easiest way to remember: We compute the ACF between x[t] and x[t-h], controlling for all the lagged terms in-between (x[t-1] to x[t-h+1]):
+pacf(z, plot = FALSE)
+lm(z ~ L(z) + L(z, 2))           # The partial ACF at lag 2 is the correlation between z and zt-2, controlling for zt-1
+lm(z ~ L(z) + L(z, 2) + L(z, 3)) # The partial ACF at lag 3 is the correlation between z and zt-3, controlling for zt-1 and zt-2
+# z is an AR(1) process, thus the PACF at lags 2 and higher is 0 -> there is no correlation between z[t] and z[t-2] after controlling for z[t-1].
+## But the PACF of the MA(2) does not decay. Why? 
+## To see this we can rewrite the MA(2) process and then start inserting the lags of teh process into itself
+# e[i] = ma[i] - 0.9 * e[i-1] - 0.7 * e[i-2] 
+# e[i-1] =  ma[i-1] - 0.9 * e[i-2] - 0.7 * e[i-3] 
+# e[i-2] =  ma[i-2] - 0.9 * e[i-3] - 0.7 * e[i-4]  
+## Inserting for e[i-1] and e[i-2] in the equations for e[i] yields:
+# e[i] = ma[i] - 0.9 * (ma[i-1] - 0.9 * e[i-2] - 0.7 * e[i-3]) + 0.7 * (ma[i-2] - 0.9 * e[i-3] - 0.7 * e[i-4]  )
+# e[i] = ma[i] - 0.9 * ma[i-1] - 0.81 * e[i-2] - 0.63 * e[i-3] + 0.7 * ma[i-2] - 0.63 * e[i-3] - 0.49 * e[i-4]  
+# e[i] = ma[i] - 0.9 * ma[i-1] + 0.7 * ma[i-2] - 0.81 * e[i-2] - 1.26 e[i-3] - 0.49 * e[i-4]  
+# ...
+## We can iterate further and find that the MA can be expressed as an infinite autoregressive process (in ma[i]),
+## Thus it's PACF does not die out. 
+
+
+# Thus we have learned: An AR(p) process is a process of the form
+# y[t] = ß1 y[t-1] + ß2 y[t-2] + ... + ßp y[t-p] + e[t]
+# The ACF of this process decays slowly while the PACF goes to zero after lag p. 
+
+# A MA(p) is a process of the form:
+# y[t] = e[t] + ß1 e[t-1] + ß2 e[t-p] + ... + ßp e[t-p]
+# The ACF of this process goes to zero after lag p and the PACF decays slowly. 
+
+# More details are provided in the Free Book:
+# ' Time Series Analysis and Its Applications With R Examples'
+# Available here: https://www.stat.pitt.edu/stoffer/tsa4/
 
 
 #****************************
@@ -139,20 +213,32 @@ pacf(ma)
 #****************************
 
 # (1) This code generates an autoregressive process of order 1 short AR(1)
-n <- 1000L
+n <- 10000L
 e <- rnorm(n)   # White noise error term
 z <- numeric(n) # Initializing series z
 z[1L] <- e[1L]    # the first observation is just the error
-for(i in 2:n) z[i] = 0.5 * z[i-1L] + e[i] # Each subsequent observation depends on the previous one + error
+for(i in 2:n) z[i] = 0.9 * z[i-1L] + e[i] # Each subsequent observation depends on the previous one + error
+ts.plot(z)
+acf(z)
+pacf(z)
 
 # (a) write code to generate an AR(2)
+
 # (b) examine your process by plotting it, computing the ACF and PACF
+
 # (c) add a MA(1) term to the AR(2), generating a so-called ARMA(2, 1) process
+
 # (d) also examine this process using plot, ACF and PACF
+
 
 # (2) Examine there series, are they Stationary? Autocorrelated? AR, MA, ARMA?
 plot(Nile)
-plot(BJsales)
+plot(BJsales) 
+plot(sunspots)
+plot(UKgas) 
+
+# See for various other time series built into R (in the 'datasets' package and other packages you have loaded)
+data()
 
 
 # (2) Getting and visualizing Ugandan Time Series Data (UGATSDB API) -------
@@ -167,7 +253,7 @@ plot(BJsales)
 # mepd.shinyapps.io/Macro-Data-Portal/, or through an API package for R, which you can install using the following command:
 
 remotes::install_github('https://github.com/SebKrantz/UGATSDB', 
-                        auth_token = '1582359bdc7c4f2323a710084e33545feb992412') 
+                        auth_token = paste0('g', 'hp', '_PDwAszQ', 'N2Tn9nK', 'aPnQUyrZPt7L', '3iPw3YQ7wh')) 
 
 # We can now download and explore some Ugandan time series data.
 library(ugatsdb)     # package connects to database while loading
@@ -203,8 +289,15 @@ plot(roll_mean(MMI_xts, 12))
 plot(roll_mean(STD(G(MMI_xts, 12)), 12))
 plot(roll_sd(STD(D(MMI_xts)), 12))
 
-# With this data it is then very easy to do some exploration and analysis
-E_CPI <- na.omit(MMI_xts[, c("E_PA", "CPI_HL_09")])
+# Let's just get a single series: the PMI from Stanbic Bank
+PMI <- get_data("MOF_POE", "PMI")
+PMI_xts <- as.xts(PMI)
+plot(PMI_xts)
+# Using the dygraphs library, we can also easily create an interactive chart of an xts time series
+dygraphs::dygraph(PMI_xts)
+
+# With this data it is very easy to do some exploration and analysis
+E_CPI <- na.omit(MMI_xts[, c("E_PA", "CPI_HL_09")]) # Getting Exchange Rate and CPI
 # Standardized raw data
 plot(STD(E_CPI), 
      legend.loc = "topleft", 
@@ -221,19 +314,22 @@ plot(G(E_CPI, 12),
 plot(STD(Dlog(E_CPI)), legend.loc = "topleft")
 # An estimate of volatility: 12-month rolling standard deviations of Standardized monthly log-differences in the series
 plot(roll_sd(STD(Dlog(E_CPI)), 12), legend.loc = "topleft")
-# If we increas the interval for rolling standard deviations to 4 years, we see that volatility has been declining
+# If we increase the interval for rolling standard deviations to 4 years, we see that volatility has been declining
 plot(roll_sd(STD(Dlog(E_CPI)), 48), legend.loc = "topleft")
 
 # How can we further examine the relationship between two time series?
-# We can simply calculate the correlation coefficient between YoY growth rates of the series.
+# We can simply calculate the correlation coefficient between MoM growth rates of the series.
 pwcor(G(E_CPI, 12), N = TRUE, P = TRUE)
 # But this does not show us much about the dynamic relationship, better compute the ACF
 acf(na.omit(G(E_CPI, 12)))
+acf(E_CPI)
+pacf(E_CPI)
+
 # The multivariate ACF shows the Cross-correlation function CCF on the off-diagonal. 
 # The CCF of two series x and y correlates x with the lags and leads of y. 
-# We can also compute the CCF separately on the YoY growth rates 
-ccf(as.numeric(G(E_CPI[, "E_PA"], 12)), 
-    as.numeric(G(E_CPI[, "CPI_HL_09"], 12)), na.action = na.omit)
+# We can also compute the CCF separately on the MoM growth rates 
+ccf(as.numeric(G(E_CPI[, "CPI_HL_09"], 12)), 
+    as.numeric(G(E_CPI[, "E_PA"], 12)), na.action = na.omit)
 # -> Pretty clean evidence of exchange rate pass-through, where exchange rate depreciation translates to inflation
 
 # We can estimate a linear model of exchange rate pass through
@@ -243,40 +339,87 @@ head(MMI)
 head(expand_date(MMI)) # expand_date generates some additional identifiers from the date variable
 
 MMI <- expand_date(MMI)
+str(MMI, give.attr = FALSE)
 # Model to estimate exchange rate pass-through
 
 # This now fits an exchange rate pass through model, where we regress the log-differnce of CPI 
 # on the log difference of the exchange rate, with 12 monthly lags, and we put monthly dummies to account for any seasonality
-EP_mod <- lm(Dlog(CPI_HL_09) ~ L(Dlog(E_PA), 0:12) + Month, data = MMI)
+plot(Dlog(E_CPI), legend.loc = "topleft")
+acf(na.omit(Dlog(E_CPI)))
+EP_mod <- lm(Dlog(CPI_HL_09) ~ L(Dlog(CPI_HL_09), 1:6) + L(Dlog(E_PA), 0:12) + Month, data = MMI)
+summary(EP_mod)
 # Summarizing the model with heteroskedasticity and autocorrelation consistent standard errors
 jtools::summ(EP_mod, digits = 5, vcov = sandwich::vcovHAC)
 jtools::plot_coefs(EP_mod, vcov = sandwich::vcovHAC)
 # What does this tell us?
+acf(resid(EP_mod))
 
-# Now the API is very flexible, it allows us to download multiple datasets inf Full:
+# Now the API is very flexible, it allows us to download multiple datasets in full:
 MMI_GOV <- get_data(c("BOU_MMI", "MOF_TOT"))
 View(namlab(MMI_GOV))
 # Or we can send a very specific request
 CIEA_REV <- get_data(c("BOU_MMI", "MOF_TOT"), 
                      series = c("CIEA", "REV"), 
-                     from = 2000)
+                     from = 2006)
 
+plot(STD(as.xts(CIEA_REV)), legend.loc = "topleft")
+plot(log(as.xts(CIEA_REV)), legend.loc = "topleft")
 with(CIEA_REV, ccf(G(CIEA), G(REV), na.action = na.omit))
+# Regressing revenue on the CIEA and lags of revenue (to account for serial correlation)
+CREV_mod <- lm(Dlog(REV) ~ L(Dlog(REV), 1:3) + Dlog(CIEA) + Month, expand_date(CIEA_REV))
+jtools::summ(CREV_mod, digits = 5, vcov = sandwich::vcovHAC)
+acf(resid(CREV_mod))
+# We can eaily export this regression using jtools and huxtable:
+huxtable::quick_xlsx(jtools::export_summs(CREV_mod, vcov = sandwich::vcovHAC), file = "CIEA_REV.xlsx")
+huxtable::quick_docx(jtools::export_summs(CREV_mod, vcov = sandwich::vcovHAC), file = "CIEA_REV.docx")
 
-# Additionally, we can transform data to long format using a supplied function
+# In the above regression we included lags of revenue to account for serial correlation in the residuals.
+# Another option is Prais-Winsten estimation. If we have a model like this:
+# yt = xt + et
+# with serieal correlation of order 1 in the error term:
+# et = p et-1 + ut
+# Example: 
+CREV_mod <- lm(Dlog(REV) ~ Dlog(CIEA) + Month, expand_date(CIEA_REV))
+r <- resid(CREV_mod)
+jtools::summ(lm(r ~ L(r)))
+# we could transform the model by subtracting p times the model from itself. 
+# yt - p yt-1 = xt - p xt-1 + et - p et-1
+# The errors from this model are then 
+# et - p et-1 = ut
+# which is serially uncorrelated 
+# This subtracts p times the model from itself and re-estimates it. 
+CREV_mod <- lm(D(Dlog(REV), rho = -0.41) ~ D(Dlog(CIEA), rho = -0.41) + Month, expand_date(CIEA_REV))
+r <- resid(CREV_mod)
+jtools::summ(lm(r ~ L(r)))
+
+# Fortunately you don't need to do this manually. the prais package automatically estimates p and then runs a regression on the transformed data.  
+library(prais)
+summary(prais_winsten(Dlog(REV) ~ Dlog(CIEA) + Month, expand_date(CIEA_REV)))
+# Compare this to the model where we include lags of revenue
+CREV_mod <- lm(Dlog(REV) ~ L(Dlog(REV), 1:3) + Dlog(CIEA) + Month, expand_date(CIEA_REV))
+
+# Regarding the API, it further includes functions wide2long and long2wide to transform the data. 
+# transform data to long format:
 wide2long(MMI)
+
 # This can be useful for plotting with ggplot2
 library(ggplot2)
-ggplot(wide2long(MMI), aes(x = Date, y = Value)) +
+ggplot(wide2long(CIEA_REV), aes(x = Date, y = Value)) +
   geom_line() + facet_wrap( ~ Series, scales = "free_y")
-# Pretty crazy ...
-ggplot(wide2long(MMI), aes(x = Date, y = Value, colour = Month)) +
+
+ggplot(wide2long(MMI), aes(x = Date, y = Value)) +
+  geom_line() + facet_wrap( ~ Series, scales = "free")
+
+# Here also colouring series by month
+ggplot(wide2long(MMI)[Series %in% c("CPI_HL_09", "CIEA", "BTI", "TB")], 
+            aes(x = Date, y = Value, colour = Month)) +
   geom_line() +  facet_wrap( ~ Series, scales = "free") + 
   scale_colour_manual(values = rainbow(12)) +
   theme_dark() 
 
 # Finally, it is very easy to export data to Excel:
 wide2excel(MMI, "MMI.xlsx")
+# Wide (row-based) Excel format:
 wide2excel(MMI, "MMI_T.xlsx", transpose = TRUE)
 
 #****************************
@@ -284,20 +427,22 @@ wide2excel(MMI, "MMI_T.xlsx", transpose = TRUE)
 #****************************
 
 # Examine the relationship between one of these groups of variables:
-
-# CIEA and CPI/Inflation (Phillips Curve)
+# CIEA and CPI/Inflation (Phillips Curve) -> No significant relationship. 
 # M0, M2, I_LR, CPI/Inflation, CIEA and CBR (Monetary Policy Transmission)
 # CIEA, REER and TB (Trade, Economic Activity and The Real Exchange Rate)
 # REER, Imports and Trade Tax Revenue (Real exchange rate, imports and trade tax revenue)
 # NCG, TBILL, CIEA, DLG (Economic activity and credit to the government)
-# NCG, TBILL and Government Expenditure (Government financing and expenditure)
+# NCG, TBILL, I_TBY_91, PSC, PMI and Government Expenditure (Government financing and expenditure)
+# FIN_DOM from MOF_TOT, EXP from MOF_EXP
 # CIEA and Tax Revenue (Economic activity and tax revenue)
 
 # (a) Get the Series from 2000 onwards, in the datasets BOU_MMI, MOF_TOT, MOF_REV or MOF_EXP
-# (b) Plot the series in levels and monthly growth rates. Is the level series stationary? Os ther series in growth rates stationary?
+# (b) Plot the series in levels and monthly growth rates. Is the level series stationary? Is the series in growth rates stationary?
 # (c) Compute a simple correlation matrix between the growth rates
 # (d) Compute a multivariate ACF of the growth rates
 # (e) Specify an dynamic regression model (with monthly dummies to account for seasonality)
+
+
 
 # Summary: The database API is an extremely powerful tool to get Ugandan data into R and do some quick analysis.
 # If you want to get some Ugandan time series data into R, first check the series() table if it is not already there...
@@ -309,7 +454,7 @@ wide2excel(MMI, "MMI_T.xlsx", transpose = TRUE)
 # (1) Seasonality, Unit Roots and Cointegration ----------------------------
 #***************************************************************************
 
-# Data below Annual frequency often have seasonal patterns. 
+# Time series below Annual frequency often have seasonal patterns. 
 
 # A stark example is the quarterly GDP series from UBOS:
 GDP <- get_data("UBOS_GDP_KP", "GDP_KP")
@@ -328,7 +473,11 @@ plot(as.xts(CIEA))
 # test whether the regression is significant. If the series is non-stationary, we need to make it stationary
 # by differencing (or log-differencing to account for increasing variance)
 
-summary(lm(Dlog(GDP_KP) ~ Quarter, expand_date(GDP))) # Yup, significant
+steastest_GDP <- lm(Dlog(GDP_KP) ~ Quarter, expand_date(GDP))
+summary(steastest_GDP) # Yup, significant
+ts.plot(Dlog(GDP$GDP_KP))
+lines(c(NA, fitted(steastest_GDP)), col = "red")
+
 # A faster way to do this is with collapse::fFtest
 fFtest(Dlog(GDP$GDP_KP), expand_date(GDP)$Quarter)
 
@@ -352,7 +501,7 @@ plot(GDP_stl)
 library(seastests)
 seastests::kw(GDP_ts)
 seastests::qs(GDP_ts)
-seastests::wo(GDP_ts)         # Cmbines the results of the two tests...
+seastests::wo(GDP_ts)         # Combines the results of the two tests...
 seastests::isSeasonal(GDP_ts) # This is a convenience function...
 
 # Seasonally adjusted series
@@ -366,6 +515,8 @@ library(seasonal)
 plot(seas(GDP_ts))
 GDP_ajd <- final(seas(GDP_ts))
 plot(GDP_ajd)
+seastests::isSeasonal(GDP_ajd)
+
 
 #****************************
 ### In-Class Exercise 3 -----
@@ -393,6 +544,7 @@ plot(GDP_ajd)
 # What do we make of a series like this?
 plot(MMI_xts[, "E_PA"]) # Period-average monthly exchange rate...
 acf(MMI_xts[, "E_PA"])
+acf(MMI_xts[, "E_PA"], plot = FALSE)
 
 # Remember this random walk series we generated?
 rw <- cumsum(rnorm(1000))  # Each observation is equal to the previous one plus some random error term. 
@@ -411,7 +563,7 @@ lm(E_PA ~ L(E_PA), MMI)
 # An economic series like the exhange rate is not just random noise, but the unit root means that the series
 # depends very strongly on the previous value, and there is nothing compelling the series to return to its average
 
-# Revall the autoregressive process with b = 0.5:
+# Recvall the autoregressive process with b = 0.5:
 n <- 1000L
 e <- rnorm(n)   # White noise error term
 z <- numeric(n) # Initializing series z
@@ -450,17 +602,18 @@ car::Boot(lm(`D(E_PA)` ~ ., model.frame(ADF_mod))) # We can bootstrap the model 
 # Now thankfully we don't need to do this ourselves, the tseries package provides several tests:
 library(tseries)
 adf.test(MMI_xts[, "E_PA"]) # We fail to reject the Null of a unit root
-pp.test(MMI_xts[, "E_PA"])  # Another similar test: Phillips-Perron Unit Root Test
+pp.test(MMI_xts[, "E_PA"])  # Another similar test: Phillips-Perron Unit Root Test -> Does not require normal erroes
 
 # We can also run the opposite test for stationarity of a series
-kpss.test(MMI_xts[, "E_PA"]) # We reject the null of stationarity!
+kpss.test(MMI_xts[, "E_PA"], null = "Trend") # We reject the null of stationarity!
+kpss.test(MMI_xts[, "CIEA"], null = "Trend")
 
 # -> So if the unit root tests fail to reject the null of a unit root and the stationarity test rejects the null of stationarity,
 # we can be pretty confident that the series has a unit root.
 
 # What do we do if a series has a unit root? -> We need to make it stationary by differencing it before including it in a regression !!
 
-# There is one exception to this rule. 
+### There is one exception to this rule:
 # Consider here the period-average and the end of period exchange rate
 E <- na.omit(MMI_xts[, c("E_PA", "E_EP")])
 plot(E, legend.loc = "topleft")
@@ -503,7 +656,7 @@ summary(lm(D(E_EP) ~ D(E_PA), E)) # About 85% of changes in E_PA are reflected i
 # The deviation of the series in the current period is the residuals from the level-regression
 E_LR_res <- resid(E_mod)
 # We can use the deviation from the long-run relationship in the previous period as an additional regressor in the short-run model
-summary(lm(D(E_EP) ~ D(E_PA) + E_LR_res, model.frame(E_mod)))
+summary(lm(D(E_EP) ~ D(E_PA) + L(E_LR_res), model.frame(E_mod)))
 # This is what is called an error-correction model! The coefficient on E_LR_res can be interpreted as the speed of adjustment 
 # following a deviation from equilibrium. 
 
@@ -515,6 +668,7 @@ summary(lm(D(E_EP) ~ D(E_PA) + E_LR_res, model.frame(E_mod)))
 # so we can also estimate the ECM in one equation:
 ECM_mod <- lm(D(E_EP) ~ D(E_PA) + L(E_EP) + L(E_PA), E)
 summary(ECM_mod)
+
 
 
 #****************************
@@ -540,6 +694,7 @@ lmtest::bptest(ECM_mod) # Heteroskedasticity? -> Nope
 
 forecast::checkresiduals(ECM_mod) # There is some autocorrelation but strange. 
 lmtest::dwtest(ECM_mod) # First-order autocorrelation? -> Nope
+acf(resid(ECM_mod))
 
 # What about autocorrelation at higher orders?
 lmtest::bgtest(ECM_mod, order = 12)
@@ -554,6 +709,8 @@ corrgram(resid(ECM_mod), plot = TRUE)
 #****************************
 
 # Check your model from Exercise 2
+
+
 
 
 # Concluding comments on time-series regression:
@@ -574,6 +731,7 @@ corrgram(resid(ECM_mod), plot = TRUE)
 summary(prais::prais_winsten(BTI ~ CIEA + Year*Month, MMI))
 
 # Finally, if data have a unit root, but are cointegrated, we can estimate an error correction model. 
+
 
 
 
@@ -687,6 +845,7 @@ ggAcf(diff(goog))
 
 # Ljung-Box test of the differenced series
 Box.test(diff(goog), lag = 10, type = "Ljung")
+corrgram(diff(goog))
 
 
 # Forecasting and Potential Futures --------------------------------------------------------------
@@ -749,10 +908,13 @@ ausbeer %>% snaive() %>% checkresiduals()
 train <- subset(gold, end = 1000)
 
 # Compute naive forecasts and save to naive_fc
+length(gold)
 naive_fc <- naive(train, h = 108)
+autoplot(naive_fc)
 
 # Compute mean forecasts and save to mean_fc
 mean_fc <- meanf(train, h = 108)
+autoplot(mean_fc)
 
 # Another function, accuracy(), computes various forecast accuracy statistics given the forecasts and the corresponding actual observations. It is smart enough to find the relevant observations if you give it more than the ones you are forecasting.
 # The accuracy measures provided include root mean squared error (RMSE) which is the square root of the mean squared error (MSE). Minimizing RMSE, which corresponds with increasing accuracy, is the same as minimizing MSE.
@@ -795,10 +957,13 @@ accuracy(fc3, vn[, "Melbourne"])["Test set", "MAPE"]
 # The tsCV() function computes time series cross-validation errors. It requires you to specify the time series, the forecast method, and the forecast horizon. Here is the example used in the video:
 
 # Compute cross-validated errors for up to 8 steps ahead
-e <- tsCV(goog, forecastfunction = naive, h = 8)
+e <- tsCV(goog, forecastfunction = naive, h = 8, initial = 900)
 
 # Compute the MSE values and remove missing values
 mse <- colMeans(e^2, na.rm = TRUE)
+sqrt(mse)
+
+mae <- colMeans(abs(e), na.rm = TRUE)
 
 # Plot the MSE values against the forecast horizon
 data.frame(h = 1:8, MSE = mse) %>%
@@ -811,6 +976,7 @@ data.frame(h = 1:8, MSE = mse) %>%
 # The parameters are estimated using least squares estimation. All you need to specify is the time series and the forecast horizon; the default forecast time is h = 10 years
 
 # Use ses() to forecast the next 10 years of winning times
+plot(marathon)
 fc <- ses(marathon, h = 10)
 
 # Use summary() to see the model parameters
@@ -830,6 +996,8 @@ train <- subset(marathon, end = length(marathon) - 20)
 # Compute SES and naive forecasts, save to fcses and fcnaive
 fcses <- ses(train, h = 20)
 fcnaive <- naive(train, h = 20)
+autoplot(fcnaive)
+autoplot(fcses)
 
 # Calculate forecast accuracy measures
 accuracy(fcses, marathon)
@@ -885,15 +1053,18 @@ train <- subset(hyndsight, end = length(hyndsight) - 4*7)
 
 # Holt-Winters additive forecasts as fchw
 fchw <- hw(train, seasonal = "additive", h = 4*7)
+autoplot(fchw)
 
 # Seasonal naive forecasts as fcsn
 fcsn <- snaive(train, h = 4*7)
+autoplot(fcsn)
 
 # Find better forecasts with accuracy()
 accuracy(fchw, hyndsight)
 accuracy(fcsn, hyndsight)
 
 # Plot the better forecasts
+autoplot(fchw)
 
 # Automatic forecasting with exponential smoothing ------------------------------------------------------
 
@@ -904,6 +1075,7 @@ accuracy(fcsn, hyndsight)
 # in this chapter. Both have been pre-loaded into your workspace.
 
 # Fit ETS model to austa in fitaus
+plot(austa)
 fitaus  <- ets(austa)
 
 # Check residuals
@@ -994,11 +1166,14 @@ a10 %>% BoxCox(lambda = 0.3) %>% autoplot()
 # Compare with BoxCox.lambda() (automatic lambda selection)
 BoxCox.lambda(a10)
 
+a10 %>% BoxCox(lambda = BoxCox.lambda(a10)) %>% autoplot()
+
+
 #****************************
 ### In-Class Exercise 10 -----
 #****************************
 
-# In the series you chose to forecast for exercise 9 exhibited inclreading variance, 
+# In the series you chose to forecast for exercise 9 exhibited increasing variance, 
 # do a box-cox transformation and find the right lambda to stabilize the variance..
 
 
@@ -1050,11 +1225,12 @@ ggAcf(ddifflogh02)
 
 # Great! The data doesn't look like white noise after the transformation, but you could develop an ARIMA model for it. 
 
+
 #****************************
 ### In-Class Exercise 11 -----
 #****************************
 
-# Test your series for seaconality, if it is seasonal and non-stationary apply seasonal differences to teh series. 
+# Test your series for seasonality, if it is seasonal and non-stationary apply seasonal differences to teh series. 
 
 
 # Automatic ARIMA models for non-seasonal time series --------------------------------------------------
@@ -1070,6 +1246,7 @@ ggAcf(ddifflogh02)
 # this is identicial to what you did with ETS forecasting.
 
 # Fit an automatic ARIMA model to the austa series
+plot(austa)
 fit <- auto.arima(austa)
 
 # Check that the residuals look like white noise
@@ -1083,6 +1260,14 @@ summary(fit)
 # Plot forecasts of fit
 fit %>% forecast(h = 10) %>% autoplot()
 #  It looks like the ARIMA model created a pretty good forecast for you. 
+
+plot(debitcards)
+mod <- auto.arima(debitcards, lambda = 0)
+mod %>% forecast(h = 36) %>% autoplot()
+
+mod <- auto.arima(debitcards, lambda = 0, stepwise = FALSE)
+mod %>% forecast(h = 36) %>% autoplot()
+
 
 # Forecasting with ARIMA models ------------------------------------------------------------------------
 
@@ -1108,6 +1293,42 @@ austa %>% Arima(order = c(0, 0, 1), include.constant = TRUE) %>% forecast() %>% 
 austa %>% Arima(order = c(0, 2, 1), include.constant = FALSE) %>% forecast() %>% autoplot()
 
 # -> The model specification makes a big impact on the forecast! 
+
+# Checking different models for 'austa' after visual inspection: 
+?austa
+plot(austa)
+pp.test(austa)
+kpss.test(austa, null = "Trend")
+plot(diff(austa))
+acf(austa)
+pacf(austa)
+
+austa %>% Arima(order = c(1, 1, 0), include.constant = TRUE) %>% forecast() %>% autoplot()
+
+austa %>% auto.arima(stepwise = FALSE) %>% forecast() %>% autoplot()
+
+austa %>% Arima(order = c(1, 1, 0), include.constant = TRUE) %>% BIC
+austa %>% Arima(order = c(1, 1, 1), include.constant = TRUE) %>% BIC
+austa %>% Arima(order = c(0, 1, 1), include.constant = TRUE) %>% BIC
+
+mod <- austa %>% auto.arima(stepwise = FALSE)
+checkresiduals(mod)
+Acf(resid(mod))
+Pacf(resid(mod))
+
+fcmod <- function(x, h) {
+  forecast(Arima(x, order = c(0, 1, 1), include.constant = TRUE), h = h)
+}
+
+austa %>% Arima(order = c(1, 1, 0), include.constant = TRUE)
+
+fcmod2 <- function(x, h) {
+  forecast(Arima(x, order = c(1, 1, 0), include.constant = TRUE), h = h)
+}
+
+fmean(abs(tsCV(austa, fcmod, h = 2)))
+fmean(abs(tsCV(austa, fcmod2, h = 2)))
+
 
 
 # We can find the Optimal ARIMA model for out data by applying the so called Box-Jenkins Methodology:
@@ -1148,6 +1369,7 @@ austa %>% Arima(order = c(0, 2, 1), include.constant = FALSE) %>% forecast() %>%
 # forecasts. Data must be detrended!. Note: Very different models
 # can provide identical forecasts.
 
+
 #*****************************
 ### In-Class Exercise 12 -----
 #*****************************
@@ -1182,6 +1404,7 @@ mean(e2^2, na.rm = TRUE)
 
 # Plot 10-year forecasts using the best model class
 austa %>% farima(h = 10) %>% autoplot()
+
 
 # Automatic ARIMA models for seasonal time series -----------------------------------------------------------
 
@@ -1269,6 +1492,8 @@ accuracy(fc2, qcement)
 # Looks like the ETS model did better here. 
 
 
+
+
 # (5) Forecasting with Covariates (DLM, ARIMAX, ECM) + Harmonic Regression ----
 #******************************************************************************
 
@@ -1324,17 +1549,19 @@ xreg <- cbind(MaxTemp = elecdaily[, "Temperature"],
 fit <- auto.arima(elecdaily[, "Demand"], xreg = xreg)
 
 # Forecast fit one day ahead
-forecast(fit, xreg = cbind(MaxTemp = 20, 
-                           MaxTempSq = 20^2,
-                           Workday = 1))
+plot(forecast(fit, xreg = cbind(MaxTemp = 20, 
+                                MaxTempSq = 20^2,
+                                Workday = 1)))
 
 # Now you've seen how multiple independent variables can be included using matrices. 
+
 
 #*****************************
 ### In-Class Exercise 14 -----
 #*****************************
 
 # Fit a suitable ARIMAX model to your time series.
+
 
 # Dynamic Harmonic regression: Predictors + Fourier terms to deal with seasonality + ARIMA errors -------------------------------------------------
 # Fourier terms assume seasonal pattern does not change over time, whereas SARIMA allows seasonality to evolve.
@@ -1369,6 +1596,8 @@ fc <- forecast(fit, xreg = newharmonics)
 autoplot(fc)
 
 # Great. The point predictions look to be a bit low.
+
+
 
 # Harmonic regression for multiple seasonality -----------------------------------------------------
 
@@ -1469,7 +1698,7 @@ K <- 5
 
 
 
-# Books: ---------------------
+# Books and Further Resources: ---------------------
 
 # Forecasting Principles and Practice 2: https://otexts.com/fpp2/
 # Forecasting Principles and Practice 3: https://otexts.com/fpp3/ (updated content, different packages, but mostly same materials)... 
