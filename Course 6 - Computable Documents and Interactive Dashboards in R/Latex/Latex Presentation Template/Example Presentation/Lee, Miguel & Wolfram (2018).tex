@@ -1,0 +1,464 @@
+\documentclass[compress]{beamer}
+\useoutertheme[subsection=false]{miniframes}  % footline=empty,
+\setbeamercolor{mini frame}{fg=orange,bg=orange} % https://tex.stackexchange.com/questions/228256/control-colors-and-shading-of-navigation-circles-in-beamer-top-line
+\setbeamerfont{headline}{size=\tiny} % Headline font size
+\useinnertheme{circles}% http://blogs.ubc.ca/khead/research/research-advice/better-beamer-presentations
+\setbeamercolor{section number projected}{bg=red,fg=white} % https://tex.stackexchange.com/questions/8011/changing-color-and-bullets-in-beamers-table-of-contents
+\setbeamertemplate{navigation symbols}{} % Swith off naviagation symbols: https://nickhigham.wordpress.com/2013/01/18/top-5-beamer-tips/
+
+% https://tex.stackexchange.com/questions/44983/beamer-removing-headline-and-its-space-on-a-single-frame-for-plan-but-keepin :
+\makeatletter
+\newenvironment{noheadline}{
+    \setbeamertemplate{headline}{}
+    \addtobeamertemplate{frametitle}{\vspace*{-0.9\baselineskip}}{}
+}{}
+\makeatother
+
+\mode<presentation> {
+\setbeamertemplate{caption}[numbered]
+\setbeamercolor{frametitle}{fg=orange!140}
+\setbeamercolor{title}{fg=orange!140}
+\setbeamercolor{normal text}{fg=black!85}
+\setbeamercolor{enumerate item}{fg=orange!140}
+\setbeamercolor{enumerate subitem}{fg=orange!140}
+\setbeamercolor{enumerate subsubitem}{fg=orange!140}
+\setbeamercolor{caption name}{fg=orange}
+\setbeamercolor{itemize item}{fg=orange!140}
+\setbeamercolor{itemize subitem}{fg=orange!140}
+\setbeamercolor{itemize subsubitem}{fg=orange!140}
+\setbeamercolor{section in toc}{fg=orange!140}
+\setbeamercolor{subsection in toc}{fg=orange!120}
+\setbeamercolor{footlinecolor0}{fg=white,bg=orange!140}
+\setbeamercolor{footlinecolor1}{fg=white,bg=orange}
+\setbeamercolor{footlinecolor2}{fg=black,bg=orange!60}
+\setbeamertemplate{footline}
+%\includepackage[tab]{beamerthemeclassic}
+{
+  \leavevmode%
+  \hbox{%
+  \begin{beamercolorbox}[wd=.3\paperwidth,ht=2.25ex,dp=1ex,center]{footlinecolor0}
+  Sebastian Krantz (IHEID) %\insertsectionhead
+  \end{beamercolorbox}%
+  \begin{beamercolorbox}[wd=.3\paperwidth,ht=2.25ex,dp=1ex,center]{footlinecolor1}
+  Lee, Miguel \& Wolfram (2018) %\insertsectionhead
+  \end{beamercolorbox}%
+  \begin{beamercolorbox}[wd=.4\paperwidth,ht=2.25ex,dp=1ex,right]{footlinecolor2}% center
+    \insertshorttitle\hspace*{2em} % 3em
+    \insertframenumber{} / \inserttotalframenumber\hspace*{1ex}
+  \end{beamercolorbox}}%
+}
+\usepackage[UKenglish]{babel}
+\usepackage[latin1]{inputenc}
+\usepackage[T1,OT1]{fontenc}
+\usepackage{adjustbox}
+\usepackage{graphicx} % Allows including images
+\usepackage{booktabs} % Allows the use of \toprule, \midrule and \bottomrule in tables
+\usepackage{enumitem}
+\setitemize{label=\textbullet, font=\large \color{orange}, itemsep=12pt} %  %https://stackoverflow.com/questions/4968557/latex-very-compact-itemize
+\usepackage{mathenv}
+\usepackage{amsmath}
+\usepackage{lipsum}
+\usepackage{float}
+\usepackage{subcaption} 
+\usepackage{array}
+\usepackage{chngcntr}
+\usepackage{amsmath,amssymb,listings}
+\usepackage{alltt,algorithmic,algorithm}
+\usepackage{multicol}
+\usepackage{array, multirow, makecell}
+\usepackage{fancyhdr}
+\usepackage{soul}
+\graphicspath{{./figures/}} %this is the file in which you should save figures
+}
+%----------------------------------------------------------------------------------------
+%	TITLE PAGE
+%----------------------------------------------------------------------------------------
+\title[The Economics of Rural Electrification]{\textbf{Experimental Evidence on the Economics\\ of Rural Electrification}} % The short title appears at the bottom of every slide, the full title is only on the title page
+
+\author{Kenneth Lee, Edward Miguel and Catherine Wolfram,\\NBER Working Paper No. 22292 (2018)} % Your name
+\institute[The Graduate Institute]
+{
+Presented by Sebastian Krantz, \\ \vspace{2mm} Geneva Graduate Institute\\ % Your institution for the title page
+\bigskip
+%{\large  International Conference on Capital Flows and Safe Assets} % Conference Name (optional)
+}
+\date{\today} % Date, can be changed to a custom date
+
+\begin{document}
+
+% https://tex.stackexchange.com/questions/279527/how-to-show-the-page-number-in-plain-frame
+%{
+%\setbeamertemplate{headline}{} % or : \setbeamertemplate{headline}{\vskip-\headheight}
+%\begin{frame}% Or do [plain] -> removes headline and footline
+%\frametitle{Table of Contents}
+%\tableofcontents
+%\end{frame}
+%}
+
+\begin{noheadline}
+\begin{frame} 
+\titlepage 
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+%	PRESENTATION SLIDES
+%----------------------------------------------------------------------------------------
+
+\begin{frame}
+\frametitle{Table of Contents}
+\tableofcontents
+\end{frame}
+
+
+%------------------------------------------------
+\section{Introduction}
+%------------------------------------------------
+
+\begin{frame}
+\frametitle{Introduction}
+\begin{itemize}
+\item Experiment randomized expansion of electric grid infrastructure in rural Kenya (2013-2016)
+\item In Sub-Saharan Africa, roughly 600 mio. people without electricity (IEA, 2014)
+\item Infrastructure investments (transportation, water/sanitation,
+telecommunications, electricity systems) are primary UN/ODA targets (1/3 of total World Bank lending in 2015)
+\item[$\Rightarrow$] High FC, low MC, long investment horizons, often regulated (since electricity  supply is a natural monopoly)
+\end{itemize}
+\end{frame}
+\end{noheadline}
+
+\begin{frame}
+\begin{itemize}
+\item Recent research on economic impacts: \vspace{2mm}
+\begin{itemize} \footnotesize \setlength{\itemsep}{0.5em}
+\item[-] Transportation (Donaldson 2013; Faber 2014)
+\item[-] Water and sanitation (Devoto et al. 2012; Patil et al. 2014)
+\item[-] Telecommunications (Jensen 2007; Aker 2010)
+\item[-] Electricity systems (Dinkelman 2011; Lipscomb, Mobarak, and Barham 2013; Burlig and Preonas 2016; Chakravorty, Emerick, and Ravago 2016; Barron and Torero 2017)
+\end{itemize}
+\item[$\Rightarrow$] Strong correlation between energy consumption
+and economic development at the macroeconomic level, but less evidence on how energy drives
+poverty reduction, and how industrial energy access compares to impacts of electrifying households
+\item[$\Rightarrow$] Still limited empirical evidence that links the demand-side and supply-side economics of infrastructure investments
+\item[$\Rightarrow$] Rural access debates: Grid connections vs.  solar lanterns
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\begin{itemize}
+\item \textbf{Setting}: 150 rural communities in Kenya, a country where grid coverage is
+rapidly expanding (last-mile grid connections)
+\item \textbf{Design}: With Kenya's Rural Electrification Authority (REA) $\to$ introduced randomly differing price subsidy and scale of electricitic grid construction at clusters of households level
+\item[$\Rightarrow$] Estimate demand curve $+$ MC and AC (supply) curves, and impact on various development outcomes and welfare measures (i.e. compare consumer surplus to total cost)
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\begin{adjustbox}{center}
+\begin{tabular}{cc} 
+\includegraphics[width=0.55\textwidth]{"Figures/Site2".PNG} &
+\includegraphics[width=0.5\textwidth]{"Figures/Site".PNG}
+\end{tabular}
+\end{adjustbox}
+\end{frame}
+
+%------------------------------------------------
+\section{Theoretical Framework}
+%------------------------------------------------
+
+\begin{noheadline}
+\begin{frame}
+\frametitle{Theoretical Framework}
+\begin{itemize}
+\item \textbf{Natural monopoly}: Production by single firm minimizes cost
+\item Electric utility provides communities of households with grid connections, and incurs a (high) fixed cost (FC)
+\item As coverage increases, MC of additional household decreases
+\item Household demand for grid connection $=$ expected difference between consumer surplus (CS) and monthly price
+\item Social planner's solution: P' $=$ MC
+\item But because of high fixed cost: Subsidy (rectangle P'C')
+\item Social benefit if CS (area u. demand) $>$ TC (rectangle C'D')
+\end{itemize}
+\end{frame}
+\end{noheadline}
+
+\begin{frame}
+\scriptsize
+\textbf{3 Scenarios:} \textbf{A}: Social benefit (CS $>$ TC) $|$ \textbf{B}: High FC $\to$ TC $>$ CS $|$ \textbf{C}: Externalities $\to$ D' (social demand) $>$ D (private demand) $\to$ full electrification $+$ social benefit \vspace{2mm}
+
+\begin{adjustbox}{center}
+\includegraphics[width=1.15\textwidth]{"Figures/Fig1".PNG}
+\end{adjustbox}
+\end{frame}
+
+%------------------------------------------------
+\subsection{Rural Electrification in Kenya}
+%------------------------------------------------
+
+\begin{noheadline}
+\begin{frame}
+\frametitle{Rural Electrification in Kenya}
+\begin{itemize}
+\item \textit{Vision 2030}: Installed capacity to increase 10-fold by 2031 at $\approx$ constant shares (35\% fossile, 36\% hydro, 26\% geothermal)
+\item Dramatic increase in coverage in recent years: 2003: 3\% of public schools connected, 2012: 100\% connected
+\item Establishment of REA in 2007 boosted progress, especially schools \& hospitals, but in 2014 national HH elec. still 32\%
+\item Since 2004: HH within 600m of electric transformer could apply for electrification at fixed price of 398\$
+\item May 2015: Gov. Received \$364M from World Bank and ADB to launch \textit{Last Mile Connectivity Project} (LMCP): Subsidized mass electrification program that plans to connect 4M 'under grid' HH $\to $ lower the fixed connection price to \$171
+\end{itemize}
+\end{frame}
+\end{noheadline}
+
+%------------------------------------------------
+\section{Experimental Design and Data}
+%------------------------------------------------
+
+\begin{noheadline}
+\begin{frame} \centering
+\frametitle{Experimental Design and Data}
+\begin{itemize}
+\item Field experiment takes place in 150 'transformer communities' %\todo{what about first slide?}
+\end{itemize}
+\includegraphics[width=0.7\textwidth]{"Figures/Fig2".PNG}
+\end{frame}
+\end{noheadline}
+
+\begin{frame}
+\begin{adjustbox}{center}
+\includegraphics[width=1\textwidth]{"Figures/Tab1".PNG}
+\end{adjustbox}
+\end{frame}
+
+%\begin{frame}
+%\begin{itemize}
+%\item Sept  -  Dec 2013: \textbf{Baseline survey} of 150 communities (HH within 600m of transformer) $\to$ 94\% or 12,001 HH unconnected
+%\item Randomly sample 2,289 of those (most of which lie within 400m, as preferred by the REA) ($\approx$ 15 HH per community)
+%\item Feb - August 2014: 
+%\end{itemize}
+%\end{frame}
+
+\begin{frame}
+\begin{adjustbox}{center}
+\begin{tabular}{cc}
+\includegraphics[width=0.65\textwidth]{"Figures/Fig3".PNG} & \includegraphics[width=0.5\textwidth]{"Figures/Fig41".PNG} 
+\end{tabular}
+\end{adjustbox}
+\end{frame}
+
+\begin{frame}
+\begin{itemize}
+\item First treatment HH metered in September 2014, average connection
+time 7 months. Final HH metered in October 2015
+\item May and September 2016: Endline survey to 2,217 study households, or 96.9\% of the baseline sample $+$ short English and Math tests to all 12 to 15-year olds in the endline sample HH's, or 2,317 children in total
+\item \textbf{Data}: Community characteristics data (N=150), baseline HH survey data (N=2,504), experimental demand data (N=2,289), administrative community construction cost data (N=77), endline HH survey data (N=3,770), and children's test score data (N=2,310) (all collected and compiled between August 2013 and December 2016)
+\item Tests reveal 4 study arms are comparable in basic control characteristics $\to$ Randomization succesfull
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\begin{adjustbox}{center}
+\includegraphics[width=0.65\textwidth]{"Figures/Tab11".PNG} 
+\end{adjustbox}
+\end{frame}
+
+\begin{frame}
+\begin{itemize}
+\item \textbf{Unconnected HH's}: 77\% primarily farmers, overwhelmingly poor HH's, as evidenced by the fact that only 15 percent have high-quality walls. HH's have 5.3 members on average, and spend \$5.55 per month on (non-charcoal) energy sources, primarily kerosene
+\end{itemize}
+\begin{adjustbox}{center}
+\includegraphics[width=0.65\textwidth]{"Figures/FigB6".PNG} 
+\end{adjustbox}
+\end{frame}
+
+
+
+%------------------------------------------------
+\section{Results}
+%------------------------------------------------
+
+\begin{frame}
+\scriptsize
+\textbf{A}: Experiment vs. Ministry of Energy and Petroleum's internal predictions for take-up in
+rural areas. Area under experimental demand curve is \$12,421. Based on average community density of 84.7 HH's $\to$ average valuation is just \$147 per HH $|$ \textbf{B}: High Quality Walls HH's show larger takeup $|$ \textbf{C}: Upper Quantile HH's show larger takeup  \vspace{2mm}
+
+\begin{adjustbox}{center}
+\includegraphics[width=1.15\textwidth]{"Figures/Fig22".PNG} 
+\end{adjustbox}
+\end{frame}
+
+\begin{frame}
+Empirical Model:
+\begin{equation}
+y_{ic}=\alpha + \beta_1T_c^L+\beta_2T_c^M+\beta_3T_c^H+\textbf{x}'_c\gamma +\textbf{x}'_{ic}\lambda+\epsilon_{ic}
+\end{equation}
+Where: 
+\begin{itemize}
+\item $y_{ic}$: Take-up decision of HH $i$ in community $c$
+\item $T_c^{L,M,H}$: Low, medium, or high subsidy arm dummies
+\item $\textbf{x}'_c$: Community-level characteristics (variables used for
+stratification during randomization)
+\item $\textbf{x}'_{ic}$: HH-level baseline characteristics 
+\item Standard errors are clustered by community, the unit of randomization
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\begin{adjustbox}{center}
+\includegraphics[width=1.05\textwidth]{"Figures/Tab2".PNG} 
+\end{adjustbox}
+\end{frame}
+
+
+\begin{frame}
+\begin{itemize}
+\item All three subsidy levels lead to significant increases in the likelihood of takeup: \vspace{2mm}
+\begin{itemize} \footnotesize \setlength{\itemsep}{0.5em}
+\item[-] The 100\% subsidy increases of take-up by 95\%
+\item[-] The 57\% subsidy increases of take-up by 23\%
+\item[-] The 29\% subsidy increases of take-up by 6\%
+\end{itemize}
+\item Take-up is differentially higher in low and medium subsidy arms for HH with wealthier and more educated respondents
+\end{itemize}
+\textbf{Next Step}: Estimate the economies of scale in grid extension
+\begin{equation}
+\Gamma_c=\frac{b_0}{Q_c}+b_1+b_2Q_c
+\end{equation}
+\begin{itemize}
+\item (2): Non-linera function, $\Gamma_c=$ Average Total Cost per connection (ATC), $Q_c=$ community coverage (\%)
+\item ATC $=$ \$1813 (Ministry of Energy ATC = \$1602), AC$_{Q_c=100} = \$658$ $\to$ Strong scale economies
+\end{itemize}
+\end{frame}
+
+\begin{frame} \centering
+\includegraphics[width=0.72\textwidth]{"Figures/Fig33".PNG} 
+\end{frame}
+
+
+\begin{frame} \centering
+\begin{itemize}
+\item Total Cost (TC) in particular community = $Q_c\times$ ATC
+\item MC $=\frac{dTC}{dQ_c}=b_1+b_2Q_c=\$1244.30 - (\$12.20)Q_c$ 
+\end{itemize}
+\includegraphics[width=0.9\textwidth]{"Figures/Fig44".PNG} 
+\end{frame}
+
+\begin{frame}
+\begin{itemize}
+\item Estimated demand curve for an electricity connection
+does not intersect estimated MC curve
+\item At 100\% coverage, estimated TC of connecting a community of \$55,713 (based on mean community density of 84.7 HH's)
+\item CS $\approx \$ 12400 << TC $ at all quantity ($Q_c$) levels $\to$ Rural electrification seems to reduce social welfare $\to$ welfare loss of \$43,292 per community
+\item To justify such a program, discounted future social welfare gains (and externalities) of \$511 per HH would be required
+\item But: Credit constraints and imperfect information may also contribute to lower demand
+\end{itemize}
+\end{frame}
+
+\begin{frame} \centering
+ \textbf{Evaluate LMCP programme} (\$171 per HH nationwide): 23.7\% of HH's would take up connection, welfare loss of \$22,100 per community, or \$1,099 per connected HH
+\includegraphics[width=0.65\textwidth]{"Figures/FigB12".PNG} 
+\end{frame}
+
+
+
+\begin{frame}
+\textbf{Evaluating Economic Impacts} 18 months post-connection: \vspace{2mm}
+\begin{itemize}
+\item First only high subsidy group vs. control group, estimate intention-to-treat (ITT):
+\end{itemize}
+\begin{equation}
+y_{ic}=\beta_0+\beta_3T_{Hc}+\textbf{x}'_c\Lambda+\textbf{z}'_{1ic}\Gamma+\epsilon_{ic}
+\end{equation}
+\begin{itemize}
+\item Then estimate treatment-on-treated (TOT) results using data from all three of the
+subsidy treatment groups:
+\end{itemize}
+\begin{equation}
+y_{ic}=\beta_0+\beta_1E_{ic}+\textbf{x}'_c\Lambda_2+\textbf{z}'_{1ic}\Gamma_2+\epsilon_{ic}
+\end{equation}
+%Where
+\begin{itemize}
+\item $E_{ic}=1[$Electrified], instrumented by $T_{Lc},\ T_{Mc}$ and $T_{Hc}$
+\end{itemize}
+ \vspace{2mm}
+\textbf{Results}: No substantial economic or other impacts stemming from household electrification, only small, marginally statistically impacts on total hours worked (P5) and life satisfaction (P8), which do not survive the FDR multiple testing adjustment\footnote{\tiny Column 4 reports the false discovery rate (FDR)-adjusted q-values corresponding to
+the coefficient estimates in column 3, which limit the expected proportion of rejections within a
+hypothesis that are Type I errors (i.e., false positives).}
+
+\end{frame}
+
+\begin{frame} \centering
+\includegraphics[width=0.75\textwidth]{"Figures/Tab3".PNG} 
+\end{frame}
+
+\begin{frame} 
+Alternative approach to estimate CS doesn't change result: \\
+\begin{center}
+\includegraphics[width=0.85\textwidth]{"Figures/Tab4".PNG}  
+\end{center}
+Administrative data from Kenya Power indicates that the median connected
+household in Nairobi consumes 72.8 kWh per month. At roughly this level of consumption, the rural connections would appear to potentially yield positive social welfare, with consumer surplus ranging from \$733 to \$2,200.
+\end{frame}
+
+%------------------------------------------------
+\section{External Validity}
+%------------------------------------------------
+
+\begin{noheadline}
+\begin{frame}
+\frametitle{External Validity}
+\begin{itemize}
+\item Welfare loss surprising: Previous analyses have found substantial benefits from electrification (Dinkelman 2011, Lipscomb, Mobarak, and Barham 2013) though they have not directly compared benefits to costs
+\item But potentially there are factors that could drive down costs or increase demand in other settings reducing external validity:  \vspace{2mm}
+\begin{itemize} \footnotesize \setlength{\itemsep}{0.5em}
+\item \textbf{A. Excess cost from leakage}: contractors submitted invoices that were only 1.7\% higher than the budgeted amount on average, but the number of observed poles was 21.3\% less than budgeted, and invoiced construction travel costs were 32.9\% higher than expected
+\item[$\rightarrow$] Electric grid construction costs may be substantially inflated due to mismanagement and corruption in Kenya, but even 20-30\% decline in construction cost would still entail a social welfare loss
+\end{itemize}
+\end{itemize}
+\end{frame}
+\end{noheadline}
+
+\begin{frame}
+%\begin{itemize}
+\begin{itemize} \footnotesize \setlength{\itemsep}{0.5em}
+\item \textbf{B. Factors contributing to lower demand}: 
+\begin{itemize}
+\item[-] bureaucratic red tape (HH's waited 188 days after submitting their paperwork)
+\item[-] low grid reliability (both short- and long-term blackounts: 2014/15 19\% of transformers had a black out of on average 4 months, no strong statistical evidence that recent blackouts affect demand)
+\item[-] credit constraints: Experiment offers short run subsidy (8-week takeup period) (experimental demand curve is substantially lower than the stated demand without time limits (derived from baseline survey), credit constraints seem binding ($+$ absolute poverty) but issues with the survey cast doubt, and welfare loss would still persist)
+\item[-] unaccounted for positive spillovers
+\end{itemize}
+\item \textbf{C. Is rural electrification a socially desirable policy?}: Cost appears 4 $\times $ higher than benefit in rural Kenya $+$ negligible medium-run economic, health and educational impacts 18 months post-connection. But could change at different levels of institutional performance and economic development 
+\end{itemize}
+%\end{itemize}
+\end{frame}
+
+
+\begin{frame} \footnotesize
+Simulation exercisze using baseline informations and assumptions about institutional setting: 
+\includegraphics[width=\textwidth]{"Figures/Tab5".PNG} 
+$\to$ Under Ideal Scanario net welfare gain of \$148, alternative
+estimates using electricity consumption (and assuming rapid future consumption growth) are
+more negative, with ideal scenario entailing a net welfare loss of \$144
+\end{frame}
+
+
+%------------------------------------------------
+\section{Conclusions}
+%------------------------------------------------
+
+\begin{noheadline}
+\begin{frame} \footnotesize
+\frametitle{Conclusions}
+\begin{itemize}
+\item Today, access to energy has emerged as a major political issue in many low-income
+countries
+\item Findings suggest that HH electrification may reduce
+social welfare, but do not necessarily imply that distributed solar systems are any more
+attractive than the grid, and external validity might be low
+\item (Survey) Evidence suggests that social welfare consequences of rural electrification are
+closely tied to organizational performance as well as institutions and poverty levels
+\item No sizeable development gains after 18 month, but perhaps after another decade (or two) of sustained income growth rural HH can purchase the complementary appliances needed to fully exploit electrification's promise
+\item Connecting rural households not necessarily an economically productive and high return activity in the world's poorest countries
+\item Needs to be compared to social returns to investments in transportation, education, health, water, sanitation, or other sectors 
+\end{itemize}
+\end{frame}
+\end{noheadline}
+
+\end{document}

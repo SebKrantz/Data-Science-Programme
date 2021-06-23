@@ -1,0 +1,899 @@
+\documentclass[compress,xcolor=dvipsnames]{beamer}
+\useoutertheme[subsection=false]{miniframes}  % footline=empty,
+\setbeamercolor{mini frame}{fg=NavyBlue,bg=NavyBlue} % https://tex.stackexchange.com/questions/228256/control-colors-and-shading-of-navigation-circles-in-beamer-top-line
+\setbeamerfont{headline}{size=\tiny} % Headline font size
+\useinnertheme{circles}% http://blogs.ubc.ca/khead/research/research-advice/better-beamer-presentations
+\setbeamercolor{section number projected}{bg=Red,fg=white} % https://tex.stackexchange.com/questions/8011/changing-color-and-bullets-in-beamers-table-of-contents
+\setbeamertemplate{navigation symbols}{} % Swith off naviagation symbols: https://nickhigham.wordpress.com/2013/01/18/top-5-beamer-tips/
+
+% https://tex.stackexchange.com/questions/44983/beamer-removing-headline-and-its-space-on-a-single-frame-for-plan-but-keepin :
+\makeatletter
+\newenvironment{noheadline}{
+    \setbeamertemplate{headline}{}
+    \addtobeamertemplate{frametitle}{\vspace*{-0.9\baselineskip}}{}
+}{}
+\makeatother
+
+\mode<presentation> {
+\setbeamertemplate{caption}[numbers]
+\setbeamercolor{frametitle}{fg=NavyBlue!140}
+\setbeamercolor{title}{fg=Cerulean}
+\setbeamercolor{normal text}{fg=black!85}
+\setbeamercolor{enumerate item}{fg=NavyBlue!140}
+\setbeamercolor{enumerate subitem}{fg=NavyBlue!140}
+\setbeamercolor{enumerate subsubitem}{fg=NavyBlue!140}
+\setbeamercolor{caption name}{fg=NavyBlue}
+\setbeamercolor{itemize item}{fg=NavyBlue!140}
+\setbeamercolor{itemize subitem}{fg=NavyBlue!140}
+\setbeamercolor{itemize subsubitem}{fg=NavyBlue!140}
+\setbeamercolor{section in toc}{fg=NavyBlue!140}
+\setbeamercolor{subsection in toc}{fg=NavyBlue!120}
+\setbeamercolor{footlinecolor0}{fg=white,bg=NavyBlue!140}
+\setbeamercolor{footlinecolor1}{fg=white,bg=NavyBlue}
+\setbeamercolor{footlinecolor2}{fg=black,bg=NavyBlue!60}
+\setbeamertemplate{footline}
+%\includepackage[tab]{beamerthemeclassic}
+{
+  \leavevmode%
+  \hbox{%
+  \begin{beamercolorbox}[wd=.3\paperwidth,ht=2.25ex,dp=1ex,center]{footlinecolor0}
+  Sebastian Krantz  %\insertsectionhead
+  \end{beamercolorbox}%
+  \begin{beamercolorbox}[wd=.3\paperwidth,ht=2.25ex,dp=1ex,center]{footlinecolor1}
+  IHEID %\insertsectionhead
+  \end{beamercolorbox}%
+  \begin{beamercolorbox}[wd=.4\paperwidth,ht=2.25ex,dp=1ex,right]{footlinecolor2}% center
+    \insertshorttitle\hspace*{2em} % 3em
+    \insertframenumber{} / \inserttotalframenumber\hspace*{1ex}
+  \end{beamercolorbox}}%
+}
+\usepackage[UKenglish]{babel}
+\usepackage[latin1]{inputenc}
+\usepackage[T1,OT1]{fontenc}
+\usepackage{adjustbox}
+\usepackage{graphicx} % Allows including images
+\usepackage{booktabs} % Allows the use of \toprule, \midrule and \bottomrule in tables
+\usepackage{enumitem}
+\setitemize{label=\textbullet, font=\large \color{Red}, itemsep=12pt} %  %https://stackoverflow.com/questions/4968557/latex-very-compact-itemize
+\usepackage{apacite}
+\AtBeginDocument{\urlstyle{APACsame}}
+%\renewcommand*{\bibfont}{\tiny}
+\usepackage{mathenv}
+\usepackage{amsmath}
+\usepackage{natbib}
+%\usepackage{lipsum}
+%\usepackage{float}
+%\usepackage{subcaption} 
+%\usepackage{array}
+%\usepackage{chngcntr}
+%\usepackage{amsmath,amssymb,listings}
+%\usepackage{alltt,algorithmic,algorithm}
+%\usepackage{multicol}
+%\usepackage{array, multirow, makecell}
+%\usepackage{fancyhdr}
+%\usepackage{soul}
+\graphicspath{{./figures/}} %this is the file in which you should save figures
+% This removes 'References' from miniframes header.
+\renewcommand\bibsection{\section[]{\refname}}
+}
+%----------------------------------------------------------------------------------------
+%	TITLE PAGE
+%----------------------------------------------------------------------------------------
+\title[Endogenous R\&D and Tech. Diffusion]{\textbf{Endogenous R\&D and Technology Diffusion in a Multi-Sector RBC Economy}} % The short title appears at the bottom of every slide, the full title is only on the title page
+
+\author{Sebastian Krantz} % Your name
+\institute[The Graduate Institute]
+{
+Presented by Sebastian Krantz, \\ \vspace{2mm} Geneva Graduate Institute (IHEID) \\ % Your institution for the title page
+\bigskip
+%{\large  International Conference on Capital Flows and Safe Assets} % Conference Name (optional)
+}
+\date{\today} % Date, can be changed to a custom date
+
+\begin{document}
+
+\begin{noheadline}
+\begin{frame} 
+\titlepage 
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+%	PRESENTATION SLIDES
+%----------------------------------------------------------------------------------------
+
+\begin{frame}
+\frametitle{Table of Contents}
+\tableofcontents
+\end{frame}
+
+
+%------------------------------------------------
+\section{Introduction}
+%------------------------------------------------
+
+\begin{frame}
+\frametitle{Introduction}
+\begin{itemize}
+\item This dissertation presents a multi-sector DSGE model combining a disaggregated account of production with an elaborate endogenous technological change mechanism.
+
+\item It is a Real-Business-Cycle (RBC) model. Unlike New-Keynesian DSGE models which use nominal frictions like Calvo-Pricing to generate persistent shocks, in this model persistence is achieved solely through sectoral interactions and endogenous technology responses. 
+
+\item The model contributes to and synthesizes insights from two distinct literatures in macroeconomics: \vspace{3mm}
+\begin{itemize} \setlength{\itemsep}{0.6em}
+\item[1.] The literature on sectoral shocks and aggregate fluctuations
+\item[2.] The literature on medium-run cycles and endogenous technological change
+\end{itemize}
+%\item Overarching aim: To have a calibrated model that generates richer dynamics and allows us to reconstruct medium-run growth and productivity fluctuations from sectoral interactions and the structure of production in an open economy
+\end{itemize}
+\end{frame}
+\end{noheadline}
+
+%------------------------------------------------
+\section{Literature Review}
+%------------------------------------------------
+
+\begin{noheadline}
+\begin{frame}{Literature on Sectoral Shocks and Aggregate Fluctuations}
+\begin{itemize}
+\item Models the economy with multiple sectors interacting through input-output linkages, focussing on the question to what degree sectoral shocks can generate, or are responsible for, aggregate business cycle volatility.
+\item Mostly RBC models that are carefully calibrated for 20-40 sectors in the US economy (2-digit ISIC level).
+\item Key contributions by \citet{Long1983}, \citet{Horvath1998,horvath2000}, \citet{Petrella2011}, \citet{Acemoglu2012,acemoglu2016networks}, \citet{Bouakez2014}, \citet{Stella2015}, and  \citet{Atalay2017}
+\item \citet{Long1983}: First Multisector RBC - Show that independent and serially uncorrelated shocks, lead to persistence and co-movement of sectoral outputs, and persistence of aggregate output (via consumer preferences, consumption smoothing and love for variety). 
+% Among the first to show that business cycle phenomena were consistent with the principles of economic efficiency. J. B. Long & Plosser (1983) concluded that their model provides a good benchmark to gauge the importance of nominal frictions and other factors believed to drive business cycles.
+\end{itemize}
+\end{frame}
+\end{noheadline}
+
+\begin{frame}
+\begin{itemize}
+\item \citet{horvath2000}: Calibrated 36-sector model of US economy - Shows that limited interaction, characterized by a sparse IO matrix, reduces substitution possibilities among intermediate inputs which strengthens comovement in sectoral value-added.  
+\item[$\to$] Leads to a postponement of the law of large numbers which was hyothesized to cancel out the effects of various sectoral shocks on aggregate value-added (see e.g. \citet{dupor1999aggregation}).
+
+\item \citet{Acemoglu2012}: Idiosyncratic sectoral shocks may lead to aggregate fluctuations, but rate at which aggregate volatility decays is determined by the structure of the network capturing such linkages. 
+\item[$\to$] Sizeable aggregate volatility is only obtained if there exists significant asymmetry in the roles that sectors play as suppliers to others. The 'sparseness' of the IO matrix per se is unrelated to the nature of aggregate fluctuations.
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\begin{tabular}{cc}
+\includegraphics[width=0.6\textwidth]{"NET1".PNG} &
+\includegraphics[width=0.35\textwidth]{"NET2".PNG}
+\end{tabular}
+\begin{itemize}
+\item \citet{Atalay2017}: Quantifies the contribution of sectoral shocks to business cycle fluctuations in aggregate US output, using data on U.S. industries input prices and input choices. 
+\item[$\to$] Complementarities in inputs indicate that industry-specific shocks are substantially more important than previously thought, accounting for at least half of aggregate volatility (his estimate is 80\% or aggregate volatility).
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}
+US Input-Output Network:
+\includegraphics[width=0.75\textwidth]{"NET3".PNG}
+\end{frame}
+
+\begin{noheadline}
+\begin{frame}{Literature on Medium Run Business Cycles}
+\begin{itemize}
+\item Key contributions by \citet{Comin2006}, \citet{Comin2009}, \citet{Bianchi2018} and \citet{Anzoategui2017}.
+\item \citet{Comin2006}: seminal work: define as the medium-term cycle the sum of the high- and medium- frequency variation in the data (frequencies $\leq$ 200 quarters).
+\item[$\to$] Substantially more volatile and persistent than conventional business-cycles (32 quarters, HP filter). Fluctuations exhibit significant procyclical movements in technological change, R\&D, and efficiency and intensity of resource utilization.
+\item[$\to$] DSGE Model of the medium term cycle: endogenous strategic decisions
+by firms and other economic agents to invest in R\&D and adopt new technologies happen pro-cyclical to the classical business cycle and introduce medium-run fluctuations.
+% that fully endogenizes movements in productivity that appear central to the persistence of these fluctuations. 
+\end{itemize}
+\end{frame}
+\end{noheadline}
+
+\begin{frame}
+\includegraphics[width = \textwidth]{"MED1".PNG}
+\end{frame}
+
+\begin{frame}
+\begin{itemize}
+\item \citet{Comin2009}: Presents evidence on the relevance of macro models where endogenous technological change mechanisms are responsible both for long-run growth and the propagation of low-persistence shocks. 
+\item[$\to$] Simple DSGE model of endogenous technological change and diffusion that is consistent with the evidence.
+\item \citet{Anzoategui2017}: Stipulate that slowdown in productivity following the Great Recession (2008/09 crisis)  was in significant part an endogenous response. 
+\item[$\to$] Present panel data evidence that technology diffusion is highly cyclical, develop and estimate a rich New-Keynesian DSGE model with endogenous R\&D and technology adoption mechanism, and show that the model's implied cyclicality of technology diffusion is consistent with the panel data evidence. 
+% use the model to assess the sources of the productivity slowdown, and find that significant fraction of the post-Great Recession fall in productivity was endogenous
+% \item Essentially New-Keynesian business cycle models which include an extended endogenous R\&D and technology adoption mechanism.
+\end{itemize}
+\end{frame}
+
+
+
+%------------------------------------------------
+\section{Model Overview}
+%------------------------------------------------
+
+\begin{noheadline}
+\begin{frame}{This Model}
+\begin{itemize}
+\item Production and innovation in each sector is decentralized involving 4 independent optimizing agents (following \citet{Anzoategui2017}): \vspace{3mm}
+\begin{itemize} \setlength{\itemsep}{0.2em}
+\item[1] Perfectly competitive final goods (retail) firms 
+\item[2] Monopolistically competitive wholesale firms 
+\item[3] Technology adopters
+\item[4] Technology innovators
+\end{itemize}
+\item The latter two also reap benefits of imperfect competition in the wholesale sector by selling production plans and ideas
+\item Benefits from technology creation and adoption will be in terms of expanding variety $=$ expansion of the number of wholesale firms, each producing a differentiated product 
+\end{itemize}
+\end{frame}
+\end{noheadline}
+
+\begin{frame}
+\begin{itemize}
+\item A distinction between technology creation and adoption is made to allow for realistic lags in the adoption process
+\item Interaction between sectors is allowed to take place in 3 different ways: \vspace{3mm}
+\begin{itemize} \setlength{\itemsep}{0.8em} \small
+\item[1] Intermediate input (and demand) linkages: Independent
+sectoral shocks can generate pro-cyclical responses in terms of R\&D and technology adoption decisions in other sectors.
+\item[2] Strategic complementarities inside productive value chains: Lead to 'spillovers' following the adoption of new technologies in upstream/downstream sectors (pressures to increase productive efficiency throughout the value chain). 
+\item[3] R\&D spillovers also arising from IO interaction (e.g. increased R\&D in electric cars may also increase R\&D in battery technology and vice-versa). 
+\end{itemize} 
+\end{itemize}
+\end{frame}
+
+
+
+%%------------------------------------------------
+%\subsection{Extension to Two Sectors}
+%%------------------------------------------------
+%
+%\begin{noheadline}
+%\begin{frame}{Extension to Two Sectors}
+%Aggregate consumption is a CES aggregate of consumption in the two sectors, but households derive equal disutility from supplying labor to either sector, and perfect labor and capital mobility equalizes the wage rate and rental rate of capital in both sectors:
+%\begin{equation}
+%c_t = \left[\omega_1^{\frac{1}{\epsilon}}c_{1t}^{\frac{\epsilon-1}{\epsilon}}+\omega_2^{\frac{1}{\epsilon}}c_{2t}^{\frac{\epsilon-1}{\epsilon}}\right]^{\frac{\epsilon}{\epsilon-1}},\qquad l_t = l_{1t}+l_{2t},
+%\end{equation}
+%where $\omega_i$, $i\in 1,2$ are time-invariant shares of each sectors goods in the consumers preferences. Setting the price of sector 1's goods to 1, and letting $p_{2t}$ denote the relative price of sector 2's goods to sector one and 
+%\begin{equation}
+%p_t = \left[\omega_1 + \omega_2 p_{2t}^{1-\epsilon}\right]^{\frac{1}{1-\epsilon}}
+%\end{equation}
+%the ideal price index denoting the cost of investment in either sector.
+%\end{frame}
+%\end{noheadline}
+%
+%\begin{frame}
+%Optimization can be split into an intertemporal problem and an allocation problem across the two goods. The intertemporal problem gives the same Euler and labor Supply equations as before. The allocation problem is set up as follows:
+%\begin{equation}
+%\underset{c_{1t},c_{2t}}{max} \quad \left[\omega_1^{\frac{1}{\epsilon}}c_{1t}^{\frac{\epsilon-1}{\epsilon}}+\omega_2^{\frac{1}{\epsilon}}c_{2t}^{\frac{\epsilon-1}{\epsilon}}\right]^{\frac{\epsilon}{\epsilon-1}} \qquad s.t. \qquad c_{1t} + p_{2t}c_{2t} = p_tc_t
+%\end{equation}
+%The FOC's are: 
+%\begin{align} \label{P2FOCc12s}
+% c_{1t} = \lambda_t^{-\epsilon} c_t \omega_1 \\ \label{P2FOCc22s}
+%c_{2t} = \lambda_t^{-\epsilon} p_{2t}^{-\epsilon} c_t \omega_2
+%\end{align} 
+%Combining the FOC's yields the optimal consumption bundle:
+%\begin{equation} \label{eq:OC2s}
+%c_{1t}= c_t \omega_1 \left(\frac{1}{p_t}\right)^{-\epsilon}; \quad c_{2t}= c_t \omega_2 \left(\frac{p_{2t}}{p_t}\right)^{-\epsilon}\ \Rightarrow\ \frac{c_{1t}}{c_{2t}}=\frac{\omega_1}{\omega_2}\left(\frac{1}{p_{2t}}\right)^{-\epsilon}.
+%\end{equation}
+%\end{frame}
+%
+%\begin{frame}
+%On the production side each sector $i\in 1,2$ has a production function of the form:
+%\begin{equation}
+%y_{it}=a_{it}k_{it}^{\alpha_i} l_{it}^{\beta_i} M_{it}^{1-\alpha_i-\beta_i},
+%\end{equation}
+%with intermediate input
+%\begin{equation}
+%M_{it}=\left[\gamma_{1i}^{\frac{1}{\eta_i}}m_{1it}^{\frac{\eta_i-1}{\eta_i}}+\gamma_{2i}^{\frac{1}{\eta_i}}m_{2it}^{\frac{\eta_i-1}{\eta_i}}\right]^{\frac{\eta_i}{\eta_i-1}}.
+%\end{equation}
+%The notation is $m_{ji}=m_{\text{origin}\to\text{destiny}}$. 
+%For simplicity the shares $\gamma_{ii}$ and elasticity of substitution $\eta_i$ are first assumed the same as in the consumption CES for both sectors. Both sectors are assumed to be populated by a continuum (measure unity) of perfectly competitive firms.
+%\end{frame}
+%
+%\begin{frame}
+% The representative firm in each sector chooses inputs to maximize profits in each period: 
+%\begin{equation}
+%\underset{l_{it},k_{it},m_{it}}{max} \quad p_{it}a_{it}k_{it}^{\alpha_i} l_{it}^{\beta_i} M_{it}^{1-\alpha_i-\beta_i} - w_tl_{it}-r_tp_tk_{it}-m_{1it}-p_{2t}m_{2it}.
+%\end{equation}
+% The FOC's are: 
+%\begin{align} \label{eq:2SKD}
+% \frac{r_tp_t}{p_{it}}&=\alpha_i\frac{y_{it}}{k_{it}}\\ \label{eq:2SLD}
+% \frac{w_t}{p_{it}}&=\beta_i \frac{y_{it}}{l_{it}} \\ \label{eq:2SID}
+% m_{jit} &= \left(\frac{p_{it}}{p_{jt}}\right)^{\eta_i}(1-\alpha_i-\beta_i)^{\eta_i}\gamma_{ji} y_{it}^{\eta_i} M_{it}^{1-\eta_i}.
+%\end{align}
+%There are 4 of these conditions, for each sector for each intermediate input.
+%\end{frame}
+%
+%\begin{frame}
+%With full aggregation the model has 27 equations for 27 unknowns: $c_t,\ c_{1t},\ c_{2t},\ l_t,\ l_{1t},\ l_{2t},\ p_t,\ p_{2t},\ w_t,\ r_t,\ k_t,\ k_{1t},\ k_{2t}, y_t,\ y_{1t},\ y_{2t},\ a_{1t},$ $\ a_{2t},\ M_{1t},\ M_{2t},\ m_{11t},\ m_{21t},$ $m_{12t},\ m_{22t},\ i_t,\ i_{1t},\ i_{2t}$.
+%\begin{table}[h!]
+%\tiny
+%\centering
+%\caption{\label{tab:2SModel} Two Sector RBC Model}
+%\begin{tabular}{lr} \toprule
+%Equation & Definition \\ \midrule
+%$c_t^\sigma l_t^\varphi p_t= w_t$ & labor Supply \\
+%$c_t^{-\sigma}=\beta E_t \left[c_{t+1}^{-\sigma} \left(1-\delta+r_{t+1}\right)\right]$ & Euler Equation \\
+%$\frac{c_{1t}}{c_{2t}}=\frac{\omega_1}{\omega_2}\left(\frac{1}{p_{2t}}\right)^{-\epsilon}$ & Optimal Consumption Bundle \\
+%$c_{1t} + p_{2t}c_{2t} = p_tc_t$ & Consumption Constraint \\
+%$k_{t+1}=(1-\delta)k_t+i_t$ & Capital Law of Motion \\
+%$y_{1t}=a_{1t}k_{1t}^{\alpha_1} l_{1t}^{\beta_1} M_{1t}^{1-\alpha_1-\beta_1}$ & Production Function Sector 1 \\
+%$y_{2t}=a_{2t}k_{2t}^{\alpha_2} l_{2t}^{\beta_2} M_{2t}^{1-\alpha_2-\beta_2}$ & Production Function Sector 2 \\
+%$M_{1t}=\left[\gamma_{11}^{\frac{1}{\eta_1}}m_{11t}^{\frac{\eta_1-1}{\eta_1}}+\gamma_{21}^{\frac{1}{\eta_1}}m_{21t}^{\frac{\eta_1-1}{\eta_1}}\right]^{\frac{\eta_1}{\eta_1-1}}
+%$ & Intermediate Input Sector 1 \\
+%$M_{2t}=\left[\gamma_{12}^{\frac{1}{\eta_2}}m_{12t}^{\frac{\eta_2-1}{\eta_2}}+\gamma_{22}^{\frac{1}{\eta_2}}m_{22t}^{\frac{\eta_2-1}{\eta_2}}\right]^{\frac{\eta_2}{\eta_2-1}}
+%$ & Intermediate Input Sector 2 \\
+%$k_{1t}=\alpha_1 y_{1t}/(r_tp_t)$ & Demand for Capital Sector 1\\
+%$k_{2t}=\alpha_2 y_{2t}p_{2t}/(r_tp_t)$ & Demand for Capital Sector 2\\
+%$l_{1t}=\beta_1 y_{1t}/w_t$ & Demand for labor Sector 1\\
+%$l_{2t}=\beta_2 y_{2t}p_{2t}/w_t$ & Demand for labor Sector 2\\
+%\end{tabular}
+%\end{table}
+%\end{frame}
+%
+%\begin{frame}
+%\tiny
+%\begin{table}[h!]
+%\centering
+%\begin{tabular}{lr} 
+%$m_{11t} = (1-\alpha_1-\beta_1)^{\eta_1}\gamma_{11} y_{1t}^{\eta_1} M_{1t}^{1-\eta_1}$ & Demand for sector 1, Sector 1 \\
+%$m_{21t} = p_{2t}^{-\eta_1}(1-\alpha_1-\beta_1)^{\eta_1}\gamma_{21} y_{1t}^{\eta_1} M_{1t}^{1-\eta_1}$ & Demand for sector 2, sector 1\\
+%$m_{12t} = p_{2t}^{\eta_2}(1-\alpha_2-\beta_2)^{\eta_2}\gamma_{12} y_{2t}^{\eta_2} M_{2t}^{1-\eta_2}$ & Demand for sector 1, Sector 2 \\
+%$m_{22t} = (1-\alpha_2-\beta_2)^{\eta_2}\gamma_{22} y_{2t}^{\eta_2} M_{2t}^{1-\eta_2}$ & Demand for sector 2, sector 2 \\
+%$l_t = l_{1t}+l_{2t}$ & labor Accounting \\
+%$k_t = k_{1t}+k_{2t}$ & Capital Accounting \\
+%$y_t = y_{1t} + y_{2t}$ & Output Accounting \\
+%$i_t = i_{1t}+i_{2t}$ & Investment Accounting \\
+%$p_t = \left[\omega_1 + \omega_2 p_{2t}^{1-\epsilon}\right]^{\frac{1}{1-\epsilon}}$ & Ideal Price Index \\
+%$p_{2t}=\frac{1}{a_{2t}} \left(\frac{r_tp_t}{\alpha_2}\right)^{\alpha_2}\left(\frac{w_t}{\beta_2}\right)^{\beta_2} $ & Optimal Price sector 2 \\
+%$\qquad \cdot \left(\left[\gamma_{12}\gamma_{22}^{\frac{1-\eta_2}{\eta_2}}p_{2t}^{\eta_2-1}+\gamma_{22}^{\frac{1}{\eta_2}}\right]^{\frac{\eta_2}{1-\eta_2}}\frac{ \frac{\gamma_{12}}{\gamma_{22}} p_{2t}^{\eta_2}+p_{2t}}{1-\alpha_2-\beta_2}\right)^{1-\alpha_2-\beta_2}$ & \\
+%$y_{1t} = m_{11t}+m_{12t}+c_{1t}+i_{1t}$ & Equilibrium Condition Sector 1\\
+%$y_{2t} = m_{21t}+m_{22t}+c_{2t}+i_{2t}$ & Equilibrium Condition Sector 2\\
+%$\log a_{1t}=(1-\rho_1)\log(a_1^*)+ \rho_1\log a_{1,t-1}+u_{1t}+\epsilon_t$ & Technology Shock Sector 1 \\
+%$\log a_{2t}=(1-\rho_2)\log(a_2^*)+ \rho_2\log a_{2,t-1}+u_{2t}+\epsilon_t$ & Technology Shock Sector 2 \\ \bottomrule
+%\end{tabular}
+%\end{table}
+%\end{frame}
+%
+%\begin{frame}
+%Response to technology shock to sector 1: \\ \vspace{2mm}
+%\begin{adjustbox}{center}
+%\begin{tabular}{cc}
+%\includegraphics[width=0.55\textwidth, trim = {4cm, 8cm, 4cm, 8cm}, clip]{"RBC2SIRF1".pdf} & %trim={<left> <lower> <right> <upper>}
+%\includegraphics[width=0.55\textwidth, trim = {4cm, 8cm, 4cm, 8cm}, clip]{"RBC2SIRF2".pdf} %trim={<left> <lower> <right> <upper>}
+%\end{tabular}
+%\end{adjustbox}
+%\end{frame}
+
+%------------------------------------------------
+\section{Endogenous Technology}
+%------------------------------------------------
+
+\begin{noheadline}
+\begin{frame}{RBC with Endogenous Technology}
+ \textbf{Final Good (Retail) Firms:} \\
+The final goods firm is perfectly competitive and aggregates intermediate goods produced by a continuum (measure $a_t$, where $a_t$ is the stock of adopted technologies) of wholesale firms:
+\begin{equation}  \label{eq:24}
+y_t=\left(\int_0^{a_t}y_{kt}^{\frac{\psi-1}{\psi}}dk\right)^{\frac{\psi}{\psi-1}}.
+\end{equation}
+It maximizes revenues taking aggregate and input prices as given:
+\begin{equation}
+\underset{y_{kt}}{max}\quad p_t\left(\int_0^{a_t}y_{kt}^{\frac{\psi-1}{\psi}}dk\right)^{\frac{\psi}{\psi-1}}-\int_0^{a_t}p_{kt}y_{kt}dk
+\end{equation}
+Taking the FOC w.r.t. any particular $y_{kt}$ yields the demand function for wholesale good $k$, which is directly proportional to aggregate demand and inversely proportional to its relative price: 
+\begin{equation} \label{eq:RSID}
+y_{kt}=y_t \left(\frac{p_t}{p_{kt}}\right)^\psi.
+\end{equation}
+\end{frame}
+\end{noheadline}
+
+
+\begin{frame}
+Substituting the demand function back in the aggregator function yields the ideal price index: 
+\begin{equation} \label{eq:27}
+p_t = \left( \int_0^{a_t}  p_{kt}^{1-\psi}dk \right)^{\frac{1}{1-\psi}}.
+\end{equation}
+Since in this model all wholesale firms are identical in their pricing behavior, Eq. (\ref{eq:27}) can be rewritten as:
+\begin{equation}  \label{eq:PAG}
+p_t = a_t^{\frac{1}{1-\psi}} p_{kt} \quad\text{or}\quad p_{kt}=a_t^{\frac{1}{\psi-1}} p_t.
+\end{equation}
+The same is true for output, Eq. (\ref{eq:24}) can be written as:
+\begin{equation} \label{eq:OAG}
+y_t = a_t^{\frac{\psi}{\psi-1}} y_{kt} \quad\text{or}\quad y_{kt}=a_t^{\frac{\psi}{1-\psi}} y_t.
+\end{equation} 
+\end{frame}
+
+\begin{frame}
+\textbf{Intermediate Goods (Wholesale) Firms:} \\
+The representative intermediate goods firm chooses capital $k_{kt}$, unskilled labor $l_{ukt}$ to produce output by the following technology:
+\begin{equation}
+y_{kt}=\theta_tk_{kt}^\alpha l_{ukt}^{1-\alpha}. 
+\end{equation}
+$\theta_t$ is  a stationary productivity shock to the intermediate goods sector. Firms then choose inputs and the price subject to the final good firms (consumers) demand function given by Eq. (\ref{eq:RSID}):
+\begin{equation}
+\underset{k_{kt},\ l_{ukt}}{max}\quad \pi_{kt}= p_ty_t^{\frac{1}{\psi}} \left(\theta_tk_{kt}^\alpha l_{ukt}^{1-\alpha}\right)^{\frac{\psi-1}{\psi}}-r_tp_tk_{kt}-w_{ut}l_{ukt}.
+\end{equation}
+Assuming each intermediate good firm is very small w.r.t. the whole of intermediate goods firms, so that it's choice of inputs does not impact the aggregate price or quantity, yields the FOC's:
+\begin{equation}
+\underbrace{p_{kt} \alpha \frac{y_{kt}}{k_{kt}}}_{\text{MR(k)}} =\frac{\psi}{\psi-1} \underbrace{r_tp_t}_{\text{MC(k)}},
+\end{equation}
+\end{frame}
+
+\begin{frame}
+\begin{equation}
+\underbrace{p_{kt} (1-\alpha) \frac{y_{kt}}{l_{ukt}}}_{\text{MR(l)}} =\frac{\psi}{\psi-1}\underbrace{w_{ut}}_{\text{MC(l)}}. 
+ \end{equation}
+Inserting these FOC's back into the inverse demand function gives the optimal pricing choice of the individual wholesale firm:
+\begin{equation} \label{eq:PRET}
+p_{kt}=\frac{\psi}{\psi-1} \underbrace{\frac{1}{\theta_t} \left( \frac{r_tp_t}{\alpha} \right)^\alpha  \left( \frac{w_{ut}}{1-\alpha} \right)^{1-\alpha}}_{\text{MC}}.
+\end{equation}
+This is the standard \citet{dixit1977monopolistic} result that in a monopolistically competitive equilibrium the price is a constant mark-up over marginal cost. 
+\end{frame}
+
+\begin{frame}
+\textbf{Technology Adopters\footnote{\tiny Intermediate goods are first invented and then adopted, this describes their adoption conditional on their invention. The adoption process is procyclical but takes time. It is also decentralized e.g. aggregate patterns are modelled without taking account of individual firms adoptions. In each period a fraction of the available new technologies become usable. Whether a technology becomes usable is a random draw with success probably $\lambda_t$. Once a technology is usable, all firms are able to employ it immediately, which is modelled by an expansion in the number of varieties $a_t$ (as the adopter sells the technology to a new intermediate goods firm (a start-up)). pro-cyclical adoption behavior is obtained by endogenizing the probability $\lambda_t$ that a new technology becomes usable and making it increasing in the amount of resources devoted to adoption.}:} \\
+
+Let $z_t$ be the stock of invented technologies. The probability $0<\lambda_t<1$ that a new technology is adopted is given by
+\begin{equation} 
+\lambda_t = \kappa (z_tl_{sat})^{\rho_a},
+\end{equation}
+where $\kappa$ and $0<\rho_a<1$ are constants ($\lambda'>0,\  \lambda''<0$), and $l_{sat}$ is the skilled labor investment devoted to technology adoption in each period\footnote{\tiny The presence of $z_t$ accounts for the fact that the adoption process becomes more efficient as the technological state of the economy improves.}. The value to the adopter of successfully bringing a new technology into use, $v_t$, is given by the present value of intermediate good firm profits from operating the technology
+\begin{equation} \label{eq:VAT}
+v_t = \pi_t+\phi E_t \frac{v_{t+1}}{1+r_{t+1}},
+\end{equation}
+\end{frame}
+
+\begin{frame}
+where $\phi$ is the probability that the technology survives (i.e. does not become obsolete), which works like a discount factor here. \\ Since adoption of a technology is stochastic with probability $\lambda_t$, the adopter chooses $l_{sat}$ to maximize the value $J_t$ gained from the acquisition of unadopted technologies:
+\begin{equation} \label{eq:VUT}
+\underset{l_{sat}}{max}\quad J_t = \phi E_t\left\{ \frac{\lambda_tv_{t+1} + (1-\lambda_t)J_{t+1}}{1+r_{t+1}}\right\} -w_{st}l_{sat}.
+\end{equation}
+The first term in the Bellman equation represents the discounted benefit from acquiring technologies: the probability weighted sum of the values of adopted and unadopted technologies. The FOC describing optimal skilled labor supply is:
+\begin{equation}
+w_{st} = z_t\lambda_t' \phi E_t\left\{ \frac{  v_{t+1}-J_{t+1}}{1+r_{t+1}}\right\}= \rho_a \frac{\lambda_t}{l_{sat}} \phi E_t\left\{ \frac{  v_{t+1}-J_{t+1}}{1+r_{t+1}}\right\}.
+\end{equation}
+
+\end{frame}
+
+\begin{frame}
+The FOC equates the marginal gain from adoption expenditures - the increase in $\lambda_i$ times the discounted difference between the value of adopted versus unadopted technology - to the marginal cost $w_{st}$. \newline
+
+The term $v_{t+1}-J_{t+1}$ is pro-cyclical, by virtue of the greater influence of near term profits on the value of adopted technologies relative to unadopted ones. As a consequence, $l_{sat}$ and pace of adoption $\lambda_t$ also vary pro-cyclically\footnote{\tiny Wage-stickiness may also be required to generate the full effect.}. \newline 
+
+Finally, the evolution of adopted technologies is:
+\begin{equation}  
+a_{t+1}=\lambda_t \phi [z_{t}-a_{t}]+\phi a_{t},
+\end{equation}
+where $z_{t}-a_{t}$ is the stock of technologies available for adoption.
+\end{frame}
+
+
+\begin{frame}
+\textbf{Technology Innovators:} \\ 
+Innovators use skilled labor to create new ideas, which adopters can buy and transform into production plans for
+intermediate goods bought by wholesale firms. Let $\vartheta_t$ be the marginal product of skilled labor producing a technology in a given time-period:
+\begin{equation}
+\vartheta_t = \chi_tz_tl_{srt}^{\rho_z-1},
+\end{equation}
+where $l_{srt}$ is skilled labor working on R\&D. As in \citet{romer1990endogenous}, the presence of $z_t$ makes this a linear growth model. It is assumed that $\rho_z<1$, implying that increased employment of skilled labor reduces its productivity for R\&D. $\chi_t$ is an exogenous productivity shifter following a stochastic process:
+\begin{equation}
+\log \chi_t = (1-\rho_\chi)\log \chi^* +\rho_\chi \log \chi_{t-1}+\epsilon_t^\chi.
+\end{equation}
+The representative innovator chooses $l_{srt}$ to maximize the expected value of the technology, as given by Eq. (\ref{eq:VUT}): 
+\begin{equation}
+\underset{l_{srt}}{max}\quad E_t\frac{l_{srt}\vartheta_t J_{t+1}}{1+r_{t+1}}-w_{st}l_{srt}.
+\end{equation}
+\end{frame}
+
+\begin{frame}
+The FOC equates the maginal discounted benefit of an additional unit of skilled labor in innovation with it's marginal cost:
+\begin{equation}
+E_t \frac{\vartheta_t J_{t+1}}{1+r_{t+1}}=E_t  \frac{\chi_tz_tl_{srt}^{\rho_z-1} J_{t+1}}{1+r_{t+1}}=w_{st}.
+\end{equation}
+Given that profits from intermediate goods are pro-cyclical, the value of an unadopted technology, which depends on expected future profits, will also be pro-cyclical. Recall that $\phi$ is the survival rate for any
+given technology. Then, we can express the evolution of technologies as:
+\begin{equation} \label{eq:RD}
+z_{t+1}=\phi z_t+ \vartheta_t l_{srt}\quad \text{or}\quad \frac{z_{t+1}}{z_t}=\phi + \chi_tl_{srt}^{\rho_z}.
+\end{equation}
+After aggregating the equations for intermediate goods firms, adopters and innovators, solving a consumers problem (CRRA) for consumption, skilled and unskilled labor supply, and adding an equilibrium condition and labor supply shocks, the RBC model with endogenous technology is given by the following equations:
+\end{frame}
+
+\begin{frame}
+\begin{table}[h!] \vspace{-1.5mm}
+\tiny \centering 
+% \caption{\label{tab:ModelET} A Simple RBC Model with Endogenous Technology}
+\resizebox{0.75\textwidth}{!}{%
+\begin{tabular}{lr} \toprule
+Equation & Definition \\ \midrule
+$l_{ut}^\varphi = \varsigma_u \mu_u \frac{w_{ut}}{c_t^\sigma p_t}$ & Unskilled Labor Supply \\
+$l_{st}^\varphi = \varsigma_s \mu_s \frac{w_{st}}{c_t^\sigma p_t}$ & Skilled Labor Supply \\
+$c_t^{-\sigma}=\beta E_t \left[c_{t+1}^{-\sigma} \left(1-\delta+r_{t+1}\right)\right]$ & Euler Equation \\
+$k_{t+1}=(1-\delta)k_t+i_t$ & Capital Law of Motion \\
+$y_t=a_t^{\frac{1}{\psi-1}} \theta_tk_{t}^\alpha l_{ut}^{1-\alpha}$ & Production Function\\
+$a_t^{\frac{1}{1-\psi}} \alpha \frac{ y_{t}}{k_{t}} MC_{t}= r_tp_t$ & Demand for Capital \\
+$ a_t^{\frac{1}{1-\psi}} (1-\alpha) \frac{ y_{t}}{l_{ut}} MC_{t}= w_{ut}$ & Demand for Labor\\
+$ MC_{t} = \frac{1}{\theta_t} \left( \frac{r_tp_t}{\alpha} \right)^\alpha  \left( \frac{w_{ut}}{1-\alpha} \right)^{1-\alpha}$ & Marginal Cost \\
+$a_t^{\frac{1}{\psi-1}} p_t = \frac{\psi}{\psi-1} MC_{t}$ & (Optimal) Price Level \\
+$\lambda_t = \kappa (z_tl_{sat})^{\rho_a}$ & Adoption Success Probability \\
+$\Pi_t = p_ta_t^{\frac{1}{\psi-1}}  \theta_tk_{t}^\alpha l_{ut}^{1-\alpha}-r_tp_tk_{t}-w_{ut}l_{ut}$ & Intermediate Goods Aggregate Profit \\
+$v_t^a = \Pi_t +\phi E_t \frac{v^a_{t+1}a_t}{a_{t+1}(1+r_{t+1})}$ & Value of Adopted Technology \\
+$J^z_t = E_t\left\{ \frac{\lambda_tv^a_{t+1}\frac{z_t}{a_{t+1}} + (1-\lambda_t)J^z_{t+1}\frac{z_t}{z_{t+1}}}{1+r_{t+1}}\right\}-w_{st}l_{sat}z_t
+$ & Value of Unadopted Technology \\
+$w_{st}l_{sat} = \rho_a \lambda_t\phi E_t\left\{ \frac{  \frac{v_{t+1}^a}{a_{t+1}}-\frac{J_{t+1}^z}{z_{t+1}}}{1+r_{t+1}}\right\}
+$ & Optimal Adoption Investment \\
+$a_{t+1}=\lambda_t \phi [z_{t}-a_{t}]+\phi a_{t}$ & Evolution of Adopted Technology \\
+$\vartheta_t =  \chi_t z_t l_{srt}^{\rho_z-1}$ & Productivity of R\&D \\
+$E_t \frac{\frac{\vartheta_{t}}{z_{t+1}} J^z_{t+1}}{1+r_{t+1}} =w_{st}$ & Optimal R\&D Investment\\
+$z_{t+1}=\phi z_t + \vartheta_tl_{srt}$ & Evolution of Technology \\
+$l_{st} = (z_t-a_t) l_{sat} + l_{srt}$ & Skilled labor Aggregation \\
+$y_t=c_t+i_t$ & Equilibrium Condition \\
+$\log \chi_t = (1-\rho_\chi)\log \chi^* +\rho_\chi \log \chi_{t-1}+\epsilon_t^\chi$ & R\&D Shock \\
+$\log \theta_t= \rho_\theta \log \theta_{t-1}+\epsilon_t^\theta$ & Productivity Shock \\ 
+$\log \mu_{ut} = \rho_{\mu_u} \log \mu_{u,t-1} +\epsilon_{ut}^\mu$ & Unskilled Labor Supply Shock \\ 
+$\log \mu_{st} = \rho_{\mu_s} \log \mu_{s,t-1} +\epsilon_{st}^\mu$ & Skilled labor Supply Shock \\ \bottomrule
+\end{tabular}
+}
+\end{table}
+\end{frame}
+
+
+%------------------------------------------------
+\section{N Sectors}
+%------------------------------------------------
+
+\begin{noheadline}
+\begin{frame}{Extension to N-Sectors}
+Now constructing an integrated N-sector RBC economy in which each sector has its own
+retailers, wholesale firms, technology adopters and technology innovators: \vspace{3mm}
+\begin{itemize}
+\item Mostly similar equations, but indexed by $i$ to denote the sector, and need to solve a few allocation problems regarding consumption bundles, skilled and unskilled labor supply to different sectors, and optimal choice of intermediate inputs.
+\item Additional terms are added to the endogenous technology equations to enable R\&D and adoption spillovers between interlinked sectors. 
+\end{itemize}
+\end{frame}
+\end{noheadline}
+
+\begin{frame}
+\textbf{Intermediate Goods (Wholesale) Firms:} \\
+The representative intermediate goods firm in sector $i$ chooses capital $k_{kit}$, unskilled labor $l_{ukit}$ and intermediate goods from other sectors ($j$) $M_{kit}$ to produce output by the following Cobb-Douglas technology
+\begin{equation}
+y_{kit}=\theta_{it}k_{kit}^{\alpha_i} l_{ukit}^{\beta_i} M_{kit}^{1-\alpha_i-\beta_i}\quad\forall\,i,
+\end{equation}
+with intermediate inputs composite:
+\begin{equation}
+M_{kit}=\left[\sum_{j=1}^N \gamma_{ji}^{\frac{1}{\eta_i}}m_{jkit}^{\frac{\eta_i-1}{\eta_i}}\right]^{\frac{\eta_i}{\eta_i-1}}\quad\forall\,i.
+\end{equation}
+The notation is $m_{ji}=m_{\text{origin}\to\text{destiny}}$.
+$\theta_{it}$ is  a stationary productivity shock to all wholesale firms in sector $i$.
+\end{frame}
+
+\begin{frame}
+\textbf{Technology Adopters:} \\
+The sector-specific adoption success probability $0<\lambda_{it}<1$ is given by a concave function
+\begin{equation} \label{eq:AD2}
+\lambda_{it} = \kappa_i \left( \omega_{adi} \sum_{j=1}^N \gamma_{ji} a_{jt} + \omega_{aui} \sum_{j=1}^N \gamma_{ij} a_{jt} \right)^{\rho_{Mai}} (z_{it}l_{sait})^{\rho_{ai}}\quad\forall\,i,
+\end{equation}
+%\todo[inline]{Could exclude $a_{it}$ $\to$ adoption learning spillovers, see 2003 working paper for Medium Run Business Cycles, or give it a separate consideration. }
+where $\kappa$, $0<\rho_{Ma}<1$ and $0<\rho_a<1$ are constants ($\lambda'>0,\  \lambda''<0$). The first term reflects adoption learning spillovers from other sectors, where the first sum reflects adoption pressures resulting from upstream sectors in the value chain (i.e. sectors that supply inputs to sector $i$), and the second sum reflects adoption pressures from the downstream sectors (i.e. sectors that buy sector $i$'s output). These spillovers reflect the input-output-mix in the wholesale sector, and their intensity is regulated by $\rho_{Mai}$, and the weights $\omega_{adi}$ and $\omega_{aui}$ reflecting the relative importance of downstream and upstream pressures. 
+\end{frame}
+
+\begin{frame}
+\textbf{Technology Innovators:} \\ 
+Let $l_{srit}$ be skilled labor employed in R\&D by the representative innovator in sector $i$ and let $\vartheta_{it}$ be the marginal product of skilled labor producing a technology in a given time-period
+\begin{equation}
+\vartheta_{it} = \chi_{it} z_{it} \left( \omega_{rdi} \sum_{j\neq i} \gamma_{ji} z_{jt} + \omega_{rui} \sum_{j\neq i} \gamma_{ij} z_{jt} \right)^{\rho_{Mri}} l_{srit}^{\rho_{zi}-1}\quad\forall\,i.
+\end{equation}
+Again $0<\rho_{zi}<1$, implying that increased R\&D in the aggregate reduces the efficiency of R\&D at the individual level. Also $\rho_{Mri}<1$, so that there are diminishing returns to upstream or downstream innovation for the sector's own innovation process.
+\end{frame}
+
+\begin{frame}
+\textbf{Households:} \\ 
+Aggregate consumption is a CES aggregate of consumption goods produced by $N$ sectors,  skilled labor $l_{st}$ and unskilled labor $l_{ut}$ are CES aggregates of sectoral skilled and unskilled labor stocks
+\begin{equation}
+c_t = \left[ \sum_{i=1}^N \omega_i^{\frac{1}{\epsilon}}c_{it}^{\frac{\epsilon-1}{\epsilon}}\right]^{\frac{\epsilon}{\epsilon-1}},\qquad l_t =  l_{ut} +  l_{st},
+\end{equation}
+\begin{equation}
+l_{ut} = \left[\sum_{i=1}^N \varsigma_{ui}^{\frac{1}{\nu_u}}l_{uit}^{\frac{\nu_u-1}{\nu_u}}\right]^{\frac{\nu_u}{\nu_u-1}}, \qquad l_{st} = \left[\sum_{i=1}^N \varsigma_{si}^{\frac{1}{\nu_s}}l_{sit}^{\frac{\nu_s-1}{\nu_s}}\right]^{\frac{\nu_s}{\nu_s-1}}.
+\end{equation}
+Skilled labor in each sector is again divided into skilled labor used for technology adoption and skilled labor used for R\&D. Following \citet{Anzoategui2017}, this allocation is endogenously determined, by the adoption gap $z_{it}-a_{it}$
+\begin{equation}
+l_{sit} = (z_{it}-a_{it})l_{sait} + l_{srit}\quad\forall\,i.
+\end{equation}
+\end{frame}
+
+\begin{frame}
+A representative household again maximizes lifetime utility w.r.t. consumption and labor supply, given by
+\begin{equation} \label{eq:FUT}
+E_t\sum_{t=0}^\infty \beta^t\left[\frac{c_t^{1-\sigma}}{1-\sigma}-\frac{1}{\mu_{ut}\varsigma_u}\frac{l_{ut}^{1+\varphi}}{1+\varphi}-\frac{1}{\mu_{st}\varsigma_s}\frac{l_{st}^{1+\varphi}}{1+\varphi}\right]\quad\forall\,i,
+\end{equation}
+where $\beta$ is the intertemporal discount factor, $\sigma$ is the relative risk aversion coefficient, and $\varphi$ is the marginal disutility w.r.t. labor supply. Assuming that households own the firms, they maximize this utility function subject to the intertemporal budget constraint. Following \citet{Comin2009}, with $\mu_{ut}$ and $\mu_{st}$ preference shifter shocks are introduced to shock the labor supply. These shocks can also be interpreted as capturing frictions in the labor market and taxes. The shocks follow stationary stochastic processes
+\begin{equation}
+\log \mu_{ut} = \rho_{\mu_u} \log \mu_{u,t-1} +\epsilon_t^{\mu_u},
+\end{equation}
+\begin{equation}
+\log \mu_{st} = \rho_{\mu_s} \log \mu_{s,t-1} +\epsilon_t^{\mu_s}.
+\end{equation}
+\end{frame}
+
+\begin{frame}
+\begin{table}[h!] \vspace{-1.5mm}
+\tiny \centering 
+% \caption{\label{tab:ModelFULL} N-Sector RBC Model with Endogenous R\&D and Technology Diffusion}
+\resizebox{0.95\textwidth}{!}{%
+\begin{tabular}{lr} \toprule
+Equation & Definition \\ \midrule
+$l_t = l_{ut} + l_{st}$ & labor Aggregation (Optional) \\
+$l_{ut}^\varphi = \varsigma_u \mu_u \frac{w_{ut}}{c_t^\sigma p_t}$  & Unskilled Labor Supply \\
+$l_{st}^\varphi =\varsigma_s \mu_s \frac{w_{st}}{c_t^\sigma p_t}$  & Skilled Labor Supply \\
+$c_t^{-\sigma}=\beta E_t [c_{t+1}^{-\sigma} (1-\delta+r_{t+1})]$ & Euler Equation \\
+$c_{it}= c_t \omega_i \left(\frac{p_{it}}{p_t}\right)^{-\epsilon} \quad  \forall\, i$ & Optimal Consumption Choice \\
+$l_{uit}= l_{ut} \varsigma_{ui} \left(\frac{w_{uit}}{w_{ut}}\right)^{\nu_u} \quad  \forall\, i$ & Optimal Unskilled labor Allocation \\
+$l_{sit}= l_{st} \varsigma_{si} \left(\frac{w_{sit}}{w_{st}}\right)^{\nu_s} \quad  \forall\, i$ & Optimal Skilled labor Allocation \\
+$w_{ut} = \left[\sum_{i=1}^N \varsigma_{ui} w_{uit}^{1-\nu_u}\right]^{\frac{1}{1-\nu_u}}$ & Average Unskilled Wage Rate \\
+$w_{st} = \left[\sum_{i=1}^N \varsigma_{si} w_{sit}^{1-\nu_s}\right]^{\frac{1}{1-\nu_s}}$ & Average Skilled Wage Rate \\
+$k_{t+1}=(1-\delta)k_t+i_t$ & Capital Law of Motion \\
+$y_{it} = a_{it}^{\frac{1}{\psi_i-1}}  \theta_{it}k_{it}^{\alpha_i} l_{uit}^{\beta_i} M_{it}^{1-\alpha_i-\beta_i} \quad \forall\, i$ & Production Function Sector $i$\\
+$M_{it}=\left[\sum_{j=1}^N \gamma_{ji}^{\frac{1}{\eta_i}}m_{jit}^{\frac{\eta_i-1}{\eta_i}}\right]^{\frac{\eta_i}{\eta_i-1}} \quad \forall\, i$ & Intermediate Inputs Sector $i$ \\
+$k_{it} = a_{it}^{\frac{1}{1-\psi_i}} \alpha_i y_{it} \frac{MC_{it}}{r_tp_t} \quad \forall\, i$ & Demand for Capital Sector $i$ \\
+$ l_{uit} = a_{it}^{\frac{1}{1-\psi_i}} \beta_i y_{it} \frac{MC_{it}}{w_{uit}}  \quad \forall\, i$ & Demand for Labor Sector $i$ \\
+$m_{jit} = a_{it}^{\frac{\eta_i}{1-\psi_i}} (1-\alpha_i-\beta_i)^{\eta_i} y_{it}^{\eta_i} \left(\frac{MC_{it}}{p_{jt}}\right)^{\eta_i}  \gamma_{ji} M_{it}^{1-\eta_i}  \quad \forall\, i\ \forall\, j$ & Demand for sector $j$, Sector $i$ \\
+$p_t = \left[\sum_{i=1}^N \omega_i p_{it}^{1-\epsilon}\right]^{\frac{1}{1-\epsilon}}$ & Ideal Price Index \\
+$p_{M_{it}} = \left[  \sum_{j=1}^N \gamma_{ji} p_{jt}^{1-\eta_i}  \right]^{\frac{1}{1-\eta_i}} \quad \forall\, i$ & Price of Intermediates Sector $i$ \\
+\end{tabular}
+}
+\end{table}
+\end{frame}
+
+\begin{frame}
+\begin{table}[h!] \vspace{-1.5mm}
+\tiny \centering 
+% \caption{\label{tab:ModelFULL} N-Sector RBC Model with Endogenous R\&D and Technology Diffusion}
+\resizebox{0.95\textwidth}{!}{%
+\begin{tabular}{lr} 
+% Equation & Definition \\ \midrule
+$MC_{it} =\frac{1}{\theta_{it}}  \left( \frac{r_tp_t}{\alpha_i}\right)^{\alpha_i}  \left(  \frac{w_{uit}}{\beta_i} \right)^{\beta_i} \left(\frac{p_{M_{it}}}{1-\alpha_i-\beta_i} \right)^{1-\alpha_i-\beta_i} \quad \forall\, i$  & Marginal Cost Sector $i$ \\
+$ p_{it} = a_{it}^{\frac{1}{1-\psi_i}} \frac{\psi_i}{\psi_i-1} MC_{it} \quad \forall\, i$ & (Optimal) Price Level Sector $i$ \\
+$\lambda_{it} = \kappa_i \left( \omega_{adi} \sum_{j=1}^N \gamma_{ji} a_{jt} + \omega_{aui} \sum_{j=1}^N \gamma_{ij} a_{jt} \right)^{\rho_{Mai}} (z_{it}l_{sait})^{\rho_{ai}}  \quad \forall\, i$ & Adoption Success Probability Sector $i$\\
+$\Pi_{it} =  p_{it}y_{it}  - w_{uit}l_{uit}-r_tp_tk_{it}-\sum_{j=1}^N p_{jt}m_{jit} \quad \forall\, i$ & Intermediate Goods Aggregate Profit Sector $i$\\
+$v_{it}^a = \Pi_{it} +\phi_i E_t \frac{v^a_{i,t+1}a_{it}}{a_{i,t+1}(1+r_{t+1})} \quad \forall\, i$ & Value of Adopted Technology Sector $i$ \\
+$J^z_{it} = E_t\left\{ \frac{\lambda_{it} v^a_{i,t+1}\frac{z_{it}}{a_{i,t+1}} + (1-\lambda_{it})J^z_{i,t+1}\frac{z_{it}}{z_{i,t+1}}}{1+r_{t+1}}\right\}-w_{sit}l_{sait}z_{it} \quad \forall\, i$ & Value of Unadopted Technology Sector $i$\\
+$w_{sit}l_{sait} = \rho_{ai} \lambda_{it} \phi_i E_t\left\{ \frac{  \frac{v_{i,t+1}^a}{a_{i,t+1}}-\frac{J_{i,t+1}^z}{z_{i,t+1}}}{1+r_{t+1}}\right\}  \quad \forall\, i$ & Optimal Adoption Investment Sector $i$\\
+$a_{i,t+1}=\lambda_{it} \phi_i [z_{it}-a_{it}]+\phi_i a_{it} \quad \forall\, i$ & Evolution of Adopted Technology Sector $i$\\
+$ \vartheta_{it} = \chi_{it} z_{it} \left( \omega_{rdi} \sum_{j\neq i} \gamma_{ji} z_{jt} + \omega_{rui} \sum_{j\neq i} \gamma_{ij} z_{jt} \right)^{\rho_{Mri}} l_{srit}^{\rho_{zi}-1} \quad \forall\, i$ & Productivity of R\&D sector $i$ \\
+$E_t \frac{\frac{\vartheta_{it}}{z_{i,t+1}} J^z_{i,t+1}}{1+r_{t+1}} =w_{sit} \quad \forall\, i$ & Optimal R\&D Investment Sector $i$\\
+$z_{i,t+1}=\phi_i z_{it}+ \vartheta_{it} l_{srit} \quad \forall\, i$ & Evolution of Technology Sector $i$\\
+$l_{sit} = (z_{it}-a_{it}) l_{sait} + l_{srit} \quad \forall\, i$ & Skilled labor Aggregation Sector $i$\\
+$y_{it} = c_{it}+i_{it} + \sum_{j=1}^N m_{ijt} \quad \forall\, i$ & Equilibrium Condition Sector $i$\\
+$\log \chi_{it} = (1-\rho_{\chi_i})\log \chi_i^* +\rho_{\chi_i} \log \chi_{i,t-1}+\epsilon_{it}^\chi \quad \forall\, i$ & R\&D Shock Sector $i$\\
+$\log \theta_{it}= \rho_{\theta_i} \log \theta_{i,t-1}+\epsilon_{it}^\theta + \epsilon_t \quad \forall\, i$ & Productivity Shock Sector $i$\\ 
+$\log \mu_{ut} = \rho_{\mu_u} \log \mu_{u,t-1} +\epsilon_t^{\mu_u}$ & Unskilled labor Supply Shock \\
+$\log \mu_{st} = \rho_{\mu_s} \log \mu_{s,t-1} +\epsilon_t^{\mu_s}$ & Skilled labor Supply Shock \\
+$k_t =  \sum_{i=1}^N k_{it} $ & Capital Aggregation \\
+$i_t =  \sum_{i=1}^N i_{it} $ & Investment Aggregation  \\
+$y_t =  \sum_{i=1}^N y_{it} $ & Output Aggregation (Optional)\\ \bottomrule
+\end{tabular}
+}
+\end{table}
+\end{frame}
+
+%------------------------------------------------
+\section{Simulations}
+%------------------------------------------------
+
+\begin{noheadline}
+\begin{frame}{Simulation: A Textbook RBC Model}
+The model is defined by 8 equations in 8 endogenous variables ($y, c, k, l, i, w, r, a$):
+\begin{table}[h!]
+\centering
+\begin{tabular}{lr} \toprule
+Equation & Definition \\ \midrule
+$c_t^\sigma l_t^\varphi = w_t$ & Labor Supply \\
+$c_t^{-\sigma}=\beta E_t [c_{t+1}^{-\sigma} (1-\delta+r_{t+1})]$ & Euler Equation \\
+$k_{t+1}=(1-\delta)k_t+i_t$ & Capital Law of Motion \\
+$y_t=a_tk_t^\alpha l_t^{1-\alpha}$ & Production Function \\
+$k_t=\alpha y_t/r_t$ & Demand for Capital \\
+$l_t=(1-\alpha)y_t/w_t$ & Demand for Labor \\
+$y_t=c_t+i_t$ & Equilibrium Condition \\
+$\log a_t=(1-\rho)a^*+ \rho\log a_{t-1}+\epsilon_t$ & Technology Shock \\ \bottomrule
+\end{tabular}
+\end{table}
+\end{frame}
+\end{noheadline}
+
+\begin{frame}
+\begin{footnotesize}
+Impulse Response Functions Following 0.1 sd Productivity Shock ($a_t$): 
+\end{footnotesize} \\ \vspace{2mm}
+\includegraphics[width=\textwidth, trim = {0, 8cm, 0, 8cm}, clip]{"RBCIRF".pdf} %trim={<left> <lower> <right> <upper>}
+\end{frame}
+
+\begin{noheadline}
+\begin{frame}{Simulation: RBC Model with Endogenous Technology}
+\begin{footnotesize}
+Impulse Response Functions Following 0.1 sd R\&D Shock ($\chi$)\\ \vspace{1mm}
+{\tiny Using a 1st-order Taylor Expansion of the model (calibrated to the US economy following \citet{Anzoategui2017}) around the steady-state, with stochastic simulation over 2000 periods (200 periods burn-in).\par}
+\end{footnotesize} \vspace{-2mm}
+\begin{figure}[H]
+\centering
+\begin{adjustbox}{center}
+\begin{tabular}{cc}
+\includegraphics[width=0.55\textwidth, trim = {4.1cm, 9.5cm, 4.1cm, 9.5cm}, clip]{"../Figures/ETRD1".pdf} & %trim={<left> <lower> <right> <upper>}
+\includegraphics[width=0.55\textwidth, trim = {4.1cm, 9.5cm, 4.1cm, 9.5cm}, clip]{"../Figures/ETRD2".pdf} \\ %trim={<left> <lower> <right> <upper>}
+\includegraphics[width=0.5\textwidth, trim = {4.1cm, 14.8cm, 4.1cm, 9.5cm}, clip]{"../Figures/ETRD3".pdf} &
+\includegraphics[width=0.5\textwidth, trim = {4.1cm, 9.5cm, 4.1cm, 14.5cm}, clip]{"../Figures/ETRD3".pdf} %trim={<left> <lower> <right> <upper>}
+\end{tabular}
+\end{adjustbox}
+\end{figure}
+\end{frame}
+\end{noheadline}
+
+\begin{frame}
+\begin{footnotesize}
+Impulse Response Functions Following 0.1 sd Productivity Shock ($\theta$)\\ \vspace{1mm}
+{\tiny Using a 1st-order Taylor Expansion of the model (calibrated to the US economy following \citet{Anzoategui2017}) around the steady-state, with stochastic simulation over 2000 periods (200 periods burn-in).\par}
+\end{footnotesize} \vspace{-2mm}
+\begin{figure}[h!]
+\centering
+\begin{adjustbox}{center}
+\begin{tabular}{cc}
+\includegraphics[width=0.55\textwidth, trim = {4.1cm, 9.5cm, 4.1cm, 9.5cm}, clip]{"../Figures/ETP1".pdf} & %trim={<left> <lower> <right> <upper>}
+\includegraphics[width=0.55\textwidth, trim = {4.1cm, 9.5cm, 4.1cm, 9.5cm}, clip]{"../Figures/ETP2".pdf} \\ %trim={<left> <lower> <right> <upper>}
+\includegraphics[width=0.5\textwidth, trim = {4.1cm, 14.8cm, 4.1cm, 9.5cm}, clip]{"../Figures/ETP3".pdf} &
+\includegraphics[width=0.5\textwidth, trim = {4.1cm, 9.5cm, 4.1cm, 14.5cm}, clip]{"../Figures/ETP3".pdf} %trim={<left> <lower> <right> <upper>}
+\end{tabular}
+\end{adjustbox}
+\end{figure}
+\end{frame}
+
+\begin{frame}
+\begin{footnotesize}
+Impulse Response Functions Following 0.1 sd Skilled Labor Supply Shock ($\mu_s$)\\ \vspace{1mm}
+{\tiny Using a 1st-order Taylor Expansion of the model (calibrated to the US economy following \citet{Anzoategui2017}) around the steady-state, with stochastic simulation over 2000 periods (200 periods burn-in).\par}
+\end{footnotesize} \vspace{-2mm}
+\begin{figure}[h!]
+\centering
+\begin{adjustbox}{center}
+\begin{tabular}{cc}
+\includegraphics[width=0.55\textwidth, trim = {4.1cm, 9.5cm, 4.1cm, 9.5cm}, clip]{"../Figures/ETSL1".pdf} & %trim={<left> <lower> <right> <upper>}
+\includegraphics[width=0.55\textwidth, trim = {4.1cm, 9.5cm, 4.1cm, 9.5cm}, clip]{"../Figures/ETSL2".pdf} \\ %trim={<left> <lower> <right> <upper>}
+\includegraphics[width=0.5\textwidth, trim = {4.1cm, 14.8cm, 4.1cm, 9.5cm}, clip]{"../Figures/ETSL3".pdf} &
+\includegraphics[width=0.5\textwidth, trim = {4.1cm, 9.5cm, 4.1cm, 14.5cm}, clip]{"../Figures/ETSL3".pdf} %trim={<left> <lower> <right> <upper>}
+%\includegraphics[width=0.5\textwidth, trim = {4.1cm, 9.5cm, 4.1cm, 9.5cm}, clip]{"Figures/2sec4".pdf} %trim={<left> <lower> <right> <upper>}
+\end{tabular}
+\end{adjustbox}
+\end{figure}
+\end{frame}
+
+
+\begin{noheadline}
+\begin{frame}{Simulation: 2-Sector RBC with Endogenous Technology}
+\begin{footnotesize}
+IRF's Following 0.1 sd R\&D Shock to Sector 1 ($\chi_1$) - No Spillovers\\ \vspace{1mm}
+{\tiny Using a 1st-order Taylor Expansion of the model (symmetric stylized calibration) around the steady-state, with stochastic simulation over 20,000 periods (200 periods burn-in).\par}
+\end{footnotesize} %\vspace{-2mm}
+\begin{figure}[h!]
+\centering
+\begin{adjustbox}{center}
+%\resizebox{\textwidth}{!}{
+\begin{tabular}{cc}
+\includegraphics[width=0.55\textwidth, trim = {4.1cm, 9.5cm, 4.1cm, 9.5cm}, clip]{"../Figures/FULLRD1".pdf} & %trim={<left> <lower> <right> <upper>}
+\includegraphics[width=0.55\textwidth, trim = {4.1cm, 9.5cm, 4.1cm, 9.5cm}, clip]{"../Figures/FULLRD2".pdf}  %trim={<left> <lower> <right> <upper>}
+\end{tabular}
+%}
+\end{adjustbox}
+\end{figure}
+\end{frame}
+\end{noheadline}
+
+\begin{frame}
+\begin{figure}[h!]
+\centering
+\begin{adjustbox}{center}
+%\resizebox{\textwidth}{!}{
+\begin{tabular}{cc}
+\includegraphics[width=0.55\textwidth, trim = {4.1cm, 9.5cm, 4.1cm, 9.5cm}, clip]{"../Figures/FULLRD3".pdf} & %trim={<left> <lower> <right> <upper>}
+\includegraphics[width=0.55\textwidth, trim = {4.1cm, 9.5cm, 4.1cm, 9.5cm}, clip]{"../Figures/FULLRD4".pdf}   %trim={<left> <lower> <right> <upper>}
+\end{tabular}
+%}
+\end{adjustbox}
+\end{figure}
+\end{frame}
+
+\begin{frame}
+\begin{figure}[h!]
+\centering
+\begin{adjustbox}{center}
+%\resizebox{\textwidth}{!}{
+\begin{tabular}{cc}
+\includegraphics[width=0.55\textwidth, trim = {4.1cm, 9.5cm, 4.1cm, 9.5cm}, clip]{"../Figures/FULLRD5".pdf} & %trim={<left> <lower> <right> <upper>}
+\includegraphics[width=0.55\textwidth, trim = {4.1cm, 9.5cm, 4.1cm, 9.5cm}, clip]{"../Figures/FULLRD6".pdf}  \\%trim={<left> <lower> <right> <upper>}
+\includegraphics[width=0.5\textwidth, trim = {4.1cm, 14.8cm, 4.1cm, 9.5cm}, clip]{"../Figures/FULLRD7".pdf} & \includegraphics[width=0.5\textwidth, trim = {4.1cm, 9.5cm, 4.1cm, 15cm}, clip]{"../Figures/FULLRD7".pdf}
+\end{tabular}
+%}
+\end{adjustbox}
+\end{figure}
+\end{frame}
+
+
+\begin{frame}
+\begin{footnotesize}
+IRF's Following 0.1 sd R\&D Shock to Sector 1 ($\chi_1$) - With R\&D Spillovers ($\rho_{Mri} = 0.2\ \forall\ i$), and Adoption Spillovers ($\rho_{Mai} = 0.1\ \forall\ i$)  \\ \vspace{1mm}
+{\tiny Using a 1st-order Taylor Expansion of the model (symmetric stylized calibration) around the steady-state, with stochastic simulation over 20,000 periods (200 periods burn-in).\par}
+\end{footnotesize} %\vspace{-2mm}
+\begin{figure}[h!]
+\centering
+\begin{adjustbox}{center}
+%\resizebox{\textwidth}{!}{
+\begin{tabular}{cc}
+\includegraphics[width=0.55\textwidth, trim = {4.1cm, 9.5cm, 4.1cm, 9.5cm}, clip]{"../Figures/FULLRDS1".pdf} & %trim={<left> <lower> <right> <upper>}
+\includegraphics[width=0.55\textwidth, trim = {4.1cm, 9.5cm, 4.1cm, 9.5cm}, clip]{"../Figures/FULLRDS2".pdf}  %trim={<left> <lower> <right> <upper>}
+\end{tabular}
+%}
+\end{adjustbox}
+\end{figure}
+\end{frame}
+
+\begin{frame}
+\begin{figure}[h!]
+\centering
+\begin{adjustbox}{center}
+%\resizebox{\textwidth}{!}{
+\begin{tabular}{cc}
+\includegraphics[width=0.55\textwidth, trim = {4.1cm, 9.5cm, 4.1cm, 9.5cm}, clip]{"../Figures/FULLRDS3".pdf} & %trim={<left> <lower> <right> <upper>}
+\includegraphics[width=0.55\textwidth, trim = {4.1cm, 9.5cm, 4.1cm, 9.5cm}, clip]{"../Figures/FULLRDS4".pdf}   %trim={<left> <lower> <right> <upper>}
+\end{tabular}
+%}
+\end{adjustbox}
+\end{figure}
+\end{frame}
+
+\begin{frame}
+\begin{figure}[h!]
+\centering
+\begin{adjustbox}{center}
+%\resizebox{\textwidth}{!}{
+\begin{tabular}{cc}
+\includegraphics[width=0.55\textwidth, trim = {4.1cm, 9.5cm, 4.1cm, 9.5cm}, clip]{"../Figures/FULLRDS5".pdf} & %trim={<left> <lower> <right> <upper>}
+\includegraphics[width=0.55\textwidth, trim = {4.1cm, 9.5cm, 4.1cm, 9.5cm}, clip]{"../Figures/FULLRDS6".pdf}  \\%trim={<left> <lower> <right> <upper>}
+\includegraphics[width=0.5\textwidth, trim = {4.1cm, 14.8cm, 4.1cm, 9.5cm}, clip]{"../Figures/FULLRDS7".pdf} & \includegraphics[width=0.5\textwidth, trim = {4.1cm, 9.5cm, 4.1cm, 15cm}, clip]{"../Figures/FULLRDS7".pdf}
+\end{tabular}
+%}
+\end{adjustbox}
+\end{figure}
+\end{frame}
+
+
+
+%----------------------------------------------------
+\section{Conclusion}
+%----------------------------------------------------
+
+\begin{noheadline}
+\begin{frame}{Conclusion}
+\begin{itemize}
+\item The model generates IRF's $>5x$ more persistent than conventional RBC IRF's in response to R\&D and skilled labor supply shocks, approx. resembling the length of the Medium-Term Cycle. 
+\item All sectors in a productive network benefit in the long-term from R\&D shocks to one sector. If there are spillovers, closely linked sectors benefit even more than the sector doing R\&D. Overall there are quite interesting and complex interactions as technology diffuses through the multi-sector economy.
+\item R\&D and skilled labor supply shocks to a single sector have prolonged aggregate economic effects via these complimentarities. 
+\end{itemize}
+\end{frame}
+\end{noheadline}
+
+\begin{noheadline}
+\begin{frame}{Further Research}
+\begin{itemize}
+\item Does the introduction of NK frictions such as price- and wage-stickiness or investment adjustment costs change the observed sectoral responses
+and the distribution of gains from the R\&D shock in some critical respect?
+\item Need to attempt calibration of the model to a real input-output network a la \citet{horvath2000} and \citet{Atalay2017} and see what it can describe in terms of real short-and medium-run fluctuations: \vspace{2mm}
+\begin{itemize} \footnotesize
+\item For some of the complex unobserved technological parameters, bayesian estimation will be necessary, with (preferably quarterly) series of VA, labor and R\&D spending for each sector $\to$ ambitious requirements for disaggregated data. 
+\item Probably necessary to add some bells and whistles and perhaps change equations a bit to really give a good fit of the data similar to the model of \citet{Anzoategui2017} $\to$ long way to go to obtain a good DSGE model. 
+\end{itemize}
+\end{itemize}
+\end{frame}
+\end{noheadline}
+
+
+
+\begin{noheadline}
+\begin{frame}{Bibliography}
+\renewcommand*{\bibfont}{\tiny}
+\bibliographystyle{apacite}
+\bibliography{RPbib}
+\end{frame}
+\end{noheadline}
+
+
+
+\end{document}

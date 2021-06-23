@@ -1,0 +1,125 @@
+% Use Beamer class, with extended Latex colours
+\documentclass[compress,xcolor=dvipsnames]{beamer}
+
+% Use miniframes: Small circles at the top telling you where you are in the presentation
+\useoutertheme[subsection=false]{miniframes}  % No miniframes for subsections
+\setbeamercolor{mini frame}{fg=NavyBlue,bg=NavyBlue} % https://tex.stackexchange.com/questions/228256/control-colors-and-shading-of-navigation-circles-in-beamer-top-line
+\setbeamerfont{headline}{size=\tiny} % Headline font size
+\useinnertheme{circles}% http://blogs.ubc.ca/khead/research/research-advice/better-beamer-presentations
+
+% https://tex.stackexchange.com/questions/44983/beamer-removing-headline-and-its-space-on-a-single-frame-for-plan-but-keepin :
+\makeatletter
+\newenvironment{noheadline}{
+    \setbeamertemplate{headline}{}
+    \addtobeamertemplate{frametitle}{\vspace*{-0.9\baselineskip}}{}
+}{}
+\makeatother
+
+% Appearance and colours
+% Available colours: https://www.overleaf.com/learn/latex/Using_colours_in_LaTeX
+% You can also define custom colours: https://martin-thoma.com/colors-in-latex/
+\mode<presentation> {
+\setbeamertemplate{caption}[numbeNavyBlue]
+\setbeamercolor{section number projected}{bg=Red,fg=white} % https://tex.stackexchange.com/questions/8011/changing-color-and-bullets-in-beamers-table-of-contents
+\setbeamertemplate{navigation symbols}{} % Swith off naviagation symbols: https://nickhigham.wordpress.com/2013/01/18/top-5-beamer-tips/
+\setbeamercolor{frametitle}{fg=NavyBlue!140}
+\setbeamercolor{title}{fg=Cerulean}
+\setbeamercolor{normal text}{fg=black!85}
+\setbeamercolor{enumerate item}{fg=NavyBlue!140}
+\setbeamercolor{enumerate subitem}{fg=NavyBlue!140}
+\setbeamercolor{enumerate subsubitem}{fg=NavyBlue!140}
+\setbeamercolor{caption name}{fg=NavyBlue}
+\setbeamercolor{itemize item}{fg=NavyBlue!140}
+\setbeamercolor{itemize subitem}{fg=NavyBlue!140}
+\setbeamercolor{itemize subsubitem}{fg=NavyBlue!140}
+\setbeamercolor{section in toc}{fg=NavyBlue!140}
+\setbeamercolor{subsection in toc}{fg=NavyBlue!120}
+\setbeamercolor{footlinecolor0}{fg=white,bg=NavyBlue!140}
+\setbeamercolor{footlinecolor1}{fg=white,bg=NavyBlue}
+\setbeamercolor{footlinecolor2}{fg=black,bg=NavyBlue!60}
+
+% Footline
+\setbeamertemplate{footline}
+{
+  \leavevmode%
+  \hbox{%
+  \begin{beamercolorbox}[wd=.3\paperwidth,ht=2.25ex,dp=1ex,center]{footlinecolor0}
+  Sebastian Krantz (IHEID) %\insertsectionhead
+  \end{beamercolorbox}%
+  \begin{beamercolorbox}[wd=.3\paperwidth,ht=2.25ex,dp=1ex,center]{footlinecolor1}
+  Authors %\insertsectionhead
+  \end{beamercolorbox}%
+  \begin{beamercolorbox}[wd=.4\paperwidth,ht=2.25ex,dp=1ex,right]{footlinecolor2}% center
+    \insertshorttitle\hspace*{2em} % 3em
+    \insertframenumber{} / \inserttotalframenumber\hspace*{1ex}
+  \end{beamercolorbox}}%
+}
+
+
+% Language and font encodings
+\usepackage[english]{babel}
+\usepackage[utf8x]{inputenc}
+\usepackage[T1]{fontenc}
+
+% Other useful packages
+\usepackage{amsmath} % Allows mathematics
+\usepackage{graphicx}  % Allows including images 
+\usepackage{booktabs} % Allows the use of \toprule, \midrule and \bottomrule in tables for pretty formatting
+\usepackage{float}        % Allows fixing the position of tables and figures using H
+\usepackage{enumitem}% Allows enumeration lists
+\setitemize{label=\textbullet, font=\large \color{Red}, itemsep=12pt} % https://stackoverflow.com/questions/4968557/latex-very-compact-itemize
+
+
+}
+
+%----------------------------------------------------------------------------------------
+%	TITLE PAGE
+%----------------------------------------------------------------------------------------
+\title[Short Title]{\textbf{Main Title}} % The short title appears at the bottom of every slide, the full title is only on the title page
+
+\author{Author} % Your name
+\institute[The Graduate Institute]
+{
+Presented by Sebastian Krantz, \\ \vspace{2mm} Geneva Graduate Institute\\ % Your institution for the title page
+\bigskip
+%{\large  International Conference on Capital Flows and Safe Assets} % Conference Name (optional)
+}
+\date{\today} % Date, can be changed to a custom date
+
+\begin{document}
+
+\begin{noheadline}
+\begin{frame} 
+\titlepage 
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+%	PRESENTATION SLIDES
+%----------------------------------------------------------------------------------------
+
+\begin{frame}
+\frametitle{Table of Contents}
+\tableofcontents
+\end{frame}
+
+
+%------------------------------------------------
+\section{Introduction}
+%------------------------------------------------
+
+\begin{frame}
+\frametitle{Introduction}
+\begin{itemize}
+\item 
+\end{itemize}
+\end{frame}
+\end{noheadline}
+
+\begin{frame}
+\begin{itemize}
+\item 
+\end{itemize}
+\end{frame}
+
+
+\end{document}

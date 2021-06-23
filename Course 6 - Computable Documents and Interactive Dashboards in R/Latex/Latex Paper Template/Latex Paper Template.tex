@@ -1,0 +1,147 @@
+\documentclass[a4paper]{article}
+
+%% Language and font encodings
+\usepackage[english]{babel}      % english spellc hecking 
+\usepackage[utf8x]{inputenc}   % whenever you use unicode (non ASCII) characters
+\usepackage[T1]{fontenc}         % Font encoding: https://tex.stackexchange.com/questions/664/why-should-i-use-usepackaget1fontenc
+
+% Optionally we can set a different font, such as helvetica neue
+\usepackage[scaled=1]{helvet}
+\renewcommand\familydefault{\sfdefault}
+
+
+%% Sets page size and margins
+\usepackage[a4paper,top=3cm,bottom=2cm,left=3cm,right=3cm,marginparwidth=1.75cm]{geometry}
+
+%% Useful packages
+\usepackage{amsmath} % Neded for mathematical symbols
+\usepackage{graphicx}  % Needed for figures
+\usepackage{booktabs} % Needed for pretty tables
+\usepackage{float}        % Fix position of tables and figures using a [H] after \begin{table} and \begin{figure}
+\usepackage[colorlinks=true, allcolors=blue]{hyperref} % Make sure links to tables and figures are highlighted in blue
+\addto\captionsenglish{\renewcommand*\contentsname{Table of Contents}} % Make sure the table of contents is headed by "Table of Contents" and not just "Contents"
+
+\title{\textbf{Latex Example Article}}
+\author{Sebastian Krantz}
+\date{\today} 
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+\end{abstract}
+
+\tableofcontents
+\listoftables
+\listoffigures
+
+
+\newpage %starts new page
+
+\section{Introduction}
+Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?
+
+\section{Section} 
+\subsection{Subsection}
+\subsubsection{Subsubsection}
+\subsection{list}
+\begin{itemize}%Creates lists
+\item Item1
+\item Item2
+\begin{itemize}%Creates list inside list
+\item Item21
+\item Item22
+\item Item23
+\end{itemize}
+\item Item3
+\end{itemize}
+
+\subsection*{Enumeration} % The * here omits automatic section numbering
+
+\begin{enumerate}%Creates numbers list
+\item Item1
+\begin{enumerate}
+\item Item1
+\item Item2
+\end{enumerate}
+\item Item2
+\end{enumerate}
+
+some text
+
+\subsection*{Equations} % The * here omits automatic section numbering
+
+% Equations
+\begin{equation} 
+e = mc^2
+\end{equation}
+
+\begin{equation}
+\underset{y_{kt}}{max}\quad p_t\left(\int_0^{a_t}y_{kt}^{\frac{\psi-1}{\psi}}dk\right)^{\frac{\psi}{\psi-1}}-\int_0^{a_t}p_{kt}y_{kt}dk
+\end{equation}
+
+
+We can also write inline math between \$ operators such as $e=mc^2$, or $\Delta y_t = y_t - y_{t-1}$.
+
+
+
+\begin{figure}[H]
+\centering
+\caption{\textsc{Uganda Secondary School and Population Density}}
+\label{fig:pl1}
+\includegraphics[width=1\textwidth, trim= {0 0 0 0}, clip]{"Schools and Population Choropleth".pdf} %trim={<left> <lower> <right> <upper>}
+\end{figure}
+
+Figure \ref{fig:pl1} shows the secondary school and population density in Uganda. 
+
+\newpage %starts new page
+\section{Simple Tables}
+
+Simples table: Left-aligned numbers
+\begin{center} %align center
+\begin{tabular}{lll} %tables are a bit complicated.you can also put tabular inside an equation
+1 & 2.4545 & 3.1\\
+4 & 5.35 & 6.545\\
+7&8&9\\
+\end{tabular}
+\end{center}
+
+Another table: With borders and different alignment
+\begin{center}%align center
+\begin{tabular}{|l|c|r|} \hline
+1 & 2 & 3\\ \hline
+4 & 5 & 6\\
+7 & 8 & 9 \\
+7 & 8 & 9 \\ \hline
+\end{tabular}
+\end{center}
+
+\newpage %starts new page
+\section{Publication Quality Tables}
+
+\begin{table}[H]
+\centering
+\caption{\textsc{Dependent Variables Predicted}}
+\label{tab:DEPPRED}
+\vspace{2mm}
+\resizebox{1\textwidth}{!}{ %This ensures that the width of the table matches the width of the document (remove for smaller tables that have a width less than the document)
+\begin{tabular}{lccccccc} \toprule
+\textit{Variables} & \textit{N} & \textit{Mean} & \textit{SD} & \textit{Min} & \textit{Max} & \textit{Skew} & \textit{Kurt} \\ \midrule
+GDP per capita PPP, PWT version 6.3 & 1,497 & 2,290 & 2,361 & 154 & 23,444 & 3.38 & 20.6 \\
+GDP per capita growth PPP, PWT version 6.3 & 1,497 & 0.91 & 9.29 & -62.4 & 123 & 2.93 & 38.7 \\
+WDI - GDP per capita growth & 1,393 & 0.96 & 8.40 & -50.2 & 142 & 4.52 & 74.8 \\
+B\&L - Conflict year (25+ battle deaths in current year) & 1,497 & 0.20 & 0.40 & 0 & 1 & 1.51 & 3.29 \\
+LAN - UCDP Non-State Conflict & 834 & 0.32 & 0.96 & 0 & 8 & 4.06 & 22.3 \\
+B\&L - Onset (>25 death) after >2 years of peace & 1,497 & 0.043 & 0.20 & 0 & 1 & 4.52 & 21.4 \\
+KOB - Civil Conflict Onset (>25 deaths) after >9 years of peace & 1,317 & 0.029 & 0.17 & 0 & 1 & 5.63 & 32.7 \\
+KOB - Conflict onset (>1000 deaths) after >9 years of peace & 1,317 & 0.012 & 0.11 & 0 & 1 & 8.91 & 80.3 \\
+BBST - PRIO battle deaths best estimate & 1,497 & 577 & 2,834 & 0 & 36,250 & 8.63 & 91.3 \\ \bottomrule
+\end{tabular}
+}
+\end{table}
+
+
+Table \ref{tab:DEPPRED} shows summary satistics of various indicators.  
+
+\end{document}
