@@ -1,0 +1,79 @@
+---
+title: "Current Account and Balance of Trade"
+author: "Sebastian Krantz"
+date: "6/24/2021"
+output: 
+  html_document:
+    theme: cerulean
+    toc: true
+    toc_float: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE, cache = TRUE)
+
+```
+
+```{css}
+/*
+body{
+  background-color: #959a9c;
+}
+
+h2{
+  font-weight: bold;
+}
+*/
+```
+
+```{r, data, include=FALSE}
+library(ugatsdb)
+ugatsdb_reconnect()
+bop_data <- get_data("BOU_BOP", c("CAB", "CA_G"))
+names(bop_data)[-1] <- c("Current Account", "Balance of Trade")
+```
+
+```{r constants, include=FALSE}
+mean_CAB <- mean(bop_data$`Current Account`)
+mean_TB <- mean(bop_data$`Balance of Trade`)
+
+text <- if(mean_CAB > mean_TB) "higher" else "lower"
+```
+
+## A Static Plot
+
+The plot below shows the quarterly **current account balance** and **balance of trade for Uganda**.
+The average CAB over the period has been **`r round(mean_CAB)`** whereas the average trade balance has been **`r round(mean_TB)`**. Thus on average the CAB has been `r if(mean_CAB > mean_TB) "higher" else "lower"` than the TB. 
+
+```{r static}
+library(xts)
+bop_xts <- as.xts(bop_data)
+plot(bop_xts, legend.loc = "topright", 
+     main = "Current account and balance of trade",
+     yaxis.right = FALSE)
+
+```
+
+You can see that both move together very closely. We can observe:
+
+* CAB is initially a lot higher than TB
+* CAB deteriorates and is about equal to TB in 2010
+  + Yet the CAB is more volatile than the TB
+
+## A Dynamic Plot
+
+This shows a dynamic plot of the same thing. 
+
+```{r dynamic}
+library(dygraphs)
+dygraph(bop_xts)
+```
+ 
+### A table 
+
+```{r, results='asis'}
+
+knitr::kable(tail(bop_data))
+```
+
+

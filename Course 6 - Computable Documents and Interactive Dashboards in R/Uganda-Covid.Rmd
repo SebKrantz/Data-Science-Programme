@@ -1,0 +1,82 @@
+---
+title: "COVID-Uganda"
+author: "Sebastian Krantz"
+date: "6/24/2021"
+output: beamer_presentation
+    
+header-includes:
+  \usepackage{booktabs}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+```{r data, include=FALSE}
+ugatsdb::ugatsdb_reconnect()
+data <- ugatsdb::get_data("MOF_POE", c("CIEA", "BTI", "PMI", "EX", "IM", "TB"), from = 2019)
+data_xts <- xts::as.xts(data)
+library(collapse)
+lab <- vlabels(data)
+```
+
+## Indicators
+
+The impact of the COVID pandemic on Uganda can be seen through the following indicators.
+
+```{r table}
+library(kableExtra)
+library(magrittr)
+qsu(data, cols = -1, vlabels = TRUE) %>% 
+  round(2) %>%
+   kbl(format = "latex", booktabs = TRUE, linesep = "", 
+       caption = "Key Economic Indicators") %>% 
+     kable_styling(latex_options = "scale_down")
+```
+
+**PMI** and **BTI** are indices with a threshold at 50, below which economic 
+activity is considered to be low. The **CIEA** is an index composed of increasing variables. 
+
+## Composite Index of Economic Activity
+
+- The **CIEA** shows a sharp drop between February and July 2020, when Uganda had the first lockdown. 
+
+```{r}
+plot(data_xts[, "CIEA"], col = "orange", main = lab["CIEA"])
+```
+
+## Business Tendency Indicator
+
+- The **BTI** shows a sharp drop in Fbruary 2020, and has not quite recovered yet in spring 2021.  
+
+```{r}
+plot(data_xts[, "BTI"], col = "darkgreen", main = lab["BTI"])
+```
+
+## Purchasing Managers Index
+
+- The **PMI** shows a sharp drop in between February and September 2020.  
+
+```{r}
+plot(data_xts[, "PMI"], col = "magenta", main = lab["PMI"])
+```
+
+## Exports and Imports
+
+- Exports and Imports declined between May and August 2020.   
+
+```{r}
+plot(data_xts[, c("EX", "IM")], main = "Exports and Imports (US$ millions)", legend.loc = "topleft")
+```
+
+## Balance of Trade 
+
+- The trade balance has improved slightly suring the lockdown, as other countries did not have such a stringent lockdown.    
+
+```{r}
+plot(data_xts[, "TB"], col = "red", main = lab["TB"])
+```
+
+## Conclusion
+
+- COVID-19 and the first lockdown between March 2020 and July 2020 had a profound impact on the Ugandan economy. 
