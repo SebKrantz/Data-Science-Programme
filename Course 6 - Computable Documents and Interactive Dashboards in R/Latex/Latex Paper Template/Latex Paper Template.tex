@@ -1,4 +1,4 @@
-\documentclass[a4paper]{article}
+\documentclass[a4paper, 14pt]{article}
 
 %% Language and font encodings
 \usepackage[english]{babel}      % english spellc hecking 
@@ -6,9 +6,8 @@
 \usepackage[T1]{fontenc}         % Font encoding: https://tex.stackexchange.com/questions/664/why-should-i-use-usepackaget1fontenc
 
 % Optionally we can set a different font, such as helvetica neue
-\usepackage[scaled=1]{helvet}
-\renewcommand\familydefault{\sfdefault}
-
+% \usepackage[scaled=1]{helvet}
+% \renewcommand\familydefault{\sfdefault}
 
 %% Sets page size and margins
 \usepackage[a4paper,top=3cm,bottom=2cm,left=3cm,right=3cm,marginparwidth=1.75cm]{geometry}
@@ -45,7 +44,9 @@ Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium dolor
 \section{Section} 
 \subsection{Subsection}
 \subsubsection{Subsubsection}
+
 \subsection{list}
+
 \begin{itemize}%Creates lists
 \item Item1
 \item Item2
@@ -103,7 +104,7 @@ Simples table: Left-aligned numbers
 \begin{tabular}{lll} %tables are a bit complicated.you can also put tabular inside an equation
 1 & 2.4545 & 3.1\\
 4 & 5.35 & 6.545\\
-7&8&9\\
+7 & 8 & 9\\
 \end{tabular}
 \end{center}
 
