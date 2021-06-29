@@ -116,7 +116,23 @@ plot(EuStockMarkets)
 # for uganda, create an automatic HTML report that displays both together in a chart created with
 # ggplot2 or xts plot() and some brief commentary. 
 
+# remotes::install_github('https://github.com/SebKrantz/UGATSDB', auth_token = paste0('ghp_PDwAszQN2T', 'n9nKaPnQUyrZPt7L3iPw3YQ7wh'))
 
+library(ugatsdb)
+ugatsdb_reconnect()
+View(datasets())
+View(series("BOU_BOP"))
+bop_data <- get_data("BOU_BOP", c("CAB", "CA_G"))
+help("ugatsdb")
+
+library(xts)
+bop_xts <- as.xts(bop_data)
+plot(bop_xts, legend.loc = "topright", 
+     main = "Current account and balance of trade",
+     yaxis.right = FALSE)
+
+library(dygraphs)
+dygraph(bop_xts)
 
 
 # Inline Code
@@ -190,14 +206,14 @@ library(collapse)
 lab <- vlabels(data)
 
 # This generates A table of summary statistics in latex
-kableExtra::kbl(round(qsu(data, cols = -1, vlabels = TRUE), 2), "latex", 
+kableExtra::kbl(round(qsu(data, cols = -1, vlabels = TRUE), 2), format = "latex", 
                 booktabs = TRUE, linesep = "")
 
 # This generates some plots
 plot(data_xts[, "CIEA"], col = "orange", main = lab["CIEA"])
 plot(data_xts[, "BTI"], col = "darkgreen", main = lab["BTI"])
 plot(data_xts[, "PMI"], col = "magenta", main = lab["PMI"])
-plot(data_xts[, c("EX", "IM")], main = "Exports and Imports (US$ millions)")
+plot(data_xts[, c("EX", "IM")], main = "Exports and Imports (US$ millions)", legend.loc = "topleft")
 plot(data_xts[, "TB"], col = "red", main = lab["TB"])
 
 # Add the table with statistics and the plot to the Rmarkdown beamer presentation. 
@@ -267,6 +283,11 @@ plot(data_xts[, "TB"], col = "red", main = lab["TB"])
 # and print it to latex using the kableExtra package. Set up an Rmarkdown 
 # Document that renders to Latex and includes the table.
 
+library(readxl)
+library(kableExtra)
+fiscal <- read_excel("Computable POE/data/POE-other-data.xlsx")
+ kbl(fiscal, format = "latex")
+
 # (b) Paste the data in https://www.tablesgenerator.com/latex_tables and generate a Latex table.
 # Paste that table into the Latex document template provided in the materials and render the document. 
 
@@ -283,7 +304,7 @@ plot(data_xts[, "TB"], col = "red", main = lab["TB"])
 # Also: apexcharter, d3r. 
 
 # Plotly is arguable the most flexible and commonly used interactive visualization library in the R community. 
-# It as pased on D3 - Data Driven Documents (https://d3js.org/), a very powerful JavaScript charting library 
+# It as based on D3 - Data Driven Documents (https://d3js.org/), a very powerful JavaScript charting library 
 # More at https://en.wikipedia.org/wiki/Plotly and https://plotly.com/
 
 # For R the website and guidance is: https://plotly.com/r/

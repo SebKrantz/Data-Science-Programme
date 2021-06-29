@@ -18,7 +18,6 @@ install.packages('flexdashboard')
 
 # Links: 
 # https://pkgs.rstudio.com/flexdashboard/
-# http://rmarkdown.rstudio.com/flexdashboard/
 # https://bookdown.org/yihui/rmarkdown/dashboards.html
 
 
@@ -26,7 +25,7 @@ install.packages('flexdashboard')
 #***************************************************************************
 
 # Task: Make a COVID dahboard for Uganda, East Africa or the whole world, including vaccination progress. 
-# Use interactiv vidualizations provided by https://www.htmlwidgets.org/ (in particular plotly)
+# Use interactive visualizations provided by https://www.htmlwidgets.org/ (in particular plotly)
 
 # COVID Dashboard Example (using plotly for visualization): 
 # https://github.com/RamiKrispin/coronavirus_dashboard
@@ -35,4 +34,7 @@ install.packages('flexdashboard')
 install.packages("COVID19")
 
 
+library(COVID19)
 
+COVID19 <- covid19()
+View(COVID19)
