@@ -1,0 +1,29 @@
+---
+title: "Fiscal"
+author: "Sebastian Krantz"
+date: "6/25/2021"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r fiscal, results='asis'}
+library(readxl)
+library(kableExtra)
+library(collapse)
+library(magrittr)
+fiscal <- read_excel("Computable POE/data/POE-other-data.xlsx")
+settransformv(fiscal, -1, as.numeric)
+settransformv(fiscal, 4, scales::percent)
+
+ kbl(fiscal, format = "latex", booktabs = TRUE, linesep = '') %>%
+   kable_classic() %>%
+   row_spec(1, hline_after = TRUE) %>%
+   row_spec(c(8, 22), hline_after = TRUE) %>%
+   row_spec(c(1,9,23), bold = TRUE)
+   
+```
+
