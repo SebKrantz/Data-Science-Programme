@@ -32,9 +32,24 @@ install.packages('flexdashboard')
 
 # Worldwide Data (Including Vaccination Progress)
 install.packages("COVID19")
-
-
 library(COVID19)
-
-COVID19 <- covid19()
+COVID19 <- covid19() # get data for whole world, or for some countries e.g. country == "UGA"
 View(COVID19)
+
+
+### Publishing your Dashboard ----------------------------------------------
+
+# Publishing at shinyapps.io (need to make free account and add 'runtime: shiny' to dashboard header), 
+# then you can publish from Rstudio:
+# https://www.shinyapps.io/
+# https://community.rstudio.com/t/how-to-deploy-a-shiny-rmd-file-to-shinyapps-io/30605
+# https://community.rstudio.com/t/flexdashboard-publishing/40476
+
+# Alternatively (for static dashboards which do not need to be updated), you can render the dashboard
+# to a simple website using rmarkdown::render, and then publish using github pages: 
+# https://pages.github.com/
+# https://www.r-bloggers.com/2020/09/deploying-flexdashboard-on-github-pages/
+
+
+# My COVID Dashboard published at shinyapps.io: 
+# https://mepd.shinyapps.io/COVID-19/
