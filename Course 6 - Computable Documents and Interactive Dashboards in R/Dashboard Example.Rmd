@@ -1,0 +1,115 @@
+---
+title: "Untitled"
+output: 
+  flexdashboard::flex_dashboard:
+    theme: yeti
+    orientation: rows
+    vertical_layout: fill
+    css: db.css
+    
+---
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+library(dygraphs)
+library(tsbox)
+
+
+```
+
+Page 1 {data-navmenu="Menu A"}
+===================================== 
+
+Row
+-----------------------------------------------------------------------
+
+### Articles per Day
+
+```{r}
+articles <- 45
+valueBox(articles, icon = "fa-pencil")
+```
+
+### Comments per Day
+
+```{r}
+comments <- 345
+valueBox(comments, icon = "fa-comments")
+```
+
+### Spam per Day
+
+```{r}
+spam <- 10
+valueBox(spam, 
+         icon = "fa-trash",
+         color = ifelse(spam > 10, "warning", "primary"))
+```
+
+Row {.tabset .tabset-fade data-width=500}
+-----------------------------------------------------------------------
+
+### Chart A
+
+```{r}
+dygraph(ts_xts(AirPassengers))
+```
+
+### Table
+
+```{r}
+DT::datatable(mtcars, options = list(
+  bPaginate = FALSE
+))
+```
+
+
+Rows {.tabset .tabset-fade data-width=500}
+-----------------------------------------------------------------------
+
+### Chart B
+
+```{r}
+dygraph(ts_xts(sunspots))
+```
+
+### Chart C
+
+```{r}
+dygraph(ts_xts(airmiles))
+```
+
+Page 2 {data-navmenu="Menu A"}
+===================================== 
+
+
+Row
+-----------------------------------------------------------------------
+
+
+### Articles per Day
+
+```{r}
+articles <- 45
+gauge(articles, min = 0, max = 50, gaugeSectors(
+  success = c(41, 50), warning = c(21, 40), danger = c(0, 20)
+))
+```
+
+### Comments per Day
+
+```{r}
+comments <- 345
+gauge(comments, min = 0, max = 500, gaugeSectors(
+  success = c(41, 500), warning = c(21, 40), danger = c(0, 20)
+))
+```
+
+### Spam per Day
+
+```{r}
+spam <- 10
+gauge(spam, min = 0, max = 50, gaugeSectors(
+  success = c(41, 500), warning = c(21, 40), danger = c(0, 20)
+))
+```
