@@ -10,3 +10,10 @@ List*of*Participants.xlsx
 *.db
 Adapted*R*Workshop/
 Promotion/
+*_files
+*_cache
+*.aux
+*.log
+*.out
+*.gz
+*.bak
