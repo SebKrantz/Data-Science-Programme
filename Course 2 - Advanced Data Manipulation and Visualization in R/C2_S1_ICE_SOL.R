@@ -177,7 +177,7 @@ qsu(UNHS_pov, fexp30 + welfare ~ urban, ~ district, ~ finalwgt)
 # (3) Compute the median, 1st and 2rd quartile of 'welfare' by 'regurb'. 
 # TIP: Use fsummarise and fnth, also utilize the weights 'finalwgt' 
 welQ <- UNHS_pov %>% fgroup_by(regurb) %>% 
-  fsummarise(Nobs = fNobs(welfare),
+  fsummarise(Nobs = fnobs(welfare),
              Sumw = fsum(finalwgt),
              welfare_1Q = fnth(welfare, 0.25, finalwgt),
              welfare_med = fmedian(welfare, finalwgt), 

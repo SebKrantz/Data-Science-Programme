@@ -58,9 +58,9 @@ qsu(Chile)
 hist(Chile$statusquo)
 descr(Chile)
 pwcor(Chile, P = TRUE)
-fNobs(Chile)
-pwNobs(Chile)     # May be important for omitting variables that take out a lot of observations
-fNdistinct(Chile) # Any dummies? 
+fnobs(Chile)
+pwnobs(Chile)     # May be important for omitting variables that take out a lot of observations
+fndistinct(Chile) # Any dummies? 
 pairs(Chile)      # Plotting
 
 # Some advanced Visualization tools

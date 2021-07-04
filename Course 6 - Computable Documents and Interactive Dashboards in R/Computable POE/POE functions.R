@@ -155,7 +155,7 @@ lineplot <- function(data,
     (if(line.shapes) geom_line(aes(linetype = variable), size = if(interactive) 0.5 else 1) else 
                      geom_line(size = if(interactive) 0.5 else 1)) + 
     (if(!is.null(hline)) geom_hline(yintercept = hline, size = if(interactive) 0.25 else 0.5) else NULL) + 
-    scale_x_date(breaks = pretty_breaks(n = min(fNdistinct(data$Date), 12L)), expand = c(if(point.labels) 0.05 else 0.03, 0)) +  
+    scale_x_date(breaks = pretty_breaks(n = min(fndistinct(data$Date), 12L)), expand = c(if(point.labels) 0.05 else 0.03, 0)) +  
     scale_y_continuous(breaks = pretty_breaks(n = y.nbreaks), labels = y.labels.format, ...) +  
     (if(point.labels && !interactive)
       geom_text_repel(aes(label = labvalue), show.legend = FALSE, point.padding = 0.5, min.segment.length = 0.2, 
@@ -233,7 +233,7 @@ barplot <- function(data,
     geom_bar(stat = "identity", position = position, alpha = 0.8) +
     (if(!is.null(hline)) geom_hline(yintercept = hline, size = if(interactive) 0.25 else 0.5) else NULL) + 
     (if(transpose) scale_x_discrete() else 
-      scale_x_date(breaks = pretty_breaks(n = min(fNdistinct(data$Date), 12L)), expand = c(0.03, 0))) +  
+      scale_x_date(breaks = pretty_breaks(n = min(fndistinct(data$Date), 12L)), expand = c(0.03, 0))) +  
     scale_y_continuous(breaks = pretty_breaks(n = y.nbreaks), labels = y.labels.format, ...) + 
     (if(point.labels && !interactive) geom_text(aes(label = labvalue), position = position, size = 0.35 * point.labels.size,
                                                 vjust = fifelse(data$value > 0, -0.3, 1.3), colour = "grey30", inherit.aes = TRUE) else NULL) +
@@ -292,7 +292,7 @@ areaplot <- function(data,
     ggplot(data, aes(x = Date, y = value, fill = variable)) +
     geom_area(position = position, alpha = 0.8) +
     (if(!is.null(hline)) geom_hline(yintercept = hline, size = if(interactive) 0.25 else 0.5) else NULL) + 
-    scale_x_date(breaks = pretty_breaks(n = min(fNdistinct(data$Date), 12L)), expand = c(0.03, 0)) +
+    scale_x_date(breaks = pretty_breaks(n = min(fndistinct(data$Date), 12L)), expand = c(0.03, 0)) +
     scale_y_continuous(breaks = pretty_breaks(n = y.nbreaks), labels = y.labels.format, ...) + 
     switch(tolower(colours), rainbow = rainbow_colours, scale_fill_brewer(palette = colours)) +
     labs(title = title) + 

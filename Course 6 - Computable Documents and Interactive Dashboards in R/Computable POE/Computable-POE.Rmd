@@ -419,9 +419,9 @@ Securities worth Shs 479.09 billion were issued for the refinancing of maturing 
 GS_tab <- data_ft %>% get_vars(c('Date', 'GS_TOT', 'GS_DB', 'GS_REF')) %>%
           expand_date %>%
           collap(GS_TOT + GS_DB + GS_REF + Year + Month ~ FY + QFY,
-                 list(fsum, fNobs, flast), flast)
+                 list(fsum, fnobs, flast), flast)
 # Part 1
-GS_tab1 <- fsubset(GS_tab, fNobs.GS_DB == 3L, FY, QFY, fsum.GS_TOT, 
+GS_tab1 <- fsubset(GS_tab, fnobs.GS_DB == 3L, FY, QFY, fsum.GS_TOT, 
                    fsum.GS_DB, fsum.GS_REF) %>%
            tail(2L) %>% rm_stub("fsum.") %>%
            ftransform(Yearmon = paste(QFY, FY), FY = NULL, QFY = NULL)
@@ -741,7 +741,7 @@ pl <- ftransform(data, EX_NGOLD = EX - EX_GOLD) %>%
   fselect(Date, EX, EX_NGOLD) %>% ss(-fnrow(.)) %>%
   expand_date(gen = c("Month", "FY"), keep.date = FALSE) %>%
   fsubset(unclass(FY) > min(unclass(FY))) %>%
-  fsubset(fNobs(Month, Month, TRA = "replace_fill") > 1L) %>%
+  fsubset(fnobs(Month, Month, TRA = "replace_fill") > 1L) %>%
   ftransform(Month = factor(Month, levels = unique(Month))) %>%
   melt(1:2, variable.factor = FALSE) %>% 
   recode_char(EX = "Total Exports", 

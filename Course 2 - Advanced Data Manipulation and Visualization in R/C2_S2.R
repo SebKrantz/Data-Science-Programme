@@ -55,7 +55,7 @@ histplot <- function(data, max.bins = 60L) {
   names(data) <- qsu(data)[, 1:3] %>% round(1L) %>% qDF("Name") %>% {
                  do.call(sprintf, c(list("%s\nN: %s Mean: %s, SD: %s"), .)) }
   # For each variable set number of Bins to the number of distinct values, if the number of distinct values is smaller than 60. otherwise, number of bins is 60
-  mybins <- fNdistinct(data)
+  mybins <- fndistinct(data)
   mybins[mybins > max.bins] <- max.bins
   # Reshape the data to long form:
   dat <- melt(qDT(data))
