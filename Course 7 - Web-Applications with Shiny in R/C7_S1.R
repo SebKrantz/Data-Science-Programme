@@ -17,7 +17,7 @@
 # (4) Observers, Update Statements and Full Reactivity
 # (5) R Packages Extending Shiny
 # (6) Custom HTML and CSS Elements
-# (7) Case-Study: Macro Data Portal
+# (7) Case-Study: Shiny Data Portal
 # (8) Case-Study: Census Mapping App
 # (9) Publishing Shiny Applications
 
@@ -505,6 +505,69 @@ HTML("<b> bold text </b>") # Use HTML to write raw HTML
 
 
 runExample("08_html")       # Shiny app built from HTML
+
+
+
+# (7) Case-Study: Shiny Data Portal ----------------------------------------
+#***************************************************************************
+
+runApp("Full Apps/shiny-data-portal")
+
+# NOTE: This is an open-source version, the code together with detailed setup instructions has 
+# also been made available online at: https://github.com/SebKrantz/shiny-data-portal
+
+# An advanced version of this (that loads data from a database) has been deployed at 
+# https://mepd.finance.go.ug/apps/macro-data-portal
+# to provide you and the general public with timely and tidy macroeconomic data for Uganda. 
+
+# To get data from an existing database you can use DBI::dbConnect and DBI::dbGetquery
+# More info at https://cran.r-project.org/web/packages/DBI/vignettes/DBI.html 
+# and https://shiny.rstudio.com/articles/#data or https://db.rstudio.com/getting-started/
+
+
+#****************************
+### In-Class Exercise 7 -----
+#****************************
+
+# In the published version of the portal at mepd.finance.go.ug/apps/macro-data-portal,
+# there are a number of additional features. One of them, is that for "Excel" downloads
+# there is an additional checkbox "Transpose / Row-Based Format" which enables the user 
+# to get the data in a row-based excel file. Implement this in the data portal here, 
+# using a conditionalPanel() in the user interface so the option only becomes available if
+# "Exel" is chosen as download format. write only the numeric variables using 
+# collapse::num_vars and transpose the data using data.table::transpose. Use the first column as
+# variable names. 
+
+# e.g.:
+setNames(data.table::transpose(collapse::num_vars(iris)), as.character(iris[[1]]))
+
+# Bonus: Try to write a more sophisticated implementation that prints numeric and categorical 
+# variables (collapse::cat_vars) to different sheets. 
+
+
+# (8) Case-Study: Census Mapping App ----------------------------------------
+#***************************************************************************
+
+runApp("Full Apps/census-mapper")
+
+# NOTE: This is the full version of the app, as it is deployed at mepd.finance.go.ug/apps/census-map
+# This code has also been made available open source at: https://github.com/SebKrantz/Census-Mapper
+
+# There is some processing involved from getting the raw shapefile from UBOS, generating consistent 
+# column names, aggregating it to different administrative levels and simplifying the geometries so they
+# can be visualized efficiently with leaflet. I have just provided you the final datasets here. 
+# I can provide details about these computations during private consultations or a course on geospatial computing 
+# (If there is significant interest in that, it was planned at the end of the data science programme)
+
+
+#****************************
+### In-Class Exercise 8 -----
+#****************************
+
+# Please add a "Download" tab to the Census-Map control panel, 
+# where a user is able to download the shapefile at any available aggregation level. 
+# you can use sf::st_write(data, "DATA.shp") to write shapefiles. 
+
 
 
 # (9)  Publishing Shiny Applications --------------------------------------
