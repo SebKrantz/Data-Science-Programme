@@ -51,7 +51,7 @@ setwd("Course 7 - Web-Applications with Shiny in R")
 install.packages("shiny")
 
 # Let's look at the first Example App:  
-runExample("01_hello") # Code saved as app_1.R under Example Apps Folder
+runExample("01_hello") # Code saved as app1.R under Example Apps Folder
 
 # This is the server function:
 source("Example Apps/app_1_server.r")
