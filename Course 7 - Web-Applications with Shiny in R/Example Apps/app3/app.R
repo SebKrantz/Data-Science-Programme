@@ -1,5 +1,9 @@
 library(shiny)
 
+
+chlist <- as.list(unique(unclass(iris$Species)))
+names(chlist) <- levels(iris$Species)
+
 # Define UI ----
 ui <- fluidPage(
   titlePanel("Basic widgets"),
@@ -20,9 +24,7 @@ ui <- fluidPage(
     column(3, 
            checkboxGroupInput("checkGroup", 
                               h3("Checkbox group"), 
-                              choices = list("Choice 1" = 1, 
-                                             "Choice 2" = 2, 
-                                             "Choice 3" = 3),
+                              choices = chlist,
                               selected = 1)),
     
     column(3, 

@@ -49,14 +49,25 @@ setwd("Course 7 - Web-Applications with Shiny in R")
 # Here I will follow the written tutorial: https://shiny.rstudio.com/tutorial/written-tutorial/lesson1/
 
 install.packages("shiny")
+library(shiny)
 
 # Let's look at the first Example App:  
 runExample("01_hello") # Code saved as app1.R under Example Apps Folder
+
+runApp("Example Apps/app1", display.mode = "showcase")
 
 # This is the server function:
 source("Example Apps/app_1_server.r")
 r <- server(input = list(bins = 1), output = list())
 str(r)
+
+# This simply executes the code inside the server function:
+x    <- faithful$waiting
+bins <- seq(min(x), max(x), length.out = 30 + 1)
+
+hist(x, breaks = bins, col = "#75AADB", border = "white",
+     xlab = "Waiting time to next eruption (in mins)",
+     main = "Histogram of waiting times")
 
 # Every Shiny app has the same structure: an app.R file that contains ui and server. 
 # You can create a Shiny app by making a new directory and saving an app.R file inside it. 
@@ -127,6 +138,9 @@ img(src = "my_image.png", height = 72, width = 72) # Image + width and height in
 # https://shiny.rstudio.com/tutorial/written-tutorial/lesson2/
 # (try to recreate the layout)
 
+runApp("Example Apps/lesson2", display.mode = "showcase")
+
+
 
 # Widgets: https://shiny.rstudio.com/tutorial/written-tutorial/lesson3/
 # What’s a widget? A web element that your users can interact with. Widgets provide a way for your users to send messages to the Shiny app.
@@ -143,6 +157,8 @@ img(src = "my_image.png", height = 72, width = 72) # Image + width and height in
 
 # In this example, the name is “action” and the label is “Action”: actionButton("action", label = "Action")
 # The remaining arguments vary from widget to widget, depending on what the widget needs to do its job. They include things like initial values, ranges, and increments. You can find the exact arguments needed by a widget on the widget function’s help page, (e.g., ?selectInput).
+
+runApp("Example Apps/app3", display.mode = "showcase")
 
 #****************************
 ### In-Class Exercise 3 -----
@@ -186,7 +202,7 @@ runApp("Example Apps/census-app", display.mode = "showcase")
 
 # Do the exercise at the end of lesson 4: https://shiny.rstudio.com/tutorial/written-tutorial/lesson4/
 
-
+runApp("Example Apps/census-app", display.mode = "showcase")
 
 # Now: Building A US Census Visualization App: https://shiny.rstudio.com/tutorial/written-tutorial/lesson5/
 #********************************************
@@ -197,7 +213,7 @@ head(counties)
 library(maps)
 library(mapproj)
 source("Example Apps/census-app/helpers.R")
-percent_map(counties$white, "darkgreen", "% White")
+percent_map(counties$white, "darkgreen", "% White", 0, 100)
 
 # App Operation: 
 
@@ -232,11 +248,13 @@ percent_map(counties$white, "darkgreen", "% White")
 # Do the exercise at the end of lesson 5: https://shiny.rstudio.com/tutorial/written-tutorial/lesson4/
 
 
+runApp("Example Apps/census-app", display.mode = "showcase")
 
 # (3) Reactive Expressions -------------------------------------------------
 #***************************************************************************
 
-# Reactive expressions let you control which parts of your app update when, which prevents unnecessary computation that can slow down your app.
+# Reactive expressions let you control which parts of your app update when, 
+# which prevents unnecessary computation that can slow down your app.
 
 runExample("03_reactivity") # a reactive expression
 
@@ -368,8 +386,8 @@ runApp("Example Apps/updatereactiveapp2", display.mode = "showcase")
 #   entire interior code.
 
 # Two examples: 
-runApp("Example Apps/updatereactive_comparison/together", display.mode = "showcase")
-runApp("Example Apps/updatereactive_comparison/separated", display.mode = "showcase")
+runApp("Example Apps/updatereactive-comparison/together", display.mode = "showcase")
+runApp("Example Apps/updatereactive-comparison/separated", display.mode = "showcase")
 
 # In practive: using observer() and reactive() also has a small computational cost,
 # so heavy modularization as shown here only makes sense if the computations are potentially expensive. 

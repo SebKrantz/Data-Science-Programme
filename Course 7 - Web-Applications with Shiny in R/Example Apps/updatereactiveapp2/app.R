@@ -3,7 +3,7 @@ server <- function(input, output, session) {
   # since both mytext and myslider are in the reactive
   # they both trigger the code to run
   myresults <- reactive({
-    paste(input$mytext, input$myslider)
+    paste(input$mytext, input$myslider) # Use isolate(input$myslider) to achieve the same as the reactiveEvent function below
   })
   
   # eventReactive here tells Shiny only to trigger this code
