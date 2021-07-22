@@ -158,7 +158,7 @@ observe({
       direction = "auto"),
     group = "Choropleth Layer"
   ) %>%
-    addLegend(pal = IN$pal, values = IN$colorData, opacity = 0.9, # input_opacity(),
+     leaflet::addLegend(pal = IN$pal, values = IN$colorData, opacity = 0.9, # input_opacity(),
               labFormat = labelFormat(transform = IN$CFUN),
               title = if(IN$topic == "Composite Indices") "Index [0 - 1]" else
                 switch(IN$unit, Number = "Population", Percent = "Percent", "Number per Km2" = "Pop. per Km2", stop("Unknown unit")),
