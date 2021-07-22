@@ -1,0 +1,72 @@
+input[type="number"] {
+  max-width: 80%;
+}
+
+div.outer {
+  position: fixed;
+  top: 0; /* 45px; */
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+  padding: 0;
+}
+
+/* Customize fonts */
+body, label, input, button, select {
+  font-family: 'Helvetica Neue', Helvetica;
+  font-weight: 200;
+}
+h1, h2, h3, h4 { font-weight: 400; }
+
+#myDiv {
+   padding: 15px 0 0 0;
+}
+#myDiv2 {
+   padding: 15px 0 0 0;
+}
+#myDiv3 {
+   padding: 0 0 0 0;
+}
+#myDiv4 {
+padding: 15px 0 0 0; /*   cursor: pointer; */
+}
+
+#controls {
+  /* Appearance */
+  border-radius: 20px; /* Rounded Corners */
+  border: 0;
+  background-color: lightslategray ; /*white*/
+  padding: 0 20px 20px 20px; /*0 20px 20px 20px;*/
+ /* cursor: move; */
+  /* Fade out while not hovering */
+  opacity: 0.65;
+  zoom: 0.9;
+  transition: opacity 0 500ms; /*1s*/
+}
+#controls:hover {
+  /* Fade in while hovering */
+  opacity: 0.95;
+  transition-delay: 0;
+}
+
+/*#geotab  .tabbable > .nav > li > a                  {background-color: transparent;  color:#0067e6; border: 0}
+#geotab  .tabbable > .nav > li[class=active] > a    {background-color: white; color: #0067e6; border: 0}
+
+#gde  h4{color:white;}*/
+
+/*h1, h2, h3, h4, h5, h6 {color: white; padding-top: 0; }*/
+
+/*h2["GEO Data Explorer"] {color: white; padding-top: 0;}*/
+/* Position and style citation
+#cite {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  font-size: 12px;
+}*/
+
+/* If not using map tiles, show a white background */
+.leaflet-container {
+  background-color: white !important;
+}
