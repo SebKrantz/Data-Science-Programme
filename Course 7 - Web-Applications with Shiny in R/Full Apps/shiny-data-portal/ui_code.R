@@ -122,6 +122,9 @@ div(class = "outer",
                                      conditionalPanel(condition = "input.DLformat == 'STATA'",
                                                       sliderInput("STATAversion","STATA Version", 8, 15, 12, step = 1)
                                      ),
+                                     conditionalPanel(condition = "input.DLformat == 'Excel'",
+                                                      checkboxInput("exceltranspose", "Transpose / Row-Based Format")
+                                     ),
                                      # Download button
                                      downloadButton("downloadData", "Download"))
                     ),

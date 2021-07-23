@@ -37,3 +37,11 @@ renameSTATA <- function(x) {
   names(x) <- gsub("\\.", "_", names(x))
   x
 }
+
+transpose_for_excel <- function(data) {
+  data_transposed <- data.table::transpose(num_vars(data))
+  names(data_transposed) <- as.character(data[[1]])
+  add_vars(data_transposed, "front") <- list(Variable = names(num_vars(data)), 
+                                             Label = vlabels(num_vars(data))) 
+  data_transposed
+}

@@ -244,7 +244,8 @@ output$downloadData <- downloadHandler(
   
   content = function(file) {
     switch(input$DLformat,
-           Excel = write_xlsx(list(data = DATA(), labels = namlab(DATA())), file),
+           Excel = write_xlsx(if(input$exceltranspose) transpose_for_excel(DATA()) else 
+                       list(data = DATA(), labels = namlab(DATA())), file),
            CSV = write_csv(DATA(), file),
            TAB = write_tsv(DATA(), file),
            R = saveRDS(DATA(), file),
