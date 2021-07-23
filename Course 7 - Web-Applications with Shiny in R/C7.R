@@ -576,7 +576,32 @@ runApp("Full Apps/census-mapper")
 # https://shiny.rstudio.com/tutorial/written-tutorial/lesson7/
 # https://shiny.rstudio.com/deploy/
 
+# If you want to deploy your own shiny server, 
+# You have to install R and shiny server on your server and 
+# do some configuration on your web-server (NGINX or Apache)
+# Here are some links I used to learn about these things. 
+# I primarily recommend Dean Attali's blog post: 
+# https://deanattali.com/2015/05/09/setup-rstudio-shiny-server-digital-ocean/
+# But feel free to get in touch with me when you want to 
+# Set up shiny server on your server. 
 
+# Great General Resource for Sever / Cloud related things: 
+# https://www.digitalocean.com/community/tutorials
+# General SSH Terminal + Other server tutorials: http://www.servermom.org/top-most-used-common-ssh-commands/56/
+# Sudo Intro: https://www.sudo.ws/intro.html
+# Installing R on CentOS Server: https://linuxize.com/post/how-to-install-r-on-centos-8/
+# Shiny Server: 
+# General documentation: https://docs.rstudio.com/shiny-server/
+# For CenOS8: https://www.rstudio.com/products/shiny/download-server/redhat-centos/
+# General tutorial about installing and configuring shiny server on Debian (also linux but not CentOS 8): 
+# https://deanattali.com/2015/05/09/setup-rstudio-shiny-server-digital-ocean/
+# Related Blog posts:
+# https://www.r-bloggers.com/2016/07/shiny-server-on-aws/
+# https://qualityandinnovation.com/2015/12/09/deploying-your-very-own-shiny-server/
+# https://www.r-bloggers.com/2017/04/shiny-server-series-part-1-setting-up/
+# https://docs.rstudio.com/shiny-server/#deploying-applications
+# Background on NGINX server and location blocks: 
+# https://www.digitalocean.com/community/tutorials/understanding-nginx-server-and-location-block-selection-algorithms
 
 
 # Extras: -------------------------------------------------------------------
