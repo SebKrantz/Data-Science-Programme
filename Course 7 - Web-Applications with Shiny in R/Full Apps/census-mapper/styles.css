@@ -38,7 +38,7 @@ h1, h2, h3, h4 {
   color: #0067e6; 
 }
 
-.checkbox {
+.checkbox, .radio-inline {
   color: black;
 }
 
