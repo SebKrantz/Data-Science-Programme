@@ -20,7 +20,9 @@ idvars <- c("Region", "District",  "County",  "Subcounty", "Parish")
 
 names(cens_vars_list)[1L] <- "Composite Indices"
 
-agglabs <- setNames(idvars, paste0(idvars, " (", fndistinct(.subset(DATA, idvars)),")"))
+agglabs <- setNames(idvars, paste0(idvars, " (", 
+                    c(fnrow(DATA_Region), fnrow(DATA_District), fnrow(DATA_County), 
+                      fnrow(DATA_Subcounty), fnrow(DATA)), ")"))
 
 genpopup <- function(data, colvar = "POP_M", oth = c("POP", "HDI"), 
                      idvars = c("Region", "District",  "County",  "Subcounty", "Parish")) {

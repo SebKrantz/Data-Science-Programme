@@ -15,11 +15,6 @@ shinyUI(fluidPage(div(class="outer",
                                     
                                     h2("Uganda 2014 Census", style = "color: #262626; padding-top: 0;"),
                                     
-                                    tags$style(HTML("
-                                    .tabbable > .nav > li > a                  {background-color: transparent;  color:#0067e6;}
-                                    .tabbable > .nav > li[class=active]    > a {background-color: #e6e6e6; color:#0067e6;}
-                                    ")),
-                                    
                                     tabsetPanel(id="geotab",
                                                 tabPanel("Data",
                                                          div(id='myDiv',
