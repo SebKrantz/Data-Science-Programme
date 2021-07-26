@@ -539,7 +539,13 @@ runApp("Full Apps/shiny-data-portal")
 # variable names. 
 
 # e.g.:
-setNames(data.table::transpose(collapse::num_vars(iris)), as.character(iris[[1]]))
+transpose_for_excel <- function(data) {
+  data_transposed <- data.table::transpose(num_vars(data))
+  names(data_transposed) <- as.character(data[[1]])
+  add_vars(data_transposed, "front") <- list(Variable = names(num_vars(data)), 
+                                             Label = vlabels(num_vars(data))) 
+  data_transposed
+}
 
 # Bonus: Try to write a more sophisticated implementation that prints numeric and categorical 
 # variables (collapse::cat_vars) to different sheets. 
